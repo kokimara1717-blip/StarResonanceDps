@@ -444,7 +444,7 @@
                                         </Grid>
                                     </Border>
 
-                                    <Border Style="{StaticResource SectionFieldBorderBase}">
+                                    <Border Style="{StaticResource SectionFieldBorder}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="39*" />
@@ -459,6 +459,28 @@
                                             <Border Grid.Column="2" HorizontalAlignment="Right">
                                                 <ctrl:SwitchControl
                                                     IsChecked="{Binding AppConfig.MaskPlayerName, Mode=TwoWay}"
+                                                    OffContent="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Switch_Off}}"
+                                                    OnContent="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Switch_On}}" />
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Style="{StaticResource SectionFieldBorderBase}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="39*" />
+                                                <ColumnDefinition Width="*" MinWidth="10" />
+                                                <ColumnDefinition Width="60*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock
+                                                Grid.Column="0"
+                                                Style="{StaticResource FieldName}"
+                                                Text="长名字滚动显示"
+                                                ToolTip="当玩家名字过长超出显示区域时，启用自动滚动效果" />
+                                            <Border Grid.Column="2" HorizontalAlignment="Right">
+                                                <ctrl:SwitchControl
+                                                    IsChecked="{Binding AppConfig.EnableMarqueeText, Mode=TwoWay}"
                                                     OffContent="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Switch_Off}}"
                                                     OnContent="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Switch_On}}" />
                                             </Border>

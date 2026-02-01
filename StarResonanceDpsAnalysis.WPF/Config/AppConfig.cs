@@ -209,6 +209,13 @@ public partial class AppConfig : ObservableObject
     private bool _showDps = true;
 
     /// <summary>
+    /// DPS统计页面 - 是否启用并展示玩家信息滚动特效
+    /// 默认值：true (启用)
+    /// </summary>
+    [ObservableProperty]
+    private bool _enableMarqueeText = true;
+
+    /// <summary>
     /// DPS统计页面 - 是否显示百分比
     /// 默认值：true
     /// </summary>

@@ -187,8 +187,8 @@
                     Grid.Column="1" />
 
                 <!--  昵称  -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <StackPanel.Resources>
+                <Grid Grid.Column="2" x:Name="PlayerInfoContainer" ClipToBounds="True" Margin="4,0,4,0">
+                    <Grid.Resources>
                         <Style
                             x:Key="PlayerInfoTextStyle"
                             BasedOn="{StaticResource NormalTextBlockBaseStyle}"
@@ -196,47 +196,21 @@
                             <Setter Property="VerticalAlignment" Value="Center" />
                             <Setter Property="Foreground" Value="White" />
                         </Style>
-                    </StackPanel.Resources>
-                    <TextBlock Style="{StaticResource PlayerInfoTextStyle}" Text="{Binding Path=Player.PlayerInfo}" />
-
-                    <!--<TextBlock
-                            x:Name="PlayerName" >
-                        <TextBlock.Style>
-                            <Style BasedOn="{StaticResource PlayerInfoTextStyle}" TargetType="TextBlock">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Player.IsNpc}" Value="False">
-                                        <Setter Property="Text">
-                                            <Setter.Value>
-                                                <MultiBinding Converter="{StaticResource PlayerNameMaskConverter}">
-                                                    <Binding Path="Player.Name" />
-                                                    <Binding Path="Player.Uid" />
-                                                    <Binding Path="DataContext.AppConfig.MaskPlayerName" RelativeSource="{RelativeSource AncestorType=Window}" />
-                                                    <Binding Path="DataContext.TemporaryMaskPlayerName" RelativeSource="{RelativeSource AncestorType=Window}" />
-                                                </MultiBinding>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Player.IsNpc}" Value="True">
-                                        <Setter Property="Text" Value="{lex:Loc {Binding Player.NpcTemplateId, StringFormat={}Monster:{0}}}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>-->
-                    <!--<TextBlock Text="{lex:Loc {Binding Player.NpcTemplateId, StringFormat={}Monster:{0}}}"/>-->
-                    <!--<TextBlock Visibility="{Binding Player.IsNpc, Converter={StaticResource BoolToInvertedVisibilityConverter }}"
-                               Style="{StaticResource PlayerInfoTextStyle}">
-                        <Run Text=" -" />
-                        <Run Text="{lex:Loc {Binding Player.Spec, StringFormat=ClassSpec_{0}}}" />
-                        <Run Text="(" />
-                        <Run Text="{Binding Player.PowerLevel}" />
-                        <Run Text="-" />
-                        <Run Text="{Binding Player.SeasonStrength}" />
-                        <Run Text=")" />
-                    </TextBlock>-->
-
-                    <!--Visibility="{Binding Player.IsNpc, Converter={StaticResource BoolToInvertedVisibilityConverter}}"-->
-                </StackPanel>
+                    </Grid.Resources>
+                    
+                    <Canvas VerticalAlignment="Center" Height="{Binding ActualHeight, ElementName=PlayerInfoText}">
+                        <TextBlock x:Name="PlayerInfoText"
+                                   Canvas.Left="0"
+                                   Style="{StaticResource PlayerInfoTextStyle}"
+                                   Text="{Binding Path=Player.PlayerInfo}">
+                             <b:Interaction.Behaviors>
+                                 <behaviors:MarqueeTextBehavior 
+                                     Container="{Binding ElementName=PlayerInfoContainer}"
+                                     IsAnimationEnabled="{Binding DataContext.AppConfig.EnableMarqueeText, RelativeSource={RelativeSource AncestorType=Window}}" />
+                             </b:Interaction.Behaviors>
+                        </TextBlock>
+                    </Canvas>
+                </Grid>
 
                 <!--  数值  -->
                 <StackPanel
