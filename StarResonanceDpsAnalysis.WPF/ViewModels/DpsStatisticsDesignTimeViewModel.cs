@@ -13,6 +13,7 @@ using StarResonanceDpsAnalysis.WPF.Localization;
 using StarResonanceDpsAnalysis.WPF.Models;
 using StarResonanceDpsAnalysis.WPF.Properties;
 using StarResonanceDpsAnalysis.WPF.Services;
+using StarResonanceDpsAnalysis.WPF.ViewModels.DpsStatisticDataEngine;
 using StarResonanceDpsAnalysis.WPF.ViewModels.DpsStatisticDataEngine.DataSource;
 using StarResonanceDpsAnalysis.WPF.Views;
 
@@ -43,7 +44,7 @@ public sealed class DpsStatisticsDesignTimeViewModel : DpsStatisticsViewModel
         new DesignTimerService(),
         new DesignDataProcessor(),
         new DesignTeamStatsManager(),
-        null!,
+        new DataSourceEngine(new DesignDataStorage(), new DesignDataProcessor(), new DesignBattleSnapshotService(), NullLogger<DataSourceEngine>.Instance),
         new DesignResetCoordinator())
     {
         // Initialize AppConfig
