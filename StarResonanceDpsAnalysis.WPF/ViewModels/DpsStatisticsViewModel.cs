@@ -314,10 +314,8 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
     }
 
     [RelayCommand]
-    private void SaveWindowPosition(System.Drawing.Rectangle rect)
+    private void RecordWindowPosition(System.Drawing.Rectangle rect)
     {
         AppConfig.StartUpState = rect;
-        // Blocking save to ensure persistence on exit
-        Task.Run(() => _configManager.SaveAsync(AppConfig)).Wait();
     }
 }

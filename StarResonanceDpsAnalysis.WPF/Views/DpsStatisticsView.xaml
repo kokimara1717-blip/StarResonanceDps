@@ -41,7 +41,7 @@
     </WindowChrome.WindowChrome>
 
     <b:Interaction.Behaviors>
-        <behaviors:WindowPlacementBehavior SaveCommand="{Binding SaveWindowPositionCommand}" StartUpState="{Binding AppConfig.StartUpState}" />
+        <behaviors:WindowPlacementBehavior SaveCommand="{Binding RecordWindowPositionCommand}" StartUpState="{Binding AppConfig.StartUpState}" />
     </b:Interaction.Behaviors>
 
     <b:Interaction.Triggers>
