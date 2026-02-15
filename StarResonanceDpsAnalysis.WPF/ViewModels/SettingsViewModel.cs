@@ -250,7 +250,7 @@ public partial class SettingsViewModel : BaseViewModel
     {
         ClassColorSettings.Clear();
         var classes = Enum.GetValues<Classes>()
-            .Where(c => c != Classes.Unknown) 
+            .Where(c => c != Classes.Unknown)
             .ToList();
 
         foreach (var cls in classes)
@@ -264,15 +264,15 @@ public partial class SettingsViewModel : BaseViewModel
 
     private Color GetDefaultClassColor(Classes cls)
     {
-         var app = Application.Current;
-         var keys = new[] { $"Classes{cls}Color", $"{cls}Color", $"Classes{cls}Brush", $"{cls}Brush" };
-         foreach(var key in keys)
-         {
-              var res = app.TryFindResource(key);
-              if (res is Color c) return c;
-              if (res is SolidColorBrush b) return b.Color;
-         }
-         return Colors.White;
+        var app = Application.Current;
+        var keys = new[] { $"Classes{cls}Color", $"{cls}Color", $"Classes{cls}Brush", $"{cls}Brush" };
+        foreach (var key in keys)
+        {
+            var res = app.TryFindResource(key);
+            if (res is Color c) return c;
+            if (res is SolidColorBrush b) return b.Color;
+        }
+        return Colors.White;
     }
 
     private Color GetClassColor(Classes cls)
@@ -282,22 +282,23 @@ public partial class SettingsViewModel : BaseViewModel
         {
             try { return (Color)ColorConverter.ConvertFromString(hex); } catch { }
         }
-        
+
         // Fallback to existing converter lookup
         // We can use a temporary converter instance or just TryFindResource from App
         var app = Application.Current;
         var keys = new[] { $"Classes{cls}Color", $"{cls}Color", $"Classes{cls}Brush", $"{cls}Brush" };
-        foreach(var key in keys)
+        foreach (var key in keys)
         {
-             var res = app.TryFindResource(key);
-             if (res is Color c) return c;
-             if (res is SolidColorBrush b) return b.Color;
+            var res = app.TryFindResource(key);
+            if (res is Color c) return c;
+            if (res is SolidColorBrush b) return b.Color;
         }
         return Colors.White; // Default
     }
 
     private void ApplyColorChange(Classes cls, Color color)
     {
+        AppConfig.CustomClassColors[cls] = color.ToString();
         ClassesColorConverter.UpdateColor(cls, color);
     }
 
@@ -432,7 +433,7 @@ public partial class SettingsViewModel : BaseViewModel
             // Update the Core layer's static configuration
             if (_isLoaded)
             {
-                StarResonanceDpsAnalysis.Core.Statistics.StatisticsConfiguration.TimeSeriesSampleCapacity = config.TimeSeriesSampleCapacity;
+                StatisticsConfiguration.TimeSeriesSampleCapacity = config.TimeSeriesSampleCapacity;
             }
         }
         else if (e.PropertyName == nameof(AppConfig.DpsUpdateInterval))
