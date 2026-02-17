@@ -24,6 +24,7 @@ public partial class DpsStatisticsViewModel
 
             var finalSectionDuration = _timerService.GetSectionElapsed();
             _timerService.Stop();
+            _resetCoordinator.ResetCurrentSection();
 
             _logger.LogInformation("Section ended, final duration: {Duration:F1}s (using DpsTimerService)",
                 finalSectionDuration.TotalSeconds);
@@ -73,6 +74,7 @@ public partial class DpsStatisticsViewModel
         InvokeOnDispatcher(() =>
         {
             _logger.LogInformation("=== NewSectionCreated triggered (数据已被清空) ===");
+            ResetSubViewModels();
             _timerService.Start();
             _timerService.StartNewSection();
 

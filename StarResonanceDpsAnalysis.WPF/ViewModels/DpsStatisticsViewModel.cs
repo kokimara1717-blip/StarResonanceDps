@@ -318,4 +318,13 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
     {
         AppConfig.StartUpState = rect;
     }
+
+    private void ResetSubViewModels()
+    {
+        foreach (var itm in StatisticData.Values)
+        {
+            itm.Reset();
+        }
+    }
+
 }
