@@ -58,6 +58,7 @@ public partial class DebugFunctions : BaseViewModel, IDisposable
     private Task? _replayTask;
     [ObservableProperty] private Option<Language>? _selectedLanguage;
     [ObservableProperty] private LogLevel _selectedLogLevel = LogLevel.Information;
+    [ObservableProperty] private string _version;
 
     public DebugFunctions(Dispatcher dispatcher,
         ILogger<DebugFunctions> logger,
@@ -82,6 +83,7 @@ public partial class DebugFunctions : BaseViewModel, IDisposable
         _packetAnalyzer = packetAnalyzer;
         _localizationManager = localizationManager;
         _storage = storage;
+        Version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "Unknown";
 
         _logger.LogInformation("Debug panel initialized");
     }

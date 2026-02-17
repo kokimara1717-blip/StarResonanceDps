@@ -92,7 +92,7 @@
 
         <Style x:Key="FooterContentBorder" TargetType="Border">
             <Setter Property="VerticalAlignment" Value="Bottom" />
-            <Setter Property="Height" Value="25" />
+            <!--<Setter Property="Height" Value="25" />-->
             <Setter Property="Opacity" Value="1" />
             <Setter Property="CornerRadius">
                 <Setter.Value>
@@ -395,7 +395,7 @@
                 <RowDefinition Height="25" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="25" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Border
                 Height="25"
@@ -900,37 +900,38 @@
                     </SolidColorBrush>
                 </Border.Background>
                 <!-- ⭐ 修复2: 恢复底部栏内容 -->
-                <Grid Margin="6">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <Grid Margin="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                    <!-- 左侧：排名或快照标识 -->
-                    <TextBlock
+                        <!-- 左侧：排名或快照标识 -->
+                        <TextBlock
                         Grid.Column="0"
                         HorizontalAlignment="Left"
                         Style="{StaticResource FooterTextContent}"
                         ToolTip="{lex:Loc Key={x:Static loc:ResourcesKeys.DpsStatistics_CurrentPlayerRank}}">
                         <!-- 快照模式下显示[快照],战斗模式下显示排名 -->
-                        <TextBlock.Text>
-                            <MultiBinding Converter="{StaticResource SnapshotOrRankConverter}" StringFormat="{}[{0}]">
-                                <Binding Path="IsViewingSnapshot" />
-                                <Binding Path="CurrentStatisticData.CurrentPlayerRank" />
-                            </MultiBinding>
-                        </TextBlock.Text>
-                    </TextBlock>
+                            <TextBlock.Text>
+                                <MultiBinding Converter="{StaticResource SnapshotOrRankConverter}" StringFormat="{}[{0}]">
+                                    <Binding Path="IsViewingSnapshot" />
+                                    <Binding Path="CurrentStatisticData.CurrentPlayerRank" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
 
-                    <!-- 中间：战斗时长 + 团队总伤(可选) -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="6,0,0,0">
-                        <!-- 战斗时长 -->
-                        <TextBlock
+                        <!-- 中间：战斗时长 + 团队总伤(可选) -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="6,0,0,0">
+                            <!-- 战斗时长 -->
+                            <TextBlock
                             Style="{StaticResource FooterTextContent}"
                             Text="{Binding Path=BattleDuration, StringFormat={}{0:mm\\:ss}}" />
 
-                        <!-- 团队总伤 (当ShowTeamTotalDamage=true时显示) -->
-                        <TextBlock
+                            <!-- 团队总伤 (当ShowTeamTotalDamage=true时显示) -->
+                            <TextBlock
                             Style="{StaticResource FooterTextContent}"
                             Margin="8,0,0,0"
                             Visibility="{Binding ShowTeamTotalDamage, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -943,28 +944,28 @@
                                     </MultiBinding>
                                 </Run.Text>
                             </Run>
-                        </TextBlock>
-                    </StackPanel>
+                            </TextBlock>
+                        </StackPanel>
 
-                    <!-- 右侧：个人伤害 或 团队秒伤 -->
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <!-- 个人伤害 (当ShowTeamTotalDamage=false时显示) -->
-                        <TextBlock
+                        <!-- 右侧：个人伤害 或 团队秒伤 -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <!-- 个人伤害 (当ShowTeamTotalDamage=false时显示) -->
+                            <TextBlock
                             Margin="0,0,4,0"
                             Style="{StaticResource FooterTextContent}"
                             TextAlignment="Right"
                             Visibility="{Binding ShowTeamTotalDamage, Converter={StaticResource BoolToInvertedVisibilityConverter}}">
-                            <TextBlock.Text>
-                                <MultiBinding Converter="{StaticResource HumanReadableNumberConverter}">
-                                    <Binding Path="CurrentStatisticData.CurrentPlayerSlot.Value" />
-                                    <Binding Path="DataContext.AppConfig.DamageDisplayType"
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{StaticResource HumanReadableNumberConverter}">
+                                        <Binding Path="CurrentStatisticData.CurrentPlayerSlot.Value" />
+                                        <Binding Path="DataContext.AppConfig.DamageDisplayType"
                                              RelativeSource="{RelativeSource AncestorType=Window, Mode=FindAncestor}" />
-                                </MultiBinding>
-                            </TextBlock.Text>
-                        </TextBlock>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
 
-                        <!-- 团队秒伤 (当ShowTeamTotalDamage=true时显示) -->
-                        <TextBlock
+                            <!-- 团队秒伤 (当ShowTeamTotalDamage=true时显示) -->
+                            <TextBlock
                             Margin="0,0,4,0"
                             Style="{StaticResource FooterTextContent}"
                             TextAlignment="Right"
@@ -978,9 +979,23 @@
                                     </MultiBinding>
                                 </Run.Text>
                             </Run>
-                        </TextBlock>
-                    </StackPanel>
-                </Grid>
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock HorizontalAlignment="Right" >
+                        <TextBlock.Style>
+                            <Style BasedOn="{StaticResource FooterTextContent}" TargetType="TextBlock">
+                                <Setter Property="FontSize" Value="8" />
+                            </Style>
+                        </TextBlock.Style>
+                        <TextBlock.Text>
+                            <MultiBinding Converter="{lex:StringFormatConverter}">
+                                <lex:BLoc Key="{x:Static loc:ResourcesKeys.PreviewVersion}" />
+                                <Binding Path="DebugFunctions.Version" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </StackPanel>
             </Border>
         </Grid>
     </Border>

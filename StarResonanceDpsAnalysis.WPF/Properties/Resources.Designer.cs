@@ -1919,6 +1919,15 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to PreviewVersion:{0}.
+        /// </summary>
+        public static string PreviewVersion {
+            get {
+                return ResourceManager.GetString("PreviewVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Current.
         /// </summary>
         public static string ScopeTime_Current {

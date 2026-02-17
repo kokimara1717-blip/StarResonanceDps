@@ -1348,4 +1348,7 @@ Would you like to restart the application as administrator?</value>
   <data name="Settings_ClassColors_Reset" xml:space="preserve">
     <value>Reset</value>
   </data>
+  <data name="PreviewVersion" xml:space="preserve">
+    <value>PreviewVersion:{0}</value>
+  </data>
 </root>
