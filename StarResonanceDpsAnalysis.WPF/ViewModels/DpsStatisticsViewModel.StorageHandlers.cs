@@ -120,6 +120,12 @@ public partial class DpsStatisticsViewModel
         {
             _logger.LogInformation("服务器切换: {Prev} -> {Current}", prevServer, currentServer);
 
+            _timerService.Stop();
+            if (AppConfig.ClearLogAfterTeleport)
+            {
+                ResetSection();
+            }
+
             if (ScopeTime != ScopeTime.Total || _storage.GetStatisticsCount(true) <= 0) return;
 
             try

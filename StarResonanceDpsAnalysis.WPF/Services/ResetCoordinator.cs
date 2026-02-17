@@ -44,7 +44,7 @@ public class ResetCoordinator : IResetCoordinator
 
         _logger.LogInformation("=== ResetCurrentSection COMPLETE ===");
     }
-
+    
     public void ResetAll()
     {
         _logger.LogInformation("=== ResetAll START ===");

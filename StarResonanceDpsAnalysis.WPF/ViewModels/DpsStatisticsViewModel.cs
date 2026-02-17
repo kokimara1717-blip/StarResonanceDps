@@ -238,6 +238,8 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
         {
             ExitSnapshotViewMode();
         }
+        ResetSubViewModels();
+        ResetBattleDuration();
 
         _logger.LogInformation("ResetSection COMPLETE");
     }

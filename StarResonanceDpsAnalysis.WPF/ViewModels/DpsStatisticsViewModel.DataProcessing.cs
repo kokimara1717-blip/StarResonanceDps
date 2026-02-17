@@ -44,6 +44,12 @@ public partial class DpsStatisticsViewModel
         }
     }
 
+    private void ResetBattleDuration()
+    {
+        InvokeOnDispatcher(() => BattleDuration = TimeSpan.Zero);
+
+    }
+
     /// <summary>
     /// Apply processed data prepared by providers/engine to sub-viewmodels and team totals.
     /// This centralizes UI update logic when providers pre-process data.
