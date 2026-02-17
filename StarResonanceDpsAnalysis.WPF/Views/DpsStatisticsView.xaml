@@ -982,10 +982,11 @@
                             </TextBlock>
                         </StackPanel>
                     </Grid>
-                    <TextBlock HorizontalAlignment="Right" >
+                    <TextBlock HorizontalAlignment="Right">
                         <TextBlock.Style>
                             <Style BasedOn="{StaticResource FooterTextContent}" TargetType="TextBlock">
                                 <Setter Property="FontSize" Value="8" />
+                                <Setter Property="Margin" Value="0,0,8,0" />
                             </Style>
                         </TextBlock.Style>
                         <TextBlock.Text>
