@@ -157,7 +157,7 @@ public sealed class MessageAnalyzerV2
             msgPayload = DecompressZstdIfNeeded(msgPayload);
         }
 
-        _logger?.LogTrace("MessageTypeId:{id}", methodId);
+        // _logger?.LogTrace("MessageTypeId:{id}", methodId);
         
         if (serviceUuid == WORLD_NTF_SERVICE_ID)
         {

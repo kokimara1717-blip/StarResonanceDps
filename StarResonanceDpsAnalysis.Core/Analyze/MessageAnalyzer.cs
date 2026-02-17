@@ -62,7 +62,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                 var msgTypeId = packetType & 0x7FFF;                // 低15位是真实类型
 
                 // 分发到对应处理方法
-                logger?.LogTrace("MessageTypeId:{id}", msgTypeId);
+                // logger?.LogTrace("MessageTypeId:{id}", msgTypeId);
                 if (!MessageHandlerMap.TryGetValue((MessageType)msgTypeId, out var handler)) continue;
                 handler?.Invoke(packetReader, isZstdCompressed, logger);
             }
@@ -98,7 +98,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
             byte[] origPayload = msgPayload;
             if (isZstdCompressed) msgPayload = DecompressZstdIfNeeded(msgPayload);
 
-            logger?.LogTrace("MethodId: {methodId}", methodId);
+            // logger?.LogTrace("MethodId: {methodId}", methodId);
             if (!ProcessMethods.TryGetValue(methodId, out var processMethod)) return;
             processMethod(msgPayload, isZstdCompressed);
         }
