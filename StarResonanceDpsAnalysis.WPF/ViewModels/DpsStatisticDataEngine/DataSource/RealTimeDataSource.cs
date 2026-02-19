@@ -6,15 +6,10 @@ using StarResonanceDpsAnalysis.WPF.Services;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels.DpsStatisticDataEngine.DataSource;
 
-public abstract class RealTimeDataSource(
-    DataSourceEngine dataSourceEngine,
-    IDataStorage dataStorage,
-    DataSourceMode mode,
-    IDpsDataProcessor processor)
-    : IDpsDataSource
+public abstract class RealTimeDataSource : IDpsDataSource, IDisposable
 {
-    protected readonly DataSourceEngine DataSourceEngine = dataSourceEngine;
-    protected readonly IDataStorage DataStorage = dataStorage;
+    protected readonly DataSourceEngine DataSourceEngine;
+    protected readonly IDataStorage DataStorage;
     protected readonly object SyncRoot = new();
 
     protected StatisticDictionary Cache = new();
@@ -22,8 +17,26 @@ public abstract class RealTimeDataSource(
     protected bool Enable;
     protected RawDict RawCache = new Dictionary<long, PlayerStatistics>();
     protected bool Updating;
+    private readonly IDpsDataProcessor _processor;
 
-    public DataSourceMode Mode { get; } = mode;
+    protected RealTimeDataSource(DataSourceEngine dataSourceEngine,
+        IDataStorage dataStorage,
+        DataSourceMode mode,
+        IDpsDataProcessor processor)
+    {
+        _processor = processor;
+        DataSourceEngine = dataSourceEngine;
+        DataStorage = dataStorage;
+        Mode = mode;
+        DataStorage.NewSectionCreated += OnNewSection;
+    }
+
+    ~RealTimeDataSource()
+    {
+        DataStorage.NewSectionCreated -= OnNewSection;
+    }
+
+    public DataSourceMode Mode { get; }
     public ScopeTime Scope { get; set; } = ScopeTime.Current;
 
     public virtual void SetEnable(bool enable)
@@ -92,7 +105,7 @@ public abstract class RealTimeDataSource(
         try
         {
             var stat = DataStorage.GetStatistics(scope == ScopeTime.Total);
-            var processed = processor.PreProcessData(stat, includeNpc);
+            var processed = _processor.PreProcessData(stat, includeNpc);
             return (processed, stat);
         }
         finally
@@ -102,5 +115,19 @@ public abstract class RealTimeDataSource(
                 Updating = false;
             }
         }
+    }
+
+    protected void OnNewSection()
+    {
+        lock (SyncRoot)
+        {
+            if (!Enable) return;
+            Reset();
+        }
+    }
+
+    public void Dispose()
+    {
+        DataStorage.NewSectionCreated -= OnNewSection;
     }
 }

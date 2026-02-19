@@ -11,12 +11,12 @@ public interface IDpsTimerService
     /// <summary>
     /// Current battle duration (total elapsed time)
     /// </summary>
-    TimeSpan BattleDuration { get; }
+    TimeSpan SectionDuration { get; }
 
     /// <summary>
     /// Total combat duration across all sections
     /// </summary>
-    TimeSpan TotalCombatDuration { get; }
+    TimeSpan TotalDuration { get; }
 
     /// <summary>
     /// Whether the timer is currently running
@@ -44,12 +44,12 @@ public interface IDpsTimerService
     void StartNewSection();
 
     /// <summary>
-    /// Get elapsed time for the current section
-    /// </summary>
-    TimeSpan GetSectionElapsed();
-
-    /// <summary>
     /// Event raised when duration changes
     /// </summary>
     event EventHandler<TimeSpan>? DurationChanged;
+
+    /// <summary>
+    /// Stop current section
+    /// </summary>
+    void StopSection();
 }

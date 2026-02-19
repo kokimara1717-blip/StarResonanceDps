@@ -6,7 +6,7 @@ using StarResonanceDpsAnalysis.WPF.Services;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels.DpsStatisticDataEngine.DataSource;
 
-public sealed class ActiveUpdateModeDpsDataSource : RealTimeDataSource
+public sealed partial class ActiveUpdateModeDpsDataSource : RealTimeDataSource
 {
     private readonly ILogger _logger;
     private readonly DispatcherTimer _timer;
@@ -24,11 +24,10 @@ public sealed class ActiveUpdateModeDpsDataSource : RealTimeDataSource
     [Conditional("DEBUG")]
     private void TickLog()
     {
-        if (_timer is not { IsEnabled: true }) return;
         var currentSecond = DateTime.Now.Second;
         if (currentSecond % 10 == 0)
         {
-            _logger.LogTrace("Timer tick triggered");
+            LogTickTrace();
         }
     }
 
@@ -40,9 +39,9 @@ public sealed class ActiveUpdateModeDpsDataSource : RealTimeDataSource
 
     public override void SetEnable(bool enable)
     {
+        _timer.IsEnabled = enable;
         lock (SyncRoot)
         {
-            _timer.IsEnabled = enable;
             if (!enable)
             {
                 Reset();
@@ -55,4 +54,8 @@ public sealed class ActiveUpdateModeDpsDataSource : RealTimeDataSource
         updateInterval = Math.Clamp(updateInterval, 100, 5000);
         _timer.Interval = TimeSpan.FromMilliseconds(updateInterval);
     }
+
+
+    [LoggerMessage(LogLevel.Trace, "Timer tick triggered")]
+    private partial void LogTickTrace();
 }

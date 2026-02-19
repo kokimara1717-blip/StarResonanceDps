@@ -196,7 +196,7 @@ public partial class DpsStatisticsViewModel
         }
 
         UpdateBattleDuration();
-        _dataSourceEngine.Scope = oldValue;
+        _dataSourceEngine.Scope = newValue;
         UpdateData();
         OnPropertyChanged(nameof(CurrentStatisticData));
     }

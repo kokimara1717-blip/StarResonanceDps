@@ -19,22 +19,11 @@ public sealed class PassiveUpdateModeDpsDataSource(
             if (enable)
             {
                 DataStorage.DpsDataUpdated += OnDataUpdated;
-                DataStorage.NewSectionCreated += OnNewSection;
             }
             else
             {
                 DataStorage.DpsDataUpdated -= OnDataUpdated;
-                DataStorage.NewSectionCreated -= OnNewSection;
             }
-        }
-    }
-
-    private void OnNewSection()
-    {
-        lock (SyncRoot)
-        {
-            if (!Enable) return;
-            Reset();
         }
     }
 

@@ -22,7 +22,7 @@ public partial class DpsStatisticsViewModel
         {
             _logger.LogInformation("=== SectionEnded event received ===");
 
-            var finalSectionDuration = _timerService.GetSectionElapsed();
+            var finalSectionDuration = _timerService.SectionDuration;
             _timerService.Stop();
             _resetCoordinator.ResetCurrentSection();
 
@@ -52,7 +52,7 @@ public partial class DpsStatisticsViewModel
 
             try
             {
-                var duration = _timerService.GetSectionElapsed();
+                var duration = _timerService.SectionDuration;
                 _logger.LogInformation(
                     "脱战自动保存快照, 数据量: {Count}, 时长: {Duration:F1}s (using DpsTimerService)",
                     _storage.GetStatisticsCount(false),
@@ -74,7 +74,7 @@ public partial class DpsStatisticsViewModel
         InvokeOnDispatcher(() =>
         {
             _logger.LogInformation("=== NewSectionCreated triggered (数据已被清空) ===");
-            ResetSubViewModels();
+            ResetSubViewModelsIfInCurrentScope();
             _timerService.Start();
             _timerService.StartNewSection();
 
@@ -126,7 +126,7 @@ public partial class DpsStatisticsViewModel
                 ResetSection();
             }
 
-            if (ScopeTime != ScopeTime.Total || _storage.GetStatisticsCount(true) <= 0) return;
+            if (_storage.GetStatisticsCount(ScopeTime == ScopeTime.Total) <= 0) return;
 
             try
             {

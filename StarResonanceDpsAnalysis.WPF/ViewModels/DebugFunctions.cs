@@ -104,6 +104,8 @@ public partial class DebugFunctions : BaseViewModel, IDisposable
         {
             _pendingLogs.Clear();
         }
+
+        GC.SuppressFinalize(this);
     }
 
     public event EventHandler? LogAdded;

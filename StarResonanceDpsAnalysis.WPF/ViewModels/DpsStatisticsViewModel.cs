@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using StarResonanceDpsAnalysis.Core.Data;
-using StarResonanceDpsAnalysis.Core.Statistics;
 using StarResonanceDpsAnalysis.WPF.Config;
 using StarResonanceDpsAnalysis.WPF.Localization;
 using StarResonanceDpsAnalysis.WPF.Models;
@@ -157,7 +156,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
 
         _storage.ServerConnectionStateChanged -= StorageOnServerConnectionStateChanged;
         _storage.PlayerInfoUpdated -= StorageOnPlayerInfoUpdated;
-        _storage.Dispose();
+        _storage.BeforeSectionCleared -= StorageOnBeforeSectionCleared;
 
         foreach (var dpsStatisticsSubViewModel in StatisticData.Values)
         {
@@ -165,8 +164,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
         }
 
         _isInitialized = false;
-
-        _storage.BeforeSectionCleared -= StorageOnBeforeSectionCleared;
+        GC.SuppressFinalize(this);
     }
 
     // ===== Core Public Methods =====
@@ -178,7 +176,6 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
         if (_timerService.IsRunning)
         {
             _timerService.Stop();
-            _logger.LogInformation("已停止战斗计时器 (using DpsTimerService)");
         }
 
         // Use ResetCoordinator to handle snapshot save + reset
@@ -189,10 +186,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
             Options.MinimalDurationInSeconds);
 
         // Clear UI data
-        foreach (var subVm in StatisticData.Values)
-        {
-            subVm.Reset();
-        }
+        ResetSubViewModelsIfInCurrentScope();
 
         TeamTotalDamage = 0;
         TeamTotalDps = 0;
@@ -238,8 +232,8 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
         {
             ExitSnapshotViewMode();
         }
-        ResetSubViewModels();
-        ResetBattleDuration();
+        ResetSubViewModelsIfInCurrentScope();
+        ResetBattleDurationIfInCurrentScope();
 
         _logger.LogInformation("ResetSection COMPLETE");
     }
@@ -321,8 +315,9 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
         AppConfig.StartUpState = rect;
     }
 
-    private void ResetSubViewModels()
+    private void ResetSubViewModelsIfInCurrentScope()
     {
+        if (ScopeTime != ScopeTime.Current) return;
         foreach (var itm in StatisticData.Values)
         {
             itm.Reset();

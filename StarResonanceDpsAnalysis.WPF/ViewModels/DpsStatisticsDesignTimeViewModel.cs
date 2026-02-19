@@ -89,8 +89,8 @@ public sealed class DpsStatisticsDesignTimeViewModel : DpsStatisticsViewModel
     // ⭐ NEW: Design-time timer service
     private sealed class DesignTimerService : IDpsTimerService
     {
-        public TimeSpan BattleDuration => TimeSpan.FromMinutes(5);
-        public TimeSpan TotalCombatDuration => TimeSpan.FromMinutes(10);
+        public TimeSpan SectionDuration => TimeSpan.FromMinutes(5);
+        public TimeSpan TotalDuration => TimeSpan.FromMinutes(10);
         public bool IsRunning => true;
 
         public event EventHandler<TimeSpan>? DurationChanged;
@@ -99,9 +99,7 @@ public sealed class DpsStatisticsDesignTimeViewModel : DpsStatisticsViewModel
         public void Stop() { }
         public void Reset() { }
         public void StartNewSection() { }
-        public TimeSpan EndSection() => TimeSpan.FromMinutes(5);
-        public TimeSpan GetSectionDuration() => TimeSpan.FromMinutes(5);
-        public TimeSpan GetSectionElapsed() => TimeSpan.FromMinutes(5);
+        public void StopSection() { }
     }
 
     // ⭐ NEW: Design-time data processor

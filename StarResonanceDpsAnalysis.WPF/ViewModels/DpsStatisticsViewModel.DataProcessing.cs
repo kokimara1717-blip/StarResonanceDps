@@ -35,19 +35,19 @@ public partial class DpsStatisticsViewModel
             if (ScopeTime == ScopeTime.Current)
             {
                 // Use timer service for section elapsed
-                BattleDuration = _timerService.GetSectionElapsed();
+                BattleDuration = _timerService.SectionDuration;
             }
             else // ScopeTime.Total
             {
-                BattleDuration = _timerService.TotalCombatDuration;
+                BattleDuration = _timerService.TotalDuration;
             }
         }
     }
 
-    private void ResetBattleDuration()
+    private void ResetBattleDurationIfInCurrentScope()
     {
+        if (ScopeTime != ScopeTime.Current) return;
         InvokeOnDispatcher(() => BattleDuration = TimeSpan.Zero);
-
     }
 
     /// <summary>

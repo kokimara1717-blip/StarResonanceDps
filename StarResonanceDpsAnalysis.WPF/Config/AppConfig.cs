@@ -91,6 +91,7 @@ public partial class AppConfig : ObservableObject
     /// 鼠标穿透开关 (WPF)
     /// </summary>
     [ObservableProperty]
+    [JsonIgnore]
     private bool _mouseThroughEnabled;
 
     /// <summary>

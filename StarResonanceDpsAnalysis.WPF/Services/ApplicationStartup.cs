@@ -38,6 +38,8 @@ public sealed class ApplicationStartup : IApplicationStartup
         _localization = localization;
         _configManager.ConfigurationUpdated += ConfigManagerOnConfigurationUpdated;
         _appConfig = _configManager.CurrentConfig;
+        _appConfig.MouseThroughEnabled = false;
+        MessageAnalyzer.Logger = logger;
         ConfigManagerOnConfigurationUpdated(_configManager, _configManager.CurrentConfig);
     }
 
