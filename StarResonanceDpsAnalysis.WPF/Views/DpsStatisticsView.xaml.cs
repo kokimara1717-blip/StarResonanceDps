@@ -2,9 +2,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
-using StarResonanceDpsAnalysis.WPF.ViewModels;
+using System.Windows.Media.Imaging;
+using StarResonanceDpsAnalysis.WPF.Controls;
 using StarResonanceDpsAnalysis.WPF.Converters;
+using StarResonanceDpsAnalysis.WPF.Helpers;
+using StarResonanceDpsAnalysis.WPF.ViewModels;
 
 namespace StarResonanceDpsAnalysis.WPF.Views;
 
@@ -13,6 +17,8 @@ namespace StarResonanceDpsAnalysis.WPF.Views;
 /// </summary>
 public partial class DpsStatisticsView : Window
 {
+    private double _beforeTrainingHeight;
+
     public static readonly DependencyProperty CollapseProperty =
         DependencyProperty.Register(
             nameof(Collapse),
@@ -20,7 +26,51 @@ public partial class DpsStatisticsView : Window
             typeof(DpsStatisticsView),
             new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-    private double _beforeTrainingHeight;
+    /* If a steganography overlay is required, please set this metadata to below 0.1. */
+    public static readonly DependencyProperty OverlayOpacityProperty =
+        DependencyProperty.Register(
+            nameof(OverlayOpacity),
+            typeof(double),
+            typeof(DpsStatisticsView),
+            new PropertyMetadata(0d));
+
+    public static readonly DependencyProperty MaskSourceProperty =
+        DependencyProperty.Register(
+            nameof(MaskSource),
+            typeof(ImageSource),
+            typeof(DpsStatisticsView),
+            new PropertyMetadata(null));
+
+    public static readonly DependencyProperty MaskViewportProperty =
+        DependencyProperty.Register(
+            nameof(MaskViewport),
+            typeof(Rect),
+            typeof(DpsStatisticsView),
+            new PropertyMetadata(new Rect(0, 0, 1d / 3d, 1d / 3d)));
+
+    public bool Collapse
+    {
+        get => (bool)GetValue(CollapseProperty);
+        set => SetValue(CollapseProperty, value);
+    }
+
+    public double OverlayOpacity
+    {
+        get => (double)GetValue(OverlayOpacityProperty);
+        set => SetValue(OverlayOpacityProperty, value);
+    }
+
+    public ImageSource? MaskSource
+    {
+        get => (ImageSource?)GetValue(MaskSourceProperty);
+        set => SetValue(MaskSourceProperty, value);
+    }
+
+    public Rect MaskViewport
+    {
+        get => (Rect)GetValue(MaskViewportProperty);
+        set => SetValue(MaskViewportProperty, value);
+    }
 
     public DpsStatisticsView(DpsStatisticsViewModel vm)
     {
@@ -38,17 +88,13 @@ public partial class DpsStatisticsView : Window
             items.Insert(items.Count - 2, menuItem);
         }
 
-        // ⭐ 初始化默认值:记录所有(0秒)
+        // 初始化默认值: 记录所有(0秒)
         vm.Options.MinimalDurationInSeconds = 0;
+
+        MaskSource = MaskHelper.SteganographyImage;
 
         // 右键退出快照模式
         MouseRightButtonDown += OnWindowRightClick;
-    }
-
-    public bool Collapse
-    {
-        get => (bool)GetValue(CollapseProperty);
-        set => SetValue(CollapseProperty, value);
     }
 
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

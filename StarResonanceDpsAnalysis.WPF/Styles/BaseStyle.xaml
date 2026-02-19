@@ -3,7 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
-
+    <Thickness x:Key="DefaultMargin">5</Thickness>
+    
     <!--  引入 System.Double 类型（用于定义数值资源）  -->
     <sys:Double x:Key="MainCornerRadiusDouble">6</sys:Double>
 
@@ -31,6 +32,33 @@
         <Setter Property="SnapsToDevicePixels" Value="True" />
     </Style>
 
+    <Style x:Key="MaskedTransparentWindow" TargetType="Window" BasedOn="{StaticResource TransparentWindow}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Window">
+                    <Grid ClipToBounds="True">
+                        <ContentPresenter />
+
+                        <Grid
+                            Panel.ZIndex="1000"
+                            IsHitTestVisible="False"
+                            Opacity="{Binding OverlayOpacity, RelativeSource={RelativeSource TemplatedParent}}"
+                            Margin="{StaticResource DefaultMargin}">
+                            <Grid.Background>
+                                <VisualBrush TileMode="Tile" Viewport="{Binding MaskViewport, RelativeSource={RelativeSource TemplatedParent}}" AlignmentX="Center" AlignmentY="Center">
+                                    <VisualBrush.Visual>
+                                        <Image Source="{Binding MaskSource, RelativeSource={RelativeSource TemplatedParent}}"></Image>
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </Grid.Background>
+                        </Grid>
+                            
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--  更高性能的透明Window 风格：透明窗口（没有系统边框/标题栏），背景透明  -->
     <!--  https://blog.walterlv.com/post/wpf-transparent-window-without-allows-transparency.html  -->
     <Style x:Key="TransparentWindowAlt" TargetType="Window">
@@ -46,7 +74,7 @@
     <!--  Border 风格：给窗口内容区留边距并加圆角和投影  -->
     <Style x:Key="ShadowWindowBorder" TargetType="Border">
         <!--  给外部留出空间以显示投影（shadow）  -->
-        <Setter Property="Margin" Value="5" />
+        <Setter Property="Margin" Value="{StaticResource DefaultMargin}" />
         <!--  使用上面定义的圆角资源  -->
         <Setter Property="CornerRadius" Value="{DynamicResource MainCornerRadius}" />
         <!--  使用 DropShadowEffect 作为简单投影效果  -->

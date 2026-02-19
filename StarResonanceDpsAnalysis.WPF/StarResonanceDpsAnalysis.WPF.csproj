@@ -11,7 +11,14 @@
     <ApplicationIcon>ApplicationIcon.ico</ApplicationIcon>
     <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Microsoft.Extensions.Configuration.Binder.SourceGeneration</InterceptorsPreviewNamespaces>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+	<BuildTimestamp>$([System.DateTime]::UtcNow.ToString("yyyy-MM-dd HH:mm:ss"))</BuildTimestamp>
   </PropertyGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>BuildTime</_Parameter1>
+      <_Parameter2>$(BuildTimestamp)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="ApplicationIcon.ico" />
     <Content Include="appsettings.Development.json">
@@ -58,6 +65,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" />
     <PackageReference Include="System.Reactive" />
+    <PackageReference Include="SharpCompress" />
+    <PackageReference Include="ZXing.Net" />
     <!-- Serilog observable sink -->
     <PackageReference Include="Serilog" />
     <PackageReference Include="Serilog.Extensions.Hosting" />

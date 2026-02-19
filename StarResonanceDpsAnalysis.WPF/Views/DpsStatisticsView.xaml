@@ -25,10 +25,11 @@
                                      IsDesignTimeCreatable=True}"
     lex:ResxLocalizationProvider.DefaultAssembly="StarResonanceDpsAnalysis.WPF"
     lex:ResxLocalizationProvider.DefaultDictionary="Resources"
-    lex:LocalizeDictionary.DesignCulture="zh-CN"
+    lex:LocalizeDictionary.DesignCulture="zh-CN"    
     ResizeMode="CanResize"
     WindowState="Normal"
-    Style="{StaticResource TransparentWindow}"
+    Style="{StaticResource MaskedTransparentWindow}"
+
     Topmost="{Binding AppConfig.TopmostEnabled, Mode=OneWay}"
     mc:Ignorable="d">
 
@@ -901,7 +902,7 @@
                 </Border.Background>
                 <!-- ⭐ 修复2: 恢复底部栏内容 -->
                 <StackPanel>
-                    <Grid Margin="6">
+                    <Grid Margin="4,0"><!-- original is 10,4 -->
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -910,11 +911,12 @@
 
                         <!-- 左侧：排名或快照标识 -->
                         <TextBlock
-                        Grid.Column="0"
-                        HorizontalAlignment="Left"
-                        Style="{StaticResource FooterTextContent}"
-                        ToolTip="{lex:Loc Key={x:Static loc:ResourcesKeys.DpsStatistics_CurrentPlayerRank}}">
-                        <!-- 快照模式下显示[快照],战斗模式下显示排名 -->
+                            Grid.Column="0"
+                            HorizontalAlignment="Left"
+                            Style="{StaticResource FooterTextContent}"
+                            ToolTip="{lex:Loc Key={x:Static loc:ResourcesKeys.DpsStatistics_CurrentPlayerRank}}">
+                            
+                            <!-- 快照模式下显示[快照],战斗模式下显示排名 -->
                             <TextBlock.Text>
                                 <MultiBinding Converter="{StaticResource SnapshotOrRankConverter}" StringFormat="{}[{0}]">
                                     <Binding Path="IsViewingSnapshot" />
@@ -927,14 +929,14 @@
                         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="6,0,0,0">
                             <!-- 战斗时长 -->
                             <TextBlock
-                            Style="{StaticResource FooterTextContent}"
-                            Text="{Binding Path=BattleDuration, StringFormat={}{0:mm\\:ss}}" />
+                                Style="{StaticResource FooterTextContent}"
+                                Text="{Binding Path=BattleDuration, StringFormat={}{0:mm\\:ss}}" />
 
                             <!-- 团队总伤 (当ShowTeamTotalDamage=true时显示) -->
                             <TextBlock
-                            Style="{StaticResource FooterTextContent}"
-                            Margin="8,0,0,0"
-                            Visibility="{Binding ShowTeamTotalDamage, Converter={StaticResource BoolToVisibilityConverter}}">
+                                Style="{StaticResource FooterTextContent}"
+                                Margin="8,0,0,0"
+                                Visibility="{Binding ShowTeamTotalDamage, Converter={StaticResource BoolToVisibilityConverter}}">
                             <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.DpsStatistics_Team_Label}}" />
                             <Run>
                                 <Run.Text>
@@ -966,19 +968,21 @@
 
                             <!-- 团队秒伤 (当ShowTeamTotalDamage=true时显示) -->
                             <TextBlock
-                            Margin="0,0,4,0"
-                            Style="{StaticResource FooterTextContent}"
-                            TextAlignment="Right"
-                            Visibility="{Binding ShowTeamTotalDamage, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Run Text="{Binding TeamTotalLabel, StringFormat={}{0}:, Mode=OneWay}" />
-                            <Run>
-                                <Run.Text>
-                                    <MultiBinding Converter="{StaticResource HumanReadableNumberConverter}">
-                                        <Binding Path="TeamTotalDps" />
-                                        <Binding Path="AppConfig.DamageDisplayType" />
-                                    </MultiBinding>
-                                </Run.Text>
-                            </Run>
+                                Margin="0,0,4,0"
+                                Style="{StaticResource FooterTextContent}"
+                                TextAlignment="Right"
+                                Visibility="{Binding ShowTeamTotalDamage, Converter={StaticResource BoolToVisibilityConverter}}">
+                                
+                                <Run Text="{Binding TeamTotalLabel, StringFormat={}{0}:, Mode=OneWay}" />
+                                <Run>
+                                    <Run.Text>
+                                        <MultiBinding Converter="{StaticResource HumanReadableNumberConverter}">
+                                            <Binding Path="TeamTotalDps" />
+                                            <Binding Path="AppConfig.DamageDisplayType" />
+                                        </MultiBinding>
+                                    </Run.Text>
+                                </Run>
+                                
                             </TextBlock>
                         </StackPanel>
                     </Grid>

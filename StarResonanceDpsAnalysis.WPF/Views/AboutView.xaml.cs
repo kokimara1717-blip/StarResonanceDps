@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Navigation;
+using StarResonanceDpsAnalysis.WPF.Config;
 
 namespace StarResonanceDpsAnalysis.WPF.Views;
 
@@ -17,14 +18,7 @@ public partial class AboutView : Window
 
     public static string Version
     {
-        get
-        {
-            var v = Assembly
-                .GetEntryAssembly()
-                ?.GetCustomAttribute<AssemblyFileVersionAttribute>()?
-                .Version ?? "-.-.-";
-            return $"v{v.Split('+')[0]}";
-        }
+        get => $"{BuildInfo.GetVersion()} {BuildInfo.GetBuildTime()}";
     }
 
     private void Footer_ConfirmClick(object sender, RoutedEventArgs e)
