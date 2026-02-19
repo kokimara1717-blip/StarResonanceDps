@@ -8,8 +8,10 @@ using System.Threading.Tasks;
 using Google.Protobuf;
 using Google.Protobuf.Collections;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using StarResonanceDpsAnalysis.Core.Analyze.Models;
 using StarResonanceDpsAnalysis.Core.Data;
+using StarResonanceDpsAnalysis.Core.Data.Models;
 using StarResonanceDpsAnalysis.Core.Extends.BlueProto;
 using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.Core.Tools;
@@ -552,6 +554,9 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
             if (isZstdCompressed) nestedPacket = DecompressZstdIfNeeded(nestedPacket);
             Process(nestedPacket, logger); // 递归解析内部消息
         }
+
+        public static ILogger Logger { get; set; } = NullLogger.Instance;
+
         /// <summary>
         /// 同步周边实体，玩家数据
         /// </summary>
@@ -617,15 +622,27 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                     case EAttrType.AttrCombatState:
                         var state = reader.ReadBool();
                         Debug.WriteLine($"CombatState:[{BitConverter.ToString(data)}]");
+                        //Logger.LogDebug("CombatState:[{uid}@{data}]", playerUid, BitConverter.ToString(data));
                         DataStorage.SetPlayerCombatState(playerUid, state);
+                        DataStorage.SetPlayerCombatStateTime(playerUid, DateTime.UtcNow.Ticks);
+
                         break;
                     case EAttrType.AttrCombatStateTime:
                         var time = reader.ReadInt64();
-                        Debug.WriteLine($"CombatStateTime:[{BitConverter.ToString(data)}]");
-                        var anotherState = DataStorage.ReadOnlyPlayerInfoDatas[playerUid].CombatState;
-                        if (anotherState) DataStorage.SetPlayerCombatState(playerUid, false);
+                        Debug.WriteLine($"CombatStateTime:[{BitConverter.ToString(data)}].[{time}].[{TimeSpan.FromTicks(time):c}");
+                        //Logger.LogDebug("CombatStateTime:[{uid}@{data}.{Time}.{FromTicks:c}]", playerUid, BitConverter.ToString(data), time, TimeSpan.FromTicks(time));
+                        if (DataStorage.ReadOnlyPlayerInfoDatas.TryGetValue(playerUid, out var info))
+                        {
+                            var tick = info.CombatStateTime;
+                            var tickDiff = DateTime.UtcNow.Ticks - tick;
+                            var ts = TimeSpan.FromTicks(tickDiff);
+                            if (ts > TimeSpan.FromSeconds(1))
+                            {
+                                DataStorage.SetPlayerCombatState(playerUid, false);
+                            }
+                        }
 
-                        DataStorage.SetPlayerCombatStateTime(playerUid, time);
+                        DataStorage.SetPlayerCombatStateTime(playerUid, DateTime.UtcNow.Ticks);
                         break;
                     case EAttrType.AttrCanIntoCombat:
                         Debug.WriteLine($"CanIntoCombat:{BitConverter.ToString(data)}");

@@ -1,8 +1,5 @@
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Threading;
-using Bokura;
 using StarResonanceDpsAnalysis.Core.Analyze;
 using StarResonanceDpsAnalysis.Core.Analyze.Models;
 using StarResonanceDpsAnalysis.Core.Data.Models;
@@ -17,8 +14,6 @@ namespace StarResonanceDpsAnalysis.Core.Data;
 /// </summary>
 public static class DataStorage
 {
-    private static bool _isServerConnected;
-
     private static readonly StatisticsEngine _engine = new();
     private static readonly object SectionTimeoutLock = new();
     private static Timer? _sectionTimeoutTimer;
@@ -112,12 +107,12 @@ public static class DataStorage
     /// </summary>
     public static bool IsServerConnected
     {
-        get => _isServerConnected;
+        get;
         internal set
         {
-            if (_isServerConnected != value)
+            if (field != value)
             {
-                _isServerConnected = value;
+                field = value;
 
                 if (value)
                 {
@@ -782,6 +777,7 @@ public static class DataStorage
         if (prev == combatState) return;
         Debug.WriteLine($"PlayerCombatState:[{uid}] {prev} -> {combatState}");
         PlayerInfoDatas[uid].CombatState = combatState;
+        if (CurrentPlayerUUID != 0) _engine.SetCombatState(combatState);
         TriggerPlayerInfoUpdated(uid);
     }
 

@@ -42,6 +42,11 @@ public sealed class StatisticsEngine
         }
     }
 
+    public void SetCombatState(bool state)
+    {
+        _context.CombatStarted = state;
+    }
+
     /// <summary>
     /// Reset section statistics for all calculators
     /// </summary>
