@@ -135,6 +135,7 @@ public partial class App : Application
                 services.AddThemes();
                 services.AddWindowManagementService();
                 services.AddMessageDialogService();
+                services.AddClassColorService();
 
                 // ? Register new DPS services (SOLID refactoring)
                 services.AddDpsServices();

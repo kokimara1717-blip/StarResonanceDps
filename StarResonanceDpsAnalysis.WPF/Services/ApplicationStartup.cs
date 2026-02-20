@@ -18,6 +18,7 @@ public sealed class ApplicationStartup : IApplicationStartup
     private readonly IGlobalHotkeyService _hotkeyService;
     private readonly IPacketAnalyzer _packetAnalyzer;
     private readonly IDataStorage _dataStorage;
+    private readonly IClassColorService _classColorService;
     private readonly LocalizationManager _localization;
     private AppConfig _appConfig;
 
@@ -27,6 +28,7 @@ public sealed class ApplicationStartup : IApplicationStartup
         IGlobalHotkeyService hotkeyService,
         IPacketAnalyzer packetAnalyzer,
         IDataStorage dataStorage,
+        IClassColorService classColorService,
         LocalizationManager localization)
     {
         _logger = logger;
@@ -35,6 +37,7 @@ public sealed class ApplicationStartup : IApplicationStartup
         _hotkeyService = hotkeyService;
         _packetAnalyzer = packetAnalyzer;
         _dataStorage = dataStorage;
+        _classColorService = classColorService;
         _localization = localization;
         _configManager.ConfigurationUpdated += ConfigManagerOnConfigurationUpdated;
         _appConfig = _configManager.CurrentConfig;
@@ -75,6 +78,7 @@ public sealed class ApplicationStartup : IApplicationStartup
 
             // Apply localization
             _localization.Initialize(_configManager.CurrentConfig.Language);
+            _classColorService.Init();
 
             await TryFindBestNetworkAdapter().ConfigureAwait(false);
 

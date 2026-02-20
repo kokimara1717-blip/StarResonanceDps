@@ -341,7 +341,7 @@ public partial class DpsStatisticsSubViewModel : BaseViewModel
         }
     }
 
-    public void AddTestItem()
+    public void AddTestItem(Classes cls = Classes.Unknown)
     {
         var slots = Data;
         var uid = Random.Shared.Next(100, 999);
@@ -353,12 +353,12 @@ public partial class DpsStatisticsSubViewModel : BaseViewModel
             Player = new PlayerInfoViewModel(LocalizationManager.Instance)
             {
                 Uid = uid,
-                Class = RandomClass(),
+                Class = cls != Classes.Unknown ? RandomClass() : cls,
                 Guild = "Test Guild",
                 Name = $"Test Player {slots.Count + 1}",
                 Spec = ClassSpecHelper.Random(),
                 PowerLevel = Random.Shared.Next(5000, 39000)
-            }
+            },
         };
 
         newItem.Damage.FilteredSkillList =
@@ -429,7 +429,7 @@ public partial class DpsStatisticsSubViewModel : BaseViewModel
         }
         else
         {
-            newItem.PercentOfMax = 100;
+            newItem.PercentOfMax = 1;
             newItem.Percent = 1;
         }
 

@@ -2,8 +2,10 @@ using System.Diagnostics;
 using System.Windows;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using StarResonanceDpsAnalysis.Core.Models;
 using StarResonanceDpsAnalysis.WPF.Extensions;
 using StarResonanceDpsAnalysis.WPF.Logging;
+using StarResonanceDpsAnalysis.WPF.Models;
 using StarResonanceDpsAnalysis.WPF.Properties;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels;
@@ -73,7 +75,11 @@ public partial class DpsStatisticsViewModel
     [RelayCommand]
     public void AddRandomData()
     {
-        UpdateData();
+        foreach (var itm in StatisticData.Values)
+        {
+            itm.AddTestItem();
+        }
+        //UpdateData();
     }
 
     [RelayCommand]

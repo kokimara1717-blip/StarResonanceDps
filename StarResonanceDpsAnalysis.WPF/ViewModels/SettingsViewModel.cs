@@ -16,7 +16,6 @@ using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.Core.Models;
 using StarResonanceDpsAnalysis.Core.Statistics;
 using StarResonanceDpsAnalysis.WPF.Config;
-using StarResonanceDpsAnalysis.WPF.Converters;
 using StarResonanceDpsAnalysis.WPF.Localization;
 using StarResonanceDpsAnalysis.WPF.Models;
 using StarResonanceDpsAnalysis.WPF.Properties;
@@ -67,19 +66,22 @@ public partial class SettingsViewModel : BaseViewModel
     private readonly LocalizationManager _localization;
     private readonly IMessageDialogService _messageDialogService;
     private readonly IDataStorage _dataStorage;
+    private readonly IClassColorService _classColorService;
 
     /// <inheritdoc/>
     public SettingsViewModel(IConfigManager configManager,
         IDeviceManagementService deviceManagementService,
         LocalizationManager localization,
         IMessageDialogService messageDialogService,
-        IDataStorage dataStorage)
+        IDataStorage dataStorage,
+        IClassColorService classColorService)
     {
         _configManager = configManager;
         _deviceManagementService = deviceManagementService;
         _localization = localization;
         _messageDialogService = messageDialogService;
         _dataStorage = dataStorage;
+        _classColorService = classColorService;
         _appConfig = configManager.CurrentConfig.Clone();
 
         InitializeClassColors();
@@ -193,18 +195,13 @@ public partial class SettingsViewModel : BaseViewModel
 
     public event Action? RequestClose;
 
-    partial void OnAppConfigChanging(AppConfig value)
+    partial void OnAppConfigChanged(AppConfig? oldValue, AppConfig newValue)
     {
-        // Unsubscribe from the old instance before changing
-        AppConfig.PropertyChanged -= OnAppConfigPropertyChanged;
-    }
-
-    partial void OnAppConfigChanged(AppConfig value)
-    {
+        oldValue?.PropertyChanged -= OnAppConfigPropertyChanged;
         // Subscribe to the new instance
-        value.PropertyChanged += OnAppConfigPropertyChanged;
+        newValue.PropertyChanged += OnAppConfigPropertyChanged;
 
-        _localization.ApplyLanguage(value.Language);
+        _localization.ApplyLanguage(newValue.Language);
         UpdateLanguageDependentCollections();
         SyncOptions();
     }
@@ -255,51 +252,17 @@ public partial class SettingsViewModel : BaseViewModel
 
         foreach (var cls in classes)
         {
-            var color = GetClassColor(cls);
-            var defaultColor = GetDefaultClassColor(cls);
+            var color = _classColorService.GetColor(cls);
+            var defaultColor = _classColorService.GetDefaultColor(cls);
             var name = cls.GetLocalizedDescription();
             ClassColorSettings.Add(new ClassColorSettingViewModel(cls, name, color, defaultColor, AppConfig, ApplyColorChange));
         }
     }
 
-    private Color GetDefaultClassColor(Classes cls)
-    {
-        var app = Application.Current;
-        var keys = new[] { $"Classes{cls}Color", $"{cls}Color", $"Classes{cls}Brush", $"{cls}Brush" };
-        foreach (var key in keys)
-        {
-            var res = app.TryFindResource(key);
-            if (res is Color c) return c;
-            if (res is SolidColorBrush b) return b.Color;
-        }
-        return Colors.White;
-    }
-
-    private Color GetClassColor(Classes cls)
-    {
-        // Check config first
-        if (AppConfig.CustomClassColors.TryGetValue(cls, out var hex))
-        {
-            try { return (Color)ColorConverter.ConvertFromString(hex); } catch { }
-        }
-
-        // Fallback to existing converter lookup
-        // We can use a temporary converter instance or just TryFindResource from App
-        var app = Application.Current;
-        var keys = new[] { $"Classes{cls}Color", $"{cls}Color", $"Classes{cls}Brush", $"{cls}Brush" };
-        foreach (var key in keys)
-        {
-            var res = app.TryFindResource(key);
-            if (res is Color c) return c;
-            if (res is SolidColorBrush b) return b.Color;
-        }
-        return Colors.White; // Default
-    }
-
     private void ApplyColorChange(Classes cls, Color color)
     {
         AppConfig.CustomClassColors[cls] = color.ToString();
-        ClassesColorConverter.UpdateColor(cls, color);
+        _classColorService.UpdateColor(cls, color);
     }
 
     [RelayCommand(AllowConcurrentExecutions = false)]
@@ -610,7 +573,7 @@ public partial class SettingsViewModel : BaseViewModel
     /// ⭐ 新增: 从颜色选择器更新主题颜色（用于Color对象）
     /// </summary>
     [RelayCommand]
-    private void UpdateThemeColorFromPicker(System.Windows.Media.Color color)
+    private void UpdateThemeColorFromPicker(Color color)
     {
         var hexColor = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
         AppConfig.ThemeColor = hexColor;
@@ -622,17 +585,17 @@ public partial class SettingsViewModel : BaseViewModel
     /// <summary>
     /// ⭐ 当前主题颜色（用于颜色选择器初始化）
     /// </summary>
-    public System.Windows.Media.Color CurrentThemeColor
+    public Color CurrentThemeColor
     {
         get
         {
             try
             {
-                return (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(AppConfig.ThemeColor);
+                return (Color)ColorConverter.ConvertFromString(AppConfig.ThemeColor);
             }
             catch
             {
-                return System.Windows.Media.Colors.Gray;
+                return Colors.Gray;
             }
         }
         set
@@ -761,7 +724,8 @@ public sealed class SettingsDesignTimeViewModel : SettingsViewModel
         new DesignTimeDeviceManagementService(),
         new LocalizationManager(new LocalizationConfiguration(), NullLogger<LocalizationManager>.Instance),
         new DesignMessageDialogService(),
-        new DesignDataStorage())
+        new DesignDataStorage(),
+        new ClassColorService(null!))
     {
         AppConfig = new AppConfig
         {
