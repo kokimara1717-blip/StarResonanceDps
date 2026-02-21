@@ -366,15 +366,8 @@
                             PopupTemplate="{StaticResource PopupTemplate}"
                             SkillDisplayLimit="{Binding DataContext.CurrentStatisticData.SkillDisplayLimit, RelativeSource={RelativeSource AncestorType=Window}}"
                             MouseEnterCommand="{Binding MouseEnterItemCommand}"
-                            MouseLeaveCommand="{Binding MouseLeaveItemCommand}">
-                            <ctrl:DpsIndicatorControl.TrackOpacity>
-                                <MultiBinding Converter="{StaticResource ConditionalPercentToOpacityConverter}">
-                                    <Binding Path="DataContext.AppConfig.Opacity"
-                                             RelativeSource="{RelativeSource AncestorType=Window}" />
-                                    <Binding Path="DataContext.AppConfig.MouseThroughEnabled"
-                                             RelativeSource="{RelativeSource AncestorType=Window}" />
-                                </MultiBinding>
-                            </ctrl:DpsIndicatorControl.TrackOpacity>
+                            MouseLeaveCommand="{Binding MouseLeaveItemCommand}"
+                            TrackOpacity="{Binding DataContext.AppConfig.Opacity, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource PercentToOpacityConverter}}">
                         </ctrl:DpsIndicatorControl>
                     </Grid>
                 </Button>
@@ -835,13 +828,9 @@
                     </Style>
                 </Border.Style>
                 <Border.Background>
-                    <SolidColorBrush>
+                    <SolidColorBrush >
                         <SolidColorBrush.Color>
-                            <MultiBinding Converter="{StaticResource ConditionalPercentToColorConverter}"
-                                          ConverterParameter="#191919">
-                                <Binding Path="AppConfig.Opacity" />
-                                <Binding Path="AppConfig.MouseThroughEnabled" />
-                            </MultiBinding>
+                            <Binding Path="AppConfig.Opacity" Converter="{StaticResource PercentToColorConverter}" ConverterParameter="#191919"/>
                         </SolidColorBrush.Color>
                     </SolidColorBrush>
                 </Border.Background>
