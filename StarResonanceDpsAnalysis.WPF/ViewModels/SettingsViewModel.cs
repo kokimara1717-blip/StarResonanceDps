@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using StarResonanceDpsAnalysis.Core.Analyze.Models;
 using StarResonanceDpsAnalysis.Core.Data;
@@ -67,6 +68,7 @@ public partial class SettingsViewModel : BaseViewModel
     private readonly IMessageDialogService _messageDialogService;
     private readonly IDataStorage _dataStorage;
     private readonly IClassColorService _classColorService;
+    private readonly ILogger<SettingsViewModel> _logger;
 
     /// <inheritdoc/>
     public SettingsViewModel(IConfigManager configManager,
@@ -74,7 +76,8 @@ public partial class SettingsViewModel : BaseViewModel
         LocalizationManager localization,
         IMessageDialogService messageDialogService,
         IDataStorage dataStorage,
-        IClassColorService classColorService)
+        IClassColorService classColorService,
+        ILogger<SettingsViewModel> logger)
     {
         _configManager = configManager;
         _deviceManagementService = deviceManagementService;
@@ -82,9 +85,11 @@ public partial class SettingsViewModel : BaseViewModel
         _messageDialogService = messageDialogService;
         _dataStorage = dataStorage;
         _classColorService = classColorService;
+        _logger = logger;
         _appConfig = configManager.CurrentConfig.Clone();
 
         InitializeClassColors();
+        _logger.LogDebug("SettingsViewModel created");
     }
 
 
@@ -241,6 +246,7 @@ public partial class SettingsViewModel : BaseViewModel
 
         _hasUnsavedChanges = false;
         _isLoaded = true;
+        _logger.LogDebug("SettingsViewModel Loaded");
     }
 
     private void InitializeClassColors()
@@ -261,6 +267,7 @@ public partial class SettingsViewModel : BaseViewModel
 
     private void ApplyColorChange(Classes cls, Color color)
     {
+        _logger.LogInformation("Updating class color for {Class}: {Color}", cls, color);
         AppConfig.CustomClassColors[cls] = color.ToString();
         _classColorService.UpdateColor(cls, color);
     }
@@ -268,13 +275,16 @@ public partial class SettingsViewModel : BaseViewModel
     [RelayCommand(AllowConcurrentExecutions = false)]
     private async Task NetworkAdapterAutoSelect()
     {
+        _logger.LogInformation("Starting auto-selection of network adapter...");
         var ret = await _deviceManagementService.GetAutoSelectedNetworkAdapterAsync();
         if (ret != null)
         {
+            _logger.LogInformation("Auto-selected network adapter: {AdapterName}", ret.Name);
             AppConfig.PreferredNetworkAdapter = ret;
             _deviceManagementService.SetActiveNetworkAdapter(ret);
             return;
         }
+        _logger.LogWarning("Auto-selection of network adapter failed.");
         MessageBox.Show(_localization.GetString(ResourcesKeys.Settings_NetworkAdapterAutoSelect_Failed)); // Temporary message dialog
     }
 
@@ -501,6 +511,7 @@ public partial class SettingsViewModel : BaseViewModel
     [RelayCommand]
     private async Task Confirm()
     {
+        _logger.LogInformation("Saving settings and closing...");
         await ApplySettingsAsync();
         UnsubscribeHandlers();
         RequestClose?.Invoke();
@@ -511,6 +522,7 @@ public partial class SettingsViewModel : BaseViewModel
     {
         if (!_hasUnsavedChanges)
         {
+            _logger.LogDebug("Closing settings (no changes).");
             UnsubscribeHandlers();
             RequestClose?.Invoke();
             return;
@@ -523,6 +535,7 @@ public partial class SettingsViewModel : BaseViewModel
         if (result == true)
         {
             // User chose to discard changes - restore original config
+            _logger.LogInformation("Settings changes discarded by user.");
             RestoreOriginalConfig();
 
             _hasUnsavedChanges = false;
@@ -546,6 +559,7 @@ public partial class SettingsViewModel : BaseViewModel
 
         if (dialog.ShowDialog() == true)
         {
+            _logger.LogInformation("Background image selected: {Path}", dialog.FileName);
             AppConfig.BackgroundImagePath = dialog.FileName;
         }
     }
@@ -556,6 +570,7 @@ public partial class SettingsViewModel : BaseViewModel
     [RelayCommand]
     private void ClearBackgroundImage()
     {
+        _logger.LogInformation("Background image cleared.");
         AppConfig.BackgroundImagePath = null;
     }
 
@@ -565,6 +580,7 @@ public partial class SettingsViewModel : BaseViewModel
     [RelayCommand]
     private void SetThemeColor(string color)
     {
+        _logger.LogInformation("Theme color set to: {Color}", color);
         AppConfig.ThemeColor = color;
         OnPropertyChanged(nameof(CurrentThemeColor));
     }
@@ -576,6 +592,7 @@ public partial class SettingsViewModel : BaseViewModel
     private void UpdateThemeColorFromPicker(Color color)
     {
         var hexColor = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+        _logger.LogDebug("Theme color picked: {Color}", hexColor);
         AppConfig.ThemeColor = hexColor;
 
         // ⭐ 实时应用到当前运行的配置（预览效果）
@@ -725,7 +742,8 @@ public sealed class SettingsDesignTimeViewModel : SettingsViewModel
         new LocalizationManager(new LocalizationConfiguration(), NullLogger<LocalizationManager>.Instance),
         new DesignMessageDialogService(),
         new DesignDataStorage(),
-        new ClassColorService(null!))
+        new ClassColorService(null!),
+        NullLogger<SettingsViewModel>.Instance)
     {
         AppConfig = new AppConfig
         {
