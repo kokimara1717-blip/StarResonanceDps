@@ -93,7 +93,7 @@ public partial class DpsStatisticsView : Window
 
         MaskSource = MaskHelper.SteganographyImage;
 
-        // 右键退出快照模式
+        // 右键退出历史模式
         MouseRightButtonDown += OnWindowRightClick;
     }
 
@@ -217,17 +217,17 @@ public partial class DpsStatisticsView : Window
     }
 
     /// <summary>
-    /// 窗口右键处理 - 退出快照模式
+    /// 窗口右键处理 - 退出历史模式
     /// </summary>
     private void OnWindowRightClick(object sender, MouseButtonEventArgs e)
     {
-        if (DataContext is DpsStatisticsViewModel vm && vm.IsViewingSnapshot)
+        if (DataContext is DpsStatisticsViewModel vm && vm.IsViewingHistory)
         {
 
-            // 如果正在查看快照,右键退出快照模式
-            if (vm.ExitSnapshotViewModeCommand.CanExecute(null))
+            // 如果正在查看历史,右键退出历史模式
+            if (vm.ExitHistoryViewModeCommand.CanExecute(null))
             {
-                vm.ExitSnapshotViewModeCommand.Execute(null);
+                vm.ExitHistoryViewModeCommand.Execute(null);
                 e.Handled = true; // 阻止默认右键菜单
             }
         }

@@ -171,23 +171,23 @@
   <data name="Menu_History_Total" xml:space="preserve">
     <value>全程战斗</value>
   </data>
-  <data name="Menu_ExitSnapshotMode" xml:space="preserve">
-    <value>退出快照模式</value>
+  <data name="Menu_ExitHistoryMode" xml:space="preserve">
+    <value>退出历史模式</value>
   </data>
-  <data name="DpsStatistics_Snapshot_ViewFull_Title" xml:space="preserve">
-    <value>查看全程快照</value>
+  <data name="DpsStatistics_History_ViewFull_Title" xml:space="preserve">
+    <value>查看全程历史</value>
   </data>
-  <data name="DpsStatistics_Snapshot_ViewFull_EmptyMessage" xml:space="preserve">
-    <value>当前没有可用的全程快照数据。</value>
+  <data name="DpsStatistics_History_ViewFull_EmptyMessage" xml:space="preserve">
+    <value>当前没有可用的全程历史数据。</value>
   </data>
-  <data name="DpsStatistics_Snapshot_ViewCurrent_Title" xml:space="preserve">
-    <value>查看战斗快照</value>
+  <data name="DpsStatistics_History_ViewCurrent_Title" xml:space="preserve">
+    <value>查看战斗历史</value>
   </data>
-  <data name="DpsStatistics_Snapshot_ViewCurrent_EmptyMessage" xml:space="preserve">
-    <value>当前没有可用的战斗快照数据。</value>
+  <data name="DpsStatistics_History_ViewCurrent_EmptyMessage" xml:space="preserve">
+    <value>当前没有可用的战斗历史数据。</value>
   </data>
-  <data name="DpsStatistics_Snapshot_Label" xml:space="preserve">
-    <value>[快照]</value>
+  <data name="DpsStatistics_History_Label" xml:space="preserve">
+    <value>[历史]</value>
   </data>
   <data name="DpsStatistics_Team_Label" xml:space="preserve">
     <value>队伍:</value>

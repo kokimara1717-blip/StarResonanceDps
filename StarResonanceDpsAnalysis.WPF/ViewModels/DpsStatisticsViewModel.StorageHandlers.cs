@@ -38,11 +38,11 @@ public partial class DpsStatisticsViewModel
 
         void Do()
         {
-            _logger.LogInformation("=== BeforeSectionCleared: 准备保存快照 (数据还在!) ===");
+            _logger.LogInformation("=== BeforeSectionCleared: 准备保存历史 (数据还在!) ===");
 
             if (ScopeTime != ScopeTime.Current)
             {
-                _logger.LogDebug("跳过快照保存: ScopeTime={ScopeTime}, DataCount={Count}",
+                _logger.LogDebug("跳过历史保存: ScopeTime={ScopeTime}, DataCount={Count}",
                     ScopeTime, _storage.GetStatisticsCount(true));
                 return;
             }
@@ -54,17 +54,17 @@ public partial class DpsStatisticsViewModel
             {
                 var duration = _timerService.SectionDuration;
                 _logger.LogInformation(
-                    "脱战自动保存快照, 数据量: {Count}, 时长: {Duration:F1}s (using DpsTimerService)",
+                    "脱战自动保存历史, 数据量: {Count}, 时长: {Duration:F1}s (using DpsTimerService)",
                     _storage.GetStatisticsCount(false),
                     duration.TotalSeconds);
 
-                SnapshotService.SaveCurrentSnapshot(_storage, duration, Options.MinimalDurationInSeconds);
+                HistoryService.SaveScopeCurrentHistory(_storage, duration, Options.MinimalDurationInSeconds);
 
-                _logger.LogInformation("? 脱战自动保存快照成功");
+                _logger.LogInformation("? 脱战自动保存历史成功");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "? 脱战自动保存快照失败");
+                _logger.LogError(ex, "? 脱战自动保存历史失败");
             }
         }
     }
@@ -130,12 +130,12 @@ public partial class DpsStatisticsViewModel
 
             try
             {
-                SnapshotService.SaveTotalSnapshot(_storage, BattleDuration, Options.MinimalDurationInSeconds);
-                _logger.LogInformation("服务器切换时保存全程快照成功");
+                HistoryService.SaveScopeTotalHistory(_storage, BattleDuration, Options.MinimalDurationInSeconds);
+                _logger.LogInformation("服务器切换时保存全程历史成功");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "服务器切换时保存快照失败");
+                _logger.LogError(ex, "服务器切换时保存历史失败");
             }
         }
     }

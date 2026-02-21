@@ -166,7 +166,7 @@ public partial class AppConfig : ObservableObject
     private int _dpsUpdateInterval = 1000;
 
     /// <summary>
-    /// 历史记录最大保存数量
+    ///历史记录最大保存数量
     /// 默认值：15条
     /// 范围：5 - 50
     /// </summary>
@@ -230,7 +230,7 @@ public partial class AppConfig : ObservableObject
     private bool _showPercentage = true;
 
     /// <summary>
-    /// DPS统计页面 - 快照最小记录时长(秒)
+    /// DPS统计页面 - 历史最小记录时长(秒)
     /// 默认值：5秒
     /// 范围：0 - 300秒
     /// </summary>
