@@ -24,7 +24,6 @@ namespace StarResonanceDpsAnalysis.WPF;
 public partial class App : Application
 {
     private static ILogger<App>? _logger;
-    private static IObservable<LogEvent>? _logStream; // exposed for UI subscription
 
     private static readonly Dictionary<Type, ServiceLifetime> LifeTimeOverrides = new()
     {
@@ -42,7 +41,7 @@ public partial class App : Application
     private static void Main(string[] args)
     {
         var configRoot = BuildConfiguration();
-        _logStream = ConfigureLogging(configRoot);
+        ConfigureLogging(configRoot);
 
         Host = CreateHostBuilder(args, configRoot).Build();
         _logger = Host.Services.GetRequiredService<ILogger<App>>();
@@ -91,7 +90,7 @@ public partial class App : Application
             .Build();
     }
 
-    private static IObservable<LogEvent>? ConfigureLogging(IConfiguration configRoot)
+    private static void ConfigureLogging(IConfiguration configRoot)
     {
         var debugEnabled = configRoot.GetSection("Config").GetValue<bool>("DebugEnabled");
         if (debugEnabled)
@@ -99,7 +98,6 @@ public partial class App : Application
             Interop.Kernel32.AllocConsole();
         }
 
-        IObservable<LogEvent>? streamRef = null;
         var loggerConfig = new LoggerConfiguration()
             .ReadFrom.Configuration(configRoot)
             .MinimumLevel.Verbose()
@@ -111,11 +109,7 @@ public partial class App : Application
                 outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}");
         }
 
-        Log.Logger = loggerConfig
-            .WriteTo.Observers(obs => streamRef = obs)
-            .CreateLogger();
-
-        return streamRef;
+        Log.Logger = loggerConfig.CreateLogger();
     }
 
     private static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configRoot)
@@ -157,8 +151,6 @@ public partial class App : Application
 
                 services.AddSingleton<IPluginManager, PluginManager>();
                 services.AddSingleton<ITrayService, TrayService>();
-
-                if (_logStream != null) services.AddSingleton(_logStream);
 
                 services.AddSingleton(_ => Current.Dispatcher);
 

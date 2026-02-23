@@ -9,107 +9,15 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:StarResonanceDpsAnalysis.WPF.ViewModels"
     Title="{lex:Loc Key={x:Static loc:ResourcesKeys.Window_Debug_Title}}"
-    Width="1000"
-    Height="700"
+    Width="300"
     d:DataContext="{d:DesignInstance viewModels:DebugFunctions}"
     lex:ResxLocalizationProvider.DefaultAssembly="StarResonanceDpsAnalysis.WPF"
+    SizeToContent="Height"
     lex:ResxLocalizationProvider.DefaultDictionary="Resources"
     WindowStyle="ToolWindow"
     mc:Ignorable="d">
 
-    <Window.Resources>
-        <!--  Cached converter instances for better performance  -->
-        <local:LogLevelToBrushConverter x:Key="LogLevelToBrushConverter" />
-        <local:LogLevelToBackgroundConverter x:Key="LogLevelToBackgroundConverter" />
-        <local:ExceptionToStringConverter x:Key="ExceptionToStringConverter" />
-
-        <!--  Optimized data template with pre-computed display values  -->
-        <DataTemplate x:Key="LogEntryTemplate">
-            <Grid Margin="2,1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="90" />
-                    <ColumnDefinition Width="70" />
-                    <ColumnDefinition Width="140" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <!--  Use pre-computed TimeDisplay for better performance  -->
-                <TextBlock
-                    Grid.Column="0"
-                    VerticalAlignment="Center"
-                    FontFamily="Consolas"
-                    FontSize="10"
-                    Foreground="Gray"
-                    Text="{Binding TimeDisplay}" />
-
-                <!--  Use pre-computed LevelDisplay and cached converter  -->
-                <TextBlock
-                    Grid.Column="1"
-                    VerticalAlignment="Center"
-                    FontSize="10"
-                    FontWeight="Bold"
-                    Foreground="{Binding Level, Converter={StaticResource LogLevelToBrushConverter}}"
-                    Text="{Binding LevelDisplay}" />
-
-                <TextBlock
-                    Grid.Column="2"
-                    VerticalAlignment="Center"
-                    FontFamily="Consolas"
-                    FontSize="10"
-                    Foreground="DarkBlue"
-                    Text="{Binding Category}"
-                    TextTrimming="CharacterEllipsis"
-                    TextWrapping="Wrap" />
-
-                <TextBlock
-                    Grid.Column="3"
-                    VerticalAlignment="Center"
-                    FontFamily="Consolas"
-                    FontSize="11"
-                    Text="{Binding Message}"
-                    TextWrapping="WrapWithOverflow"
-                    ToolTip="{Binding Exception, Converter={StaticResource ExceptionToStringConverter}}" />
-            </Grid>
-        </DataTemplate>
-
-        <!--  Optimized item container style  -->
-        <Style x:Key="LogEntryContainerStyle" TargetType="ListBoxItem">
-            <Setter Property="Background" Value="{Binding Level, Converter={StaticResource LogLevelToBackgroundConverter}}" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="Padding" Value="1" />
-            <Setter Property="Margin" Value="0" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ListBoxItem">
-                        <Border
-                            Padding="{TemplateBinding Padding}"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="LightBlue" />
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="AliceBlue" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
-
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <StackPanel>
 
         <!--  Control Panel  -->
         <Border
@@ -193,13 +101,12 @@
                     <TextBlock Text="{Binding Display}" />
                 </DataTemplate>
             </Border.Resources>
-            <WrapPanel Orientation="Horizontal">
+            <StackPanel Orientation="Vertical">
                 <TextBlock
                     Margin="5,0"
                     VerticalAlignment="Center"
                     Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Debug_Localization_Language}}" />
                 <ComboBox
-                    Width="120"
                     Margin="2,0,5,0"
                     ItemTemplate="{StaticResource LocalizedEnumTextBlockDataTemplate}"
                     ItemsSource="{Binding AvailableLanguages}"
@@ -207,7 +114,6 @@
                 <Button
                     Margin="5,0"
                     Padding="8,4"
-                    Command="{Binding ApplyLanguageCommand}"
                     Content="{lex:Loc Key={x:Static loc:ResourcesKeys.Debug_Localization_Apply}}" />
 
                 <Separator Margin="10,0" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
@@ -217,7 +123,6 @@
                     VerticalAlignment="Center"
                     Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Debug_Localization_TestKey}}" />
                 <TextBox
-                    Width="200"
                     Margin="2,0,5,0"
                     Text="{Binding TestLocalizationKey, UpdateSourceTrigger=PropertyChanged}" />
                 <Button
@@ -230,98 +135,7 @@
                     VerticalAlignment="Center"
                     FontWeight="Bold"
                     Text="{Binding LocalizedTestValue}" />
-            </WrapPanel>
-        </Border>
-
-        <!--  Optimized Log Display with ListBox for better virtualization performance  -->
-        <Border
-            Grid.Row="2"
-            BorderBrush="Gray"
-            BorderThickness="1">
-
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-
-                <!--  Header  -->
-                <Border
-                    Grid.Row="0"
-                    Background="LightGray"
-                    BorderBrush="Gray"
-                    BorderThickness="0,0,0,1">
-                    <Grid Margin="2,4">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="90" />
-                            <ColumnDefinition Width="70" />
-                            <ColumnDefinition Width="140" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock
-                            Grid.Column="0"
-                            FontSize="10"
-                            FontWeight="Bold"
-                            Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Debug_Header_Time}}" />
-                        <TextBlock
-                            Grid.Column="1"
-                            FontSize="10"
-                            FontWeight="Bold"
-                            Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Debug_Header_Level}}" />
-                        <TextBlock
-                            Grid.Column="2"
-                            FontSize="10"
-                            FontWeight="Bold"
-                            Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Debug_Header_Category}}" />
-                        <TextBlock
-                            Grid.Column="3"
-                            FontSize="10"
-                            FontWeight="Bold"
-                            Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Debug_Header_Message}}" />
-                    </Grid>
-                </Border>
-
-                <ListBox
-                    x:Name="LogListBox"
-                    Grid.Row="1"
-                    Background="White"
-                    BorderThickness="0"
-                    ItemContainerStyle="{StaticResource LogEntryContainerStyle}"
-                    ItemTemplate="{StaticResource LogEntryTemplate}"
-                    ItemsSource="{Binding FilteredLogs}"
-                    ScrollViewer.CanContentScroll="True"
-                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                    ScrollViewer.VerticalScrollBarVisibility="Auto"
-                    SelectionMode="Extended"
-                    VirtualizingPanel.IsContainerVirtualizable="True"
-                    VirtualizingPanel.IsVirtualizing="True"
-                    VirtualizingPanel.ScrollUnit="Pixel"
-                    VirtualizingPanel.VirtualizationMode="Recycling" />
-            </Grid>
-        </Border>
-
-        <!--  Status Bar  -->
-        <Border
-            Grid.Row="3"
-            Padding="8,4"
-            Background="LightGray">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Margin="0,0,15,0">
-                    <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Debug_Status_TotalPrefix}}" />
-                    <Run Text="{Binding LogCount}" />
-                    <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Debug_Status_TotalSuffix}}" />
-                </TextBlock>
-                <TextBlock Margin="0,0,15,0">
-                    <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Debug_Status_FilteredPrefix}}" />
-                    <Run Text="{Binding FilteredLogCount}" />
-                    <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Debug_Status_FilteredSuffix}}" />
-                </TextBlock>
-                <TextBlock>
-                    <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Debug_Status_LastPrefix}}" />
-                    <Run Text="{Binding LastLogTime, StringFormat='{}{0:HH:mm:ss}'}" />
-                </TextBlock>
             </StackPanel>
         </Border>
-    </Grid>
+    </StackPanel>
 </Window>
