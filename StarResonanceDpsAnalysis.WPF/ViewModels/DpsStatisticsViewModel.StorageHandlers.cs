@@ -1,8 +1,6 @@
-using System.ComponentModel;
 using Microsoft.Extensions.Logging;
 using StarResonanceDpsAnalysis.Core.Data.Models;
 using StarResonanceDpsAnalysis.Core.Extends.Data;
-using StarResonanceDpsAnalysis.WPF.Extensions;
 using StarResonanceDpsAnalysis.WPF.Models;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels;
@@ -22,12 +20,44 @@ public partial class DpsStatisticsViewModel
         {
             _logger.LogInformation("=== SectionEnded event received ===");
 
+            if (ScopeTime != ScopeTime.Current)
+            {
+                _logger.LogDebug("跳过历史保存: ScopeTime={ScopeTime}, DataCount={Count}",
+                    ScopeTime, _storage.GetStatisticsCount(true));
+                return;
+            }
+
+            SaveScopeCurrentHistory();
+
             var finalSectionDuration = _timerService.SectionDuration;
             _timerService.Stop();
             _resetCoordinator.ResetCurrentSection();
 
             _logger.LogInformation("Section ended, final duration: {Duration:F1}s (using DpsTimerService)",
                 finalSectionDuration.TotalSeconds);
+        }
+    }
+
+    private void SaveScopeCurrentHistory()
+    {
+        var statCount = _storage.GetStatisticsCount(false);
+        if (statCount <= 0) return;
+
+        try
+        {
+            var duration = _timerService.SectionDuration;
+            _logger.LogInformation(
+                "脱战自动保存历史, 数据量: {Count}, 时长: {Duration:F1}s (using DpsTimerService)",
+                _storage.GetStatisticsCount(false),
+                duration.TotalSeconds);
+
+            HistoryService.SaveScopeCurrentHistory(duration, Options.MinimalDurationInSeconds);
+
+            _logger.LogInformation("脱战自动保存历史成功");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "脱战自动保存历史失败");
         }
     }
 
@@ -39,33 +69,6 @@ public partial class DpsStatisticsViewModel
         void Do()
         {
             _logger.LogInformation("=== BeforeSectionCleared: 准备保存历史 (数据还在!) ===");
-
-            if (ScopeTime != ScopeTime.Current)
-            {
-                _logger.LogDebug("跳过历史保存: ScopeTime={ScopeTime}, DataCount={Count}",
-                    ScopeTime, _storage.GetStatisticsCount(true));
-                return;
-            }
-
-            var statCount = _storage.GetStatisticsCount(false);
-            if (statCount <= 0) return;
-
-            try
-            {
-                var duration = _timerService.SectionDuration;
-                _logger.LogInformation(
-                    "脱战自动保存历史, 数据量: {Count}, 时长: {Duration:F1}s (using DpsTimerService)",
-                    _storage.GetStatisticsCount(false),
-                    duration.TotalSeconds);
-
-                HistoryService.SaveScopeCurrentHistory(_storage, duration, Options.MinimalDurationInSeconds);
-
-                _logger.LogInformation("? 脱战自动保存历史成功");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "? 脱战自动保存历史失败");
-            }
         }
     }
 
@@ -130,7 +133,7 @@ public partial class DpsStatisticsViewModel
 
             try
             {
-                HistoryService.SaveScopeTotalHistory(_storage, BattleDuration, Options.MinimalDurationInSeconds);
+                HistoryService.SaveScopeTotalHistory(BattleDuration, Options.MinimalDurationInSeconds);
                 _logger.LogInformation("服务器切换时保存全程历史成功");
             }
             catch (Exception ex)

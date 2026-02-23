@@ -336,8 +336,6 @@ public static class DataStorage
             var prevTt = new TimeSpan(LastBattleLog.TimeTicks);
             if (tt - prevTt > SectionTimeout || ForceNewBattleSection)
             {
-                RaiseNewSectionCreated();
-                PrivateClearDpsData();
 
                 sectionFlag = true;
 
@@ -347,6 +345,22 @@ public static class DataStorage
         else
         {
             sectionFlag = true;
+        }
+
+        // 如果创建新战斗分段
+        if (sectionFlag)
+        {
+            try
+            {
+                RaiseBeforeSectionCleared();
+                PrivateClearDpsData();
+                RaiseNewSectionCreated();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"An error occurred during trigger event(NewSectionCreated) => {ex.Message}\r\n{ex.StackTrace}");
+            }
         }
 
         // 如果目标是玩家
@@ -411,20 +425,6 @@ public static class DataStorage
         // 最后一个日志赋值
         UpdateLastLogState(log);
 
-        // 如果创建新战斗分段
-        if (sectionFlag)
-        {
-            try
-            {
-                // 触发新战斗分段创建事件
-                NewSectionCreated?.Invoke();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(
-                    $"An error occurred during trigger event(NewSectionCreated) => {ex.Message}\r\n{ex.StackTrace}");
-            }
-        }
         try
         {
             // 触发战斗日志创建事件

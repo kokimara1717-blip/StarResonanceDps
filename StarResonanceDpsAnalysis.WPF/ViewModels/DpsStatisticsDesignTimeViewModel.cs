@@ -131,7 +131,8 @@ public sealed class DpsStatisticsDesignTimeViewModel : DpsStatisticsViewModel
     {
         public DesignBattleHistoryService() : base(
             NullLogger<BattleHistoryService>.Instance,
-            new DesignConfigManager()) // 新增：传入配置管理器
+            new DesignConfigManager(),
+            new DesignDataStorage()) // 新增：传入配置管理器
         {
         }
     }

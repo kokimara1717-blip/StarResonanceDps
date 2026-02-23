@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
@@ -26,14 +27,16 @@ public partial class BattleHistoryService
 {
     private const int AbsoluteMinDurationSeconds = 10; // 绝对最小战斗时长(秒),低于此值的战斗永远不保存
     private readonly IConfigManager _configManager;
+    private readonly IDataStorage _storage;
     private readonly ILogger<BattleHistoryService> _logger;
     private readonly string _historyDirectory;
     private readonly JsonSerializerSettings _jsonSettings;
 
-    public BattleHistoryService(ILogger<BattleHistoryService> logger, IConfigManager configManager)
+    public BattleHistoryService(ILogger<BattleHistoryService> logger, IConfigManager configManager, IDataStorage storage)
     {
         _logger = logger;
         _configManager = configManager;
+        _storage = storage;
         _historyDirectory = Path.Combine(Environment.CurrentDirectory, "BattleHistory");
 
         _jsonSettings = new JsonSerializerSettings
@@ -57,22 +60,21 @@ public partial class BattleHistoryService
     /// 当前战斗历史列表(最新的N条，N由配置决定)
     /// </summary>
 #pragma warning disable IDE0028
-    public List<HistoryInfo> ScopeCurrentHistory { get; } = new();
+    public ObservableCollection<HistoryInfo> ScopeCurrentHistory { get; } = new();
 
     /// <summary>
     /// 全程战斗历史列表(最新的N条，N由配置决定)
     /// </summary>
-    public List<HistoryInfo> ScopeTotalHistory { get; } = new();
+    public ObservableCollection<HistoryInfo> ScopeTotalHistory { get; } = new();
 #pragma warning restore IDE0028
 
     /// <summary>
     /// 保存当前战斗历史
     /// </summary>
-    /// <param name="storage">数据存储</param>
     /// <param name="duration">战斗时长</param>
     /// <param name="minDurationSeconds">用户设置的最小时长(秒),0表示记录所有(默认记录所有)</param>
     /// <param name="forceUseFullData">强制使用FullDpsData(用于脱战时sectioned数据已被清空的情况)</param>
-    public void SaveScopeCurrentHistory(IDataStorage storage, TimeSpan duration, int minDurationSeconds = 0,
+    public void SaveScopeCurrentHistory(TimeSpan duration, int minDurationSeconds = 0,
         bool forceUseFullData = false)
     {
         // ⭐ 硬性限制: 低于10秒的战斗永远不保存
@@ -92,7 +94,7 @@ public partial class BattleHistoryService
         try
         {
             var scope = forceUseFullData ? ScopeTime.Total : ScopeTime.Current;
-            var history = CreateHistory(storage, duration, scope);
+            var history = CreateHistory(_storage, duration, scope);
 
             // 保存到磁盘
             SaveHistoryToDisk(history);
@@ -124,10 +126,9 @@ public partial class BattleHistoryService
     /// <summary>
     /// 保存全程历史
     /// </summary>
-    /// <param name="storage">数据存储</param>
     /// <param name="duration">战斗时长</param>
     /// <param name="minDurationSeconds">用户设置的最小时长(秒),0表示记录所有(默认记录所有)</param>
-    public void SaveScopeTotalHistory(IDataStorage storage, TimeSpan duration, int minDurationSeconds = 0)
+    public void SaveScopeTotalHistory(TimeSpan duration, int minDurationSeconds = 0)
     {
         // ? 硬性限制: 低于10秒的战斗永远不保存
         if (duration.TotalSeconds < AbsoluteMinDurationSeconds)
@@ -145,7 +146,7 @@ public partial class BattleHistoryService
 
         try
         {
-            var history = CreateHistory(storage, duration, ScopeTime.Total);
+            var history = CreateHistory(_storage, duration, ScopeTime.Total);
 
             // 保存到磁盘
             SaveHistoryToDisk(history);

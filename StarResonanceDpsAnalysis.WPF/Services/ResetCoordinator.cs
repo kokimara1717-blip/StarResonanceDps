@@ -87,12 +87,12 @@ public class ResetCoordinator : IResetCoordinator
             {
                 if (scope == ScopeTime.Current)
                 {
-                    _historyService.SaveScopeCurrentHistory(_storage, battleDuration, minimalDuration);
+                    _historyService.SaveScopeCurrentHistory(battleDuration, minimalDuration);
                     _logger.LogInformation("Current History saved successfully");
                 }
                 else
                 {
-                    _historyService.SaveScopeTotalHistory(_storage, battleDuration, minimalDuration);
+                    _historyService.SaveScopeTotalHistory(battleDuration, minimalDuration);
                     _logger.LogInformation("Total History saved successfully");
                 }
             }
