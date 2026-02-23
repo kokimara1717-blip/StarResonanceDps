@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StarResonanceDpsAnalysis.WPF.Config;
 
@@ -29,4 +24,3 @@ public static class BuildInfo
         return $"v{v.Split('+')[0]}";
     }
 }
-

@@ -10,9 +10,11 @@
     xmlns:view="clr-namespace:StarResonanceDpsAnalysis.WPF.Views"
     Title="{lex:Loc Key={x:Static loc:ResourcesKeys.Window_About_Title}}"
     Width="800"
-    Height="540"
+    SizeToContent="Height"
+    d:DesignHeight="500"
     lex:ResxLocalizationProvider.DefaultAssembly="StarResonanceDpsAnalysis.WPF"
     lex:ResxLocalizationProvider.DefaultDictionary="Resources"
+    WindowStartupLocation="CenterScreen"
     Style="{StaticResource TransparentWindow}"
     mc:Ignorable="d">
 
@@ -67,9 +69,7 @@
             x:Key="GroupBoxText"
             BasedOn="{StaticResource TitleText}"
             TargetType="TextBlock">
-            <Setter Property="Padding" Value="8,4,8,4" />
-            <Setter Property="Margin" Value="-8,-36,0,0" />
-            <Setter Property="Background" Value="{StaticResource BackgroundColor}" />
+            <Setter Property="Margin" Value="0,0,0,15" />
         </Style>
 
         <Style x:Key="AppImage" TargetType="Image">
@@ -83,14 +83,13 @@
             x:Key="AppName"
             BasedOn="{StaticResource TitleText}"
             TargetType="TextBlock">
-            <Setter Property="Margin" Value="90,0,0,0" />
+            <Setter Property="Margin" Value="0,0,0,5" />
         </Style>
 
         <Style
             x:Key="AppIntro"
             BasedOn="{StaticResource ContentText}"
             TargetType="TextBlock">
-            <Setter Property="Margin" Value="90,32,0,0" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
         </Style>
 
@@ -98,14 +97,13 @@
             x:Key="AppVersionTitle"
             BasedOn="{StaticResource TitleText}"
             TargetType="TextBlock">
-            <Setter Property="Margin" Value="0,100,0,0" />
+            <Setter Property="Margin" Value="0,15,0,5" />
         </Style>
 
         <Style
             x:Key="AppVersion"
             BasedOn="{StaticResource ContentText}"
             TargetType="TextBlock">
-            <Setter Property="Margin" Value="0,130,0,0" />
             <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
 
@@ -113,14 +111,13 @@
             x:Key="AppDevTitle"
             BasedOn="{StaticResource TitleText}"
             TargetType="TextBlock">
-            <Setter Property="Margin" Value="0,160,0,0" />
+            <Setter Property="Margin" Value="0,15,0,5" />
         </Style>
 
         <Style
             x:Key="AppDev"
             BasedOn="{StaticResource ContentText}"
             TargetType="TextBlock">
-            <Setter Property="Margin" Value="0,190,0,0" />
             <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
 
@@ -128,7 +125,7 @@
             x:Key="AppOpenSourceText"
             BasedOn="{StaticResource ContentText}"
             TargetType="TextBlock">
-            <Setter Property="Margin" Value="0,0,0,00" />
+            <Setter Property="Margin" Value="0,20,0,10" />
             <Setter Property="VerticalAlignment" Value="Bottom" />
         </Style>
     </Window.Resources>
@@ -143,65 +140,76 @@
 
             <ctrl:Header Title="{lex:Loc Key={x:Static loc:ResourcesKeys.Window_About_Title}}" Grid.Row="0" />
 
-            <Border Grid.Row="1" Style="{StaticResource GroupBoxBorder}">
+            <StackPanel Grid.Row="1" Margin="20">
                 <Grid>
-
-                    <TextBlock Style="{StaticResource GroupBoxText}" Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Window_About_Title}}" />
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
                     <Image Source="pack://application:,,,/Assets/Images/ApplicationIcon.png" Style="{StaticResource AppImage}" />
 
-                    <TextBlock Style="{StaticResource AppName}" Text="{lex:Loc Key={x:Static loc:ResourcesKeys.App_Name}}" />
-                    <TextBlock Style="{StaticResource AppIntro}">
-                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Intro_Primary}}" />
-                        <LineBreak />
-                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Intro_Details}}" />
-                    </TextBlock>
-
-                    <TextBlock Style="{StaticResource AppVersionTitle}" Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Version_Label}}" />
-                    <!--<TextBlock Style="{StaticResource AppVersion}" Text="{Binding AppVersion}"/>-->
-                    <TextBlock Style="{StaticResource AppVersion}" Text="{x:Static view:AboutView.Version}" />
-
-                    <TextBlock Style="{StaticResource AppDevTitle}" Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Developers_Label}}" />
-                    <TextBlock Style="{StaticResource AppDev}">
-                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Developer_Lead}}" />
-                        <LineBreak />
-                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Developer_RocyJune}}" />
-                        <LineBreak />
-                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Developer_QingLan}}" />
-                        <LineBreak />
-                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Developer_Ihonliu}}" />
-                    </TextBlock>
-
-                    <TextBlock Style="{StaticResource AppOpenSourceText}">
-                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_OpenSource_Prefix}}" />
-                        <Hyperlink NavigateUri="https://github.com/anying1073/StarResonanceDps" RequestNavigate="Hyperlink_RequestNavigate">
-                            <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_OpenSource_RepositoryUrl}}" />
-                        </Hyperlink>
-                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_OpenSource_Suffix}}" />
-                        <LineBreak />
-                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Contribution}}" />
-                        <LineBreak />
-                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Community_Invite}}" />
-                        <Hyperlink NavigateUri="https://qm.qq.com/cgi-bin/qm/qr?k=QeIozXvLSRH9dL_CTZeisQ1Ae4CZpiSc&amp;jump_from=webapi&amp;authKey=HNr5BrrIhqRPyGs2R54NucKsg7Pb9/c0a03gih69PekWfSNLh9MIi/ClXXnaMzHK" RequestNavigate="Hyperlink_RequestNavigate">
-                            <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Community_GroupOne}}" />
-                        </Hyperlink>
-                        <Hyperlink NavigateUri="https://qm.qq.com/cgi-bin/qm/qr?k=ZbyXsDqWZm9mQN0R7cg-EVYlISgbik4M&amp;jump_from=webapi&amp;authKey=S8y8TcbKHzd2yWYUz4YA+Ojrq93PfFCyENqUgXho632ELRIiK6MmnauLuEB4BjhE" RequestNavigate="Hyperlink_RequestNavigate">
-                            <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Community_GroupTwo}}" />
-                        </Hyperlink>
-                        <LineBreak />
-                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Thanks_Prefix}}" />
-                        <Hyperlink NavigateUri="https://github.com/dmlgzs/StarResonanceDamageCounter" RequestNavigate="Hyperlink_RequestNavigate">
-                            <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Thanks_RepositoryUrl}}" />
-                        </Hyperlink>
-                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Thanks_Suffix}}" />
-                        <LineBreak />
-                        <LineBreak />
-                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Copyright}}" />
-                        <LineBreak />
-                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_PoweredBy}}" />
-                    </TextBlock>
+                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                        <TextBlock Style="{StaticResource AppName}" Text="{lex:Loc Key={x:Static loc:ResourcesKeys.App_Name}}" />
+                        <TextBlock Style="{StaticResource AppIntro}">
+                            <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Intro_Primary}}" />
+                            <LineBreak />
+                            <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Intro_Details}}" />
+                        </TextBlock>
+                    </StackPanel>
                 </Grid>
-            </Border>
+
+                <TextBlock Style="{StaticResource AppVersionTitle}" Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Version_Label}}" />
+                <TextBlock Style="{StaticResource AppVersion}" Text="{x:Static view:AboutView.Version}" />
+
+                <TextBlock Style="{StaticResource AppDevTitle}" Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Developers_Label}}" />
+                <TextBlock Style="{StaticResource AppDev}">
+                    <Run Text="惊奇猫猫盒 (anying1073)" />
+                    <Run Text=", "/>
+                    <Run Text="露詩 (Rocy-June)" />
+                    <Run Text=", "/>
+                    <Run Text="青岚宗王腾" />
+                    <Run Text=", "/>
+                    <Run Text="尻鸭 (ihonliu)" />
+                    <Run Text=", "/>
+                    <Run Text="こひろ (kokoukoiro)" />
+                    <Run Text=", "/>
+                    <Run Text="Onimock" />
+                    <Run Text=", "/>
+                    <Run Text="Shir0ha" />
+                    <Run Text=", "/>
+                    <Run Text="Madbol20" />
+                </TextBlock>
+
+                <TextBlock Style="{StaticResource AppOpenSourceText}">
+                    <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_OpenSource_Prefix}}" />
+                    <Hyperlink NavigateUri="https://github.com/anying1073/StarResonanceDps" RequestNavigate="Hyperlink_RequestNavigate">
+                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_OpenSource_RepositoryUrl}}" />
+                    </Hyperlink>
+                    <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_OpenSource_Suffix}}" />
+                    <LineBreak />
+                    <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Contribution}}" />
+                    <LineBreak />
+                    <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Community_Invite}}" />
+                    <Hyperlink NavigateUri="https://qm.qq.com/cgi-bin/qm/qr?k=QeIozXvLSRH9dL_CTZeisQ1Ae4CZpiSc&amp;jump_from=webapi&amp;authKey=HNr5BrrIhqRPyGs2R54NucKsg7Pb9/c0a03gih69PekWfSNLh9MIi/ClXXnaMzHK" RequestNavigate="Hyperlink_RequestNavigate">
+                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Community_GroupOne}}" />
+                    </Hyperlink>
+                    <Hyperlink NavigateUri="https://qm.qq.com/cgi-bin/qm/qr?k=ZbyXsDqWZm9mQN0R7cg-EVYlISgbik4M&amp;jump_from=webapi&amp;authKey=S8y8TcbKHzd2yWYUz4YA+Ojrq93PfFCyENqUgXho632ELRIiK6MmnauLuEB4BjhE" RequestNavigate="Hyperlink_RequestNavigate">
+                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Community_GroupTwo}}" />
+                    </Hyperlink>
+                    <LineBreak />
+                    <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Thanks_Prefix}}" />
+                    <Hyperlink NavigateUri="https://github.com/dmlgzs/StarResonanceDamageCounter" RequestNavigate="Hyperlink_RequestNavigate">
+                        <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Thanks_RepositoryUrl}}" />
+                    </Hyperlink>
+                    <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Thanks_Suffix}}" />
+                    <LineBreak />
+                    <LineBreak />
+                    <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_Copyright}}" />
+                    <LineBreak />
+                    <Run Text="{lex:Loc Key={x:Static loc:ResourcesKeys.About_PoweredBy}}" />
+                </TextBlock>
+            </StackPanel>
 
             <ctrl:Footer
                 Grid.Row="2"

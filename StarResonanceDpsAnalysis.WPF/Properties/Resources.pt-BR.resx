@@ -1023,18 +1023,6 @@ Como obter: Após uma luta, seu personagem aparecerá automaticamente na janela 
   <data name="About_Developers_Label" xml:space="preserve">
     <value>Contribuidores para esta versão (sem ordem específica):</value>
   </data>
-  <data name="About_Developer_Lead" xml:space="preserve">
-    <value>惊奇猫猫盒 (anying1073: fundador do projeto)</value>
-  </data>
-  <data name="About_Developer_RocyJune" xml:space="preserve">
-    <value>露詩（Rocy-June）</value>
-  </data>
-  <data name="About_Developer_QingLan" xml:space="preserve">
-    <value>青岚宗王腾</value>
-  </data>
-  <data name="About_Developer_Ihonliu" xml:space="preserve">
-    <value>尻鸭（ihonliu）</value>
-  </data>
   <data name="About_OpenSource_Prefix" xml:space="preserve">
     <value>Este projeto é código aberto em</value>
   </data>
@@ -1294,5 +1282,8 @@ Como obter o UID: no jogo, o número do jogador no canto inferior esquerdo é o 
   </data>
   <data name="Settings_Language_Japanese" xml:space="preserve">
     <value>日本語</value>
+  </data>
+  <data name="About_Founder" xml:space="preserve">
+    <value>fundador do projeto</value>
   </data>
 </root>

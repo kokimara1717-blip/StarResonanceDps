@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Navigation;
 using StarResonanceDpsAnalysis.WPF.Config;
@@ -16,10 +15,7 @@ public partial class AboutView : Window
         InitializeComponent();
     }
 
-    public static string Version
-    {
-        get => $"{BuildInfo.GetVersion()} {BuildInfo.GetBuildTime()}";
-    }
+    public static string Version => $"{BuildInfo.GetVersion()} {BuildInfo.GetBuildTime()}";
 
     private void Footer_ConfirmClick(object sender, RoutedEventArgs e)
     {
