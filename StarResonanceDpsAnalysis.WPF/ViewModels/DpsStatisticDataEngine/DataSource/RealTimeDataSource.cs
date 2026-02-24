@@ -49,6 +49,13 @@ public abstract class RealTimeDataSource : IDpsDataSource, IDisposable
 
     public void Reset()
     {
+        ClearCache();
+
+        DataSourceEngine.DeliverProcessedData();
+    }
+
+    protected void ClearCache()
+    {
         lock (SyncRoot)
         {
             Updating = true;
@@ -59,8 +66,6 @@ public abstract class RealTimeDataSource : IDpsDataSource, IDisposable
 
             Updating = false;
         }
-
-        DataSourceEngine.DeliverProcessedData();
     }
 
     public Dictionary<StatisticType, Dictionary<long, DpsDataProcessed>> GetData()
@@ -78,6 +83,7 @@ public abstract class RealTimeDataSource : IDpsDataSource, IDisposable
 
     public void Refresh()
     {
+        if (!Enable) return;
         var (newCache, raw) = FetchData();
         lock (SyncRoot)
         {

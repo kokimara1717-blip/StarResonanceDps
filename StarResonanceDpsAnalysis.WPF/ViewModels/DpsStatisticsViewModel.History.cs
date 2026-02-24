@@ -96,28 +96,16 @@ public partial class DpsStatisticsViewModel
     /// </summary>
     private void EnterHistoryViewMode(HistoryInfo historyInfo)
     {
+        _logger.LogInformation("Enter history view mode");
         InvokeOnDispatcher(() =>
         {
-            _logger.LogInformation("=== 进入历史查看模式 ===");
-
-            // 4. Set History mode flags
             IsViewingHistory = true;
+            ResetSubViewModels();
+
             var filePath = historyInfo.FilePath;
-            var History = HistoryService.LoadHistory(filePath);
-            if (History == null)
-            {
-                _logger.LogWarning("History data load failed");
-                return;
-            }
-
-            CurrentHistory = History;
-
-            // 5. Load History data to UI
             LoadHistoryDataToUI(filePath);
-
-            _logger.LogInformation("历史查看模式已启动: {Label}, 战斗时长: {Duration}",
-                CurrentHistory.DisplayLabel, CurrentHistory.Duration);
         });
+        _logger.LogTrace("Entered history view mode");
     }
 
     /// <summary>
@@ -133,19 +121,12 @@ public partial class DpsStatisticsViewModel
         {
             _logger.LogInformation("=== 退出历史查看模式 ===");
 
-            // 1. Clear History state
             IsViewingHistory = false;
-            CurrentHistory = null;
-
-            // 2. Clear UI data
-            foreach (var subVm in StatisticData.Values)
-            {
-                subVm.Reset();
-            }
-
+            // Clear UI data
+            ResetSubViewModels();
             UnloadHistoryData();
 
-            // 4. Refresh real-time data
+            // Refresh real-time data
             UpdateBattleDuration();
 
             _logger.LogInformation("已恢复实时DPS统计模式");

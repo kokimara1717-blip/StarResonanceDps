@@ -39,12 +39,13 @@ public sealed partial class ActiveUpdateModeDpsDataSource : RealTimeDataSource
 
     public override void SetEnable(bool enable)
     {
+        base.SetEnable(enable);
         _timer.IsEnabled = enable;
         lock (SyncRoot)
         {
             if (!enable)
             {
-                Reset();
+                ClearCache();
             }
         }
     }

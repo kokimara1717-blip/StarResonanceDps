@@ -13,6 +13,7 @@ public partial class DpsStatisticsViewModel
 {
     protected void UpdateData()
     {
+        _logger.LogTrace("Update data");
         _dataSourceEngine.DeliverProcessedData();
     }
 
@@ -54,9 +55,12 @@ public partial class DpsStatisticsViewModel
     /// Apply processed data prepared by providers/engine to sub-viewmodels and team totals.
     /// This centralizes UI update logic when providers pre-process data.
     /// </summary>
-    private void ApplyProcessedData(Dictionary<StatisticType, Dictionary<long, DpsDataProcessed>> processedByType)
+    private void ApplyProcessedData(object? sender, Dictionary<StatisticType, Dictionary<long, DpsDataProcessed>> processedByType)
     {
+        //_logger.LogTrace("ApplyProcessedData, sender:{senderType}", sender?.GetType());
+        //_logger.LogTrace("StatisticData.Damage.Count1:{Count}", StatisticData[StatisticType.Damage].Data.Count);
         InvokeOnDispatcher(Action);
+        //_logger.LogTrace("StatisticData.Damage.Count2:{Count}", StatisticData[StatisticType.Damage].Data.Count);
         return;
 
         // Ensure UI updates on dispatcher
@@ -79,7 +83,6 @@ public partial class DpsStatisticsViewModel
             // Update duration
             UpdateBattleDuration();
         }
-
     }
 }
 

@@ -42,7 +42,6 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
     // ===== Observable Properties =====
     [ObservableProperty] private AppConfig _appConfig = new();
     [ObservableProperty] private TimeSpan _battleDuration;
-    [ObservableProperty] private BattleHistoryData? _currentHistory;
     [ObservableProperty] private int _debugUpdateCount;
     [ObservableProperty] private bool _isIncludeNpcData;
     [ObservableProperty] private bool _isServerConnected;
@@ -116,11 +115,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
         // Subscribe to engine processed data ready event
         _dataSourceEngine = dataSourceEngine;
 
-        _dataSourceEngine.ProcessedDataReady += DataSourceEngineOnProcessedDataReady;
-        void DataSourceEngineOnProcessedDataReady(Dictionary<StatisticType, Dictionary<long, DpsDataProcessed>> processed)
-        {
-            InvokeOnDispatcher(() => ApplyProcessedData(processed));
-        }
+        _dataSourceEngine.ProcessedDataReady += ApplyProcessedData;
 
         // Configure engine mode according to config
         _dataSourceEngine.ChangeMode(_configManager.CurrentConfig.DpsUpdateMode.ToDataSourceMode());
@@ -318,6 +313,12 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
     private void ResetSubViewModelsIfInCurrentScope()
     {
         if (ScopeTime != ScopeTime.Current) return;
+        ResetSubViewModels();
+    }
+
+    private void ResetSubViewModels()
+    {
+        _logger.LogInformation("Reset sub view models");
         foreach (var itm in StatisticData.Values)
         {
             itm.Reset();

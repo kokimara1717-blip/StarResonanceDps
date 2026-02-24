@@ -19,7 +19,7 @@ public sealed class HistoryDpsDataSource(
 
     private string _filePath = string.Empty;
     private RawDict _rawDict = new Dictionary<long, PlayerStatistics>();
-    private BattleHistoryData? _HistoryData;
+    private BattleHistoryData? _historyData;
 
     public DataSourceMode Mode => DataSourceMode.History;
     public ScopeTime Scope { get; set; } = ScopeTime.Current;
@@ -76,7 +76,7 @@ public sealed class HistoryDpsDataSource(
 
     public IReadOnlyDictionary<long, PlayerInfo> GetPlayerInfoDictionary()
     {
-        return _HistoryData?.Players ?? new Dictionary<long, PlayerInfo>();
+        return _historyData?.Players ?? new Dictionary<long, PlayerInfo>();
     }
 
     public void SetHistoryFilePath(string filePath)
@@ -85,22 +85,21 @@ public sealed class HistoryDpsDataSource(
         {
             _filePath = filePath;
         }
-
-        Refresh();
     }
 
     private (StatisticDictionary data, RawDict raw) FetchData()
     {
         var includeNpc = engine.IncludeNpcData;
-        var History = service.LoadHistory(_filePath);
-        if (History == null)
+        var history = service.LoadHistory(_filePath);
+        logger.LogInformation("Load history: {filePath}", _filePath);
+        if (history == null)
         {
             logger.LogWarning("History file not found");
             return (new StatisticDictionary(), new Dictionary<long, PlayerStatistics>());
         }
 
-        _HistoryData = History;
-        var processed = processor.PreProcessData(History.Statistics, includeNpc);
-        return (processed, History.Statistics);
+        _historyData = history;
+        var processed = processor.PreProcessData(history.Statistics, includeNpc);
+        return (processed, history.Statistics);
     }
 }

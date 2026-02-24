@@ -66,16 +66,18 @@ public partial class DataSourceEngine
 
     public void Configure(DataSourceEngineParam param)
     {
+        _logger.LogTrace("Configure");
         if (param.Mode != null) ChangeMode(param.Mode.Value);
         if (param.BattleHistoryFilePath != null)
             _historyDpsDataSource.SetHistoryFilePath(param.BattleHistoryFilePath);
         if (param.ActiveUpdateInterval != null)
             _activeUpdateModeDpsDataSource.SetUpdateInterval(param.ActiveUpdateInterval.Value);
+        CurrentSource.Refresh();
     }
 
     // Event raised when providers deliver preprocessed data ready for UI
     public event
-        Action<Dictionary<StatisticType, Dictionary<long, DpsDataProcessed>>>? ProcessedDataReady;
+        EventHandler<Dictionary<StatisticType, Dictionary<long, DpsDataProcessed>>>? ProcessedDataReady;
 
     private void Register(IDpsDataSource source)
     {
@@ -117,6 +119,6 @@ public partial class DataSourceEngine
     internal void DeliverProcessedData()
     {
         var data = CurrentSource.GetData();
-        ProcessedDataReady?.Invoke(data);
+        ProcessedDataReady?.Invoke(CurrentSource, data);
     }
 }

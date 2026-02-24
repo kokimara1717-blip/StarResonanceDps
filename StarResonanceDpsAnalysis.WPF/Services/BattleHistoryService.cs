@@ -195,7 +195,8 @@ public partial class BattleHistoryService
             if (history != null)
             {
                 history.FilePath = filePath;
-                LogHistoryLoadedSuccess(filePath);
+
+                LogHistoryLoadedSuccess(filePath, history.Duration);
             }
             else
             {
@@ -417,8 +418,8 @@ public partial class BattleHistoryService
     [LoggerMessage(Level = LogLevel.Warning, Message = "历史文件不存在: {FilePath}")]
     private partial void LogHistoryFileNotFound(string filePath);
 
-    [LoggerMessage(Level = LogLevel.Debug, Message = "成功加载历史: {FilePath}")]
-    private partial void LogHistoryLoadedSuccess(string filePath);
+    [LoggerMessage(Level = LogLevel.Debug, Message = "成功加载历史: {FilePath}, Duration:{historyDuration}")]
+    private partial void LogHistoryLoadedSuccess(string filePath, TimeSpan historyDuration);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "反序列化历史失败: {FilePath}")]
     private partial void LogHistoryDeserializationFailed(string filePath);
