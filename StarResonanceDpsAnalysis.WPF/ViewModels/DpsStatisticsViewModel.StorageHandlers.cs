@@ -106,7 +106,7 @@ public partial class DpsStatisticsViewModel
                 slot.Player.Spec = info.Spec;
                 slot.Player.Uid = info.UID;
 
-                if (_storage.CurrentPlayerUUID == info.UID)
+                if (_storage.CurrentPlayerInfo.UID == info.UID)
                 {
                     subViewModel.CurrentPlayerSlot = slot;
                 }

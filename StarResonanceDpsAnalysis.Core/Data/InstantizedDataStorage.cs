@@ -65,8 +65,6 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
         set => DataStorage.IsServerConnected = value;
     }
 
-    public long CurrentPlayerUUID { get; set; }
-
     // Dispose: detach all wrappers from DataStorage static events
     public void Dispose()
     {

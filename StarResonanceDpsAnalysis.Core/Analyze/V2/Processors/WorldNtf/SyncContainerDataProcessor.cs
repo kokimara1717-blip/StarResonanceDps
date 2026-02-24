@@ -32,7 +32,6 @@ public sealed class SyncContainerDataProcessor(IDataStorage storage, ILogger? lo
         var prevPower = prev.CombatPower;
         var prevProfId = prev.ProfessionID;
 
-        storage.CurrentPlayerUUID = playerUid;
         storage.CurrentPlayerInfo.UID = playerUid;
         storage.EnsurePlayer(playerUid);
 

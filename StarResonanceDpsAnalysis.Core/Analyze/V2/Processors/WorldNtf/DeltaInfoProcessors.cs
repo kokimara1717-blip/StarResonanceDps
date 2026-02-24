@@ -1418,9 +1418,9 @@ public sealed class SyncToMeDeltaInfoProcessor(IDataStorage storage, ILogger? lo
         var syncToMeDeltaInfo = Zproto.WorldNtf.Types.SyncToMeDeltaInfo.Parser.ParseFrom(payload);
         var aoiSyncToMeDelta = syncToMeDeltaInfo.DeltaInfo;
         var uuid = aoiSyncToMeDelta.Uuid.ShiftRight16();
-        if (uuid != 0 && _storage.CurrentPlayerUUID != uuid)
+        if (uuid != 0 && _storage.CurrentPlayerInfo.UID != uuid)
         {
-            _storage.CurrentPlayerUUID = uuid;
+            _storage.CurrentPlayerInfo.UID = uuid;
         }
 
         var aoiSyncDelta = aoiSyncToMeDelta.BaseDelta;

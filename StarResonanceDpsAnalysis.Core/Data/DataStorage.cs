@@ -27,12 +27,6 @@ public static class DataStorage
         _engine.RegisterCalculator(new TakenDamageCalculator());
     }
 
-
-    /// <summary>
-    /// 当前玩家UUID
-    /// </summary>
-    public static long CurrentPlayerUUID { get; set; }
-
     /// <summary>
     /// 当前玩家信息
     /// </summary>
@@ -777,7 +771,7 @@ public static class DataStorage
         if (prev == combatState) return;
         Debug.WriteLine($"PlayerCombatState:[{uid}] {prev} -> {combatState}");
         PlayerInfoDatas[uid].CombatState = combatState;
-        if (CurrentPlayerUUID != 0) _engine.SetCombatState(combatState);
+        if (CurrentPlayerInfo.UID != 0) _engine.SetCombatState(combatState);
         TriggerPlayerInfoUpdated(uid);
     }
 

@@ -209,7 +209,6 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
             if (vData.CharId == null || vData.CharId == 0) return;
 
             var playerUid = vData.CharId;
-            DataStorage.CurrentPlayerUUID = playerUid;
             DataStorage.CurrentPlayerInfo.UID = playerUid;
             DataStorage.TestCreatePlayerInfoByUID(playerUid);
 
@@ -265,8 +264,8 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         {
             try
             {
-                if (DataStorage.CurrentPlayerUUID == 0) return;
-                var playerUid = DataStorage.CurrentPlayerUUID.ShiftRight16();
+                var playerUid = DataStorage.CurrentPlayerInfo.UID;
+                if (playerUid == 0) return;
                 DataStorage.TestCreatePlayerInfoByUID(playerUid);
 
                 //var dirty = Zproto.WorldNtf.Types.SyncContainerDirtyData.Parser.ParseFrom(payloadBuffer);
@@ -409,10 +408,10 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         {
             var syncToMeDeltaInfo = WorldNtf.Types.SyncToMeDeltaInfo.Parser.ParseFrom(payloadBuffer);
             var aoiSyncToMeDelta = syncToMeDeltaInfo.DeltaInfo;
-            var uuid = aoiSyncToMeDelta.Uuid;
-            if (uuid != 0 && DataStorage.CurrentPlayerUUID != uuid)
+            var uuid = aoiSyncToMeDelta.Uuid.ShiftRight16();
+            if (uuid != 0 && DataStorage.CurrentPlayerInfo.UID != uuid)
             {
-                DataStorage.CurrentPlayerUUID = uuid;
+                DataStorage.CurrentPlayerInfo.UID = uuid;
             }
 
             var aoiSyncDelta = aoiSyncToMeDelta.BaseDelta;

@@ -68,7 +68,7 @@ public partial class DpsStatisticsViewModel
         // Ensure UI updates on dispatcher
         void Action()
         {
-            var currentPlayerUid = _storage.CurrentPlayerUUID > 0 ? _storage.CurrentPlayerUUID : _configManager.CurrentConfig.Uid;
+            var currentPlayerUid = _storage.CurrentPlayerInfo.UID > 0 ? _storage.CurrentPlayerInfo.UID : _configManager.CurrentConfig.Uid;
 
             // Apply processed data to each sub viewmodel
             foreach (var (statisticType, processed) in processedByType)

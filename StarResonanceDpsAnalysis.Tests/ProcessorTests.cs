@@ -83,7 +83,6 @@ public partial class ProcessorTests
         //const long playerUuidRaw = playerUuid << 16;
         const string playerName = "DirtyPlayer";
 
-        mockStorage.Setup(s => s.CurrentPlayerUUID).Returns(playerUuid);
         var playerInfo = new PlayerInfo();
         mockStorage.Setup(s => s.CurrentPlayerInfo).Returns(playerInfo);
 
@@ -128,7 +127,6 @@ public partial class ProcessorTests
         const int curHp = 5000;
         // const int maxHp = 8000;
 
-        mockStorage.Setup(s => s.CurrentPlayerUUID).Returns(playerUuid);
         var playerInfo = new PlayerInfo();
         mockStorage.Setup(s => s.CurrentPlayerInfo).Returns(playerInfo);
 

@@ -152,7 +152,7 @@ public partial class DpsStatisticsViewModel
     private void OpenPersonalDpsView()
     {
         // Check if user has configured UID
-        var userUid = _storage.CurrentPlayerUUID > 0 ? _storage.CurrentPlayerUUID : _configManager.CurrentConfig.Uid;
+        var userUid = _storage.CurrentPlayerInfo.UID > 0 ? _storage.CurrentPlayerInfo.UID : _configManager.CurrentConfig.Uid;
 
         if (userUid <= 0)
         {

@@ -14,7 +14,6 @@ public interface IDataStorage : IDisposable
     TimeSpan SectionTimeout { get; set; }
 
     bool IsServerConnected { get; set; }
-    long CurrentPlayerUUID { get; set; }
 
     event ServerConnectionStateChangedEventHandler? ServerConnectionStateChanged;
     event PlayerInfoUpdatedEventHandler? PlayerInfoUpdated;

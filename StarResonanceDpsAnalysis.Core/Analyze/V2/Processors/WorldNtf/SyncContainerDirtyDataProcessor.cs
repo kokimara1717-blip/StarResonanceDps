@@ -15,7 +15,7 @@ internal sealed class SyncContainerDirtyDataProcessor(IDataStorage storage, ILog
         logger?.LogDebug(nameof(SyncContainerDirtyDataProcessor));
         try
         {
-            if (storage.CurrentPlayerUUID == 0) return;
+            if (storage.CurrentPlayerInfo.UID == 0) return;
             var dirty = Zproto.WorldNtf.Types.SyncContainerDirtyData.Parser.ParseFrom(payload);
             if (dirty?.VData?.Buffer == null || dirty.VData.Buffer.Length == 0) return;
 
@@ -28,7 +28,7 @@ internal sealed class SyncContainerDirtyDataProcessor(IDataStorage storage, ILog
             var fieldIndex = br.ReadUInt32();
             _ = br.ReadInt32();
 
-            var playerUid = storage.CurrentPlayerUUID;
+            var playerUid = storage.CurrentPlayerInfo.UID;
             storage.EnsurePlayer(playerUid);
 
             switch (fieldIndex)
