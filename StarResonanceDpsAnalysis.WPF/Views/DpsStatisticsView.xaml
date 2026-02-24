@@ -298,7 +298,7 @@
             <ctrl:DpsDetailPopup
                 PlayerName="{Binding Player.PlayerInfo}"
                 PlayerUid="{Binding Player.Uid}"
-                TemporaryMaskPlayerName="{Binding DataContext.TemporaryMaskPlayerName, RelativeSource={RelativeSource AncestorType=Window}}">
+                TemporaryMaskPlayerName="{Binding DataContext.AppConfig.MaskPlayerName, RelativeSource={RelativeSource AncestorType=Window}}">
                 <ctrl:DpsDetailPopup.SkillList>
                     <MultiBinding Converter="{StaticResource StatisticTypeToSkillListConverter}">
                         <Binding Path="." />
@@ -543,9 +543,8 @@
                                     <Separator />
 
                                     <MenuItem
-                                        Header="{lex:Loc Key={x:Static loc:ResourcesKeys.Menu_TemporaryMaskPlayerName}}"
-                                        IsChecked="{Binding TemporaryMaskPlayerName}"
-                                        Visibility="{Binding AppConfig.MaskPlayerName, Converter={StaticResource BoolToInvertedVisibilityConverter}}"
+                                        Header="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Display_PlayerNameMask}}"
+                                        IsChecked="{Binding AppConfig.MaskPlayerName}"
                                         Style="{StaticResource CheckableMenuItem}" />
 
                                     <MenuItem

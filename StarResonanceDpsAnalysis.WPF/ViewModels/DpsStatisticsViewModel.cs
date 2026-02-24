@@ -55,7 +55,6 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
     [ObservableProperty] private ulong _teamTotalDamage;
     [ObservableProperty] private double _teamTotalDps;
     [ObservableProperty] private string _teamTotalLabel = string.Empty;
-    [ObservableProperty] private bool _temporaryMaskPlayerName;
 
     // ===== Private State Fields =====
     private int _indicatorHoverCount;

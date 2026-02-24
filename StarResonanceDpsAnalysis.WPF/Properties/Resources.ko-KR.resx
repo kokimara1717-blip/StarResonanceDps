@@ -303,7 +303,7 @@
   <data name="Settings_Display_Opacity" xml:space="preserve">
     <value>오버레이 투명도</value>
   </data>
-  <data name="Settings_Display_PlayerNameBlur" xml:space="preserve">
+  <data name="Settings_Display_PlayerNameMask" xml:space="preserve">
     <value>플레이어 이름 익명 처리</value>
   </data>
   <data name="Settings_Display_MarqueeText" xml:space="preserve">

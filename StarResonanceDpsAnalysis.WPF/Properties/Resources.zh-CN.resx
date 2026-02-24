@@ -303,7 +303,7 @@
   <data name="Settings_Display_Opacity" xml:space="preserve">
     <value>窗体透明度</value>
   </data>
-  <data name="Settings_Display_PlayerNameBlur" xml:space="preserve">
+  <data name="Settings_Display_PlayerNameMask" xml:space="preserve">
     <value>玩家名脱敏</value>
   </data>
   <data name="Settings_Display_MarqueeText" xml:space="preserve">

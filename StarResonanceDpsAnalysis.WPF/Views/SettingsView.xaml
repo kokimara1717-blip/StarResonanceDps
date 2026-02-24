@@ -466,27 +466,6 @@
                                         </Grid>
                                     </Border>
 
-                                    <Border Style="{StaticResource SectionFieldBorder}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="39*" />
-                                                <ColumnDefinition Width="*" MinWidth="10" />
-                                                <ColumnDefinition Width="60*" />
-                                            </Grid.ColumnDefinitions>
-
-                                            <TextBlock
-                                                Grid.Column="0"
-                                                Style="{StaticResource FieldName}"
-                                                Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Display_PlayerNameBlur}}" />
-                                            <Border Grid.Column="2" HorizontalAlignment="Right">
-                                                <ctrl:SwitchControl
-                                                    IsChecked="{Binding AppConfig.MaskPlayerName, Mode=TwoWay}"
-                                                    OffContent="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Switch_Off}}"
-                                                    OnContent="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Switch_On}}" />
-                                            </Border>
-                                        </Grid>
-                                    </Border>
-
                                     <Border Style="{StaticResource SectionFieldBorderBase}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
