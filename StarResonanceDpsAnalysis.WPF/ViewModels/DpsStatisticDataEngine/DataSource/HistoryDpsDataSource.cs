@@ -61,6 +61,8 @@ public sealed class HistoryDpsDataSource(
         }
     }
 
+    public TimeSpan BattleDuration => _historyData?.Duration ?? TimeSpan.Zero;
+
     public void Refresh()
     {
         lock (_syncRoot)

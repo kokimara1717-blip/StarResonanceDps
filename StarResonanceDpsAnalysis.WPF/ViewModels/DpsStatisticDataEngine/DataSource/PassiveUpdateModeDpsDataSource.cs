@@ -6,9 +6,10 @@ namespace StarResonanceDpsAnalysis.WPF.ViewModels.DpsStatisticDataEngine.DataSou
 public sealed class PassiveUpdateModeDpsDataSource(
     DataSourceEngine dataSourceEngine,
     IDataStorage dataStorage,
-    IDpsDataProcessor processor)
+    IDpsDataProcessor processor,
+    IDpsTimerService timerService)
     : RealTimeDataSource(dataSourceEngine, dataStorage,
-        DataSourceMode.Passive, processor)
+        DataSourceMode.Passive, processor, timerService)
 {
     public override void SetEnable(bool enable)
     {

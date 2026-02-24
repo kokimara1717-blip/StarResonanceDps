@@ -21,17 +21,18 @@ public partial class DataSourceEngine
     public DataSourceEngine(
         IDataStorage dataStorage,
         IDpsDataProcessor dataProcessor,
-        BattleHistoryService HistoryService,
-        ILogger<DataSourceEngine> logger)
+        BattleHistoryService historyService,
+        ILogger<DataSourceEngine> logger,
+        IDpsTimerService timerService)
     {
         var dataStorage1 = dataStorage ?? throw new ArgumentNullException(nameof(dataStorage));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         // Register providers
-        Register(new PassiveUpdateModeDpsDataSource(this, dataStorage1, dataProcessor));
-        _activeUpdateModeDpsDataSource = new ActiveUpdateModeDpsDataSource(this, dataStorage1, _logger, dataProcessor);
+        Register(new PassiveUpdateModeDpsDataSource(this, dataStorage1, dataProcessor, timerService));
+        _activeUpdateModeDpsDataSource = new ActiveUpdateModeDpsDataSource(this, dataStorage1, _logger, dataProcessor, timerService);
         Register(_activeUpdateModeDpsDataSource);
-        _historyDpsDataSource = new HistoryDpsDataSource(this, HistoryService, logger, dataProcessor);
+        _historyDpsDataSource = new HistoryDpsDataSource(this, historyService, logger, dataProcessor);
         Register(_historyDpsDataSource);
     }
 

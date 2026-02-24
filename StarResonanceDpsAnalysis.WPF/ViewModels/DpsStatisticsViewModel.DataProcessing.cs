@@ -31,17 +31,19 @@ public partial class DpsStatisticsViewModel
 
         void Do()
         {
-            if (!_timerService.IsRunning) return;
+            BattleDuration = _dataSourceEngine.CurrentSource.BattleDuration;
+            _logger.LogTrace("Update battle duration: {duration}", BattleDuration);
+            //if (!_timerService.IsRunning) return;
 
-            if (ScopeTime == ScopeTime.Current)
-            {
-                // Use timer service for section elapsed
-                BattleDuration = _timerService.SectionDuration;
-            }
-            else // ScopeTime.Total
-            {
-                BattleDuration = _timerService.TotalDuration;
-            }
+            //if (ScopeTime == ScopeTime.Current)
+            //{
+            //    // Use timer service for section elapsed
+            //    BattleDuration = _timerService.SectionDuration;
+            //}
+            //else // ScopeTime.Total
+            //{
+            //    BattleDuration = _timerService.TotalDuration;
+            //}
         }
     }
 

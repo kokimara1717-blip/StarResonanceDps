@@ -18,13 +18,16 @@ public abstract class RealTimeDataSource : IDpsDataSource, IDisposable
     protected RawDict RawCache = new Dictionary<long, PlayerStatistics>();
     protected bool Updating;
     private readonly IDpsDataProcessor _processor;
+    private readonly IDpsTimerService _timerService;
 
     protected RealTimeDataSource(DataSourceEngine dataSourceEngine,
         IDataStorage dataStorage,
         DataSourceMode mode,
-        IDpsDataProcessor processor)
+        IDpsDataProcessor processor,
+        IDpsTimerService timerService)
     {
         _processor = processor;
+        _timerService = timerService;
         DataSourceEngine = dataSourceEngine;
         DataStorage = dataStorage;
         Mode = mode;
@@ -79,6 +82,19 @@ public abstract class RealTimeDataSource : IDpsDataSource, IDisposable
     public RawDict GetRawData()
     {
         return RawCache;
+    }
+
+    public TimeSpan BattleDuration
+    {
+        get
+        {
+            return Scope switch
+            {
+                ScopeTime.Current => _timerService.SectionDuration,
+                ScopeTime.Total => _timerService.TotalDuration,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
     }
 
     public void Refresh()

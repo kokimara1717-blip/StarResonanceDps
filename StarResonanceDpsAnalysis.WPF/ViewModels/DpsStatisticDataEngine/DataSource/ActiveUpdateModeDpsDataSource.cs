@@ -12,8 +12,8 @@ public sealed partial class ActiveUpdateModeDpsDataSource : RealTimeDataSource
     private readonly DispatcherTimer _timer;
 
     public ActiveUpdateModeDpsDataSource(DataSourceEngine dataSourceEngine, IDataStorage dataStorage, ILogger logger,
-        IDpsDataProcessor processor) : base(dataSourceEngine, dataStorage,
-        DataSourceMode.Active, processor)
+        IDpsDataProcessor processor, IDpsTimerService timerService) : base(dataSourceEngine, dataStorage,
+        DataSourceMode.Active, processor, timerService)
     {
         _logger = logger;
         _timer = new DispatcherTimer();

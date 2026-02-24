@@ -41,7 +41,7 @@ public sealed class DpsStatisticsDesignTimeViewModel : DpsStatisticsViewModel
         new DesignDataProcessor(),
         new DesignTeamStatsManager(),
         new DataSourceEngine(new DesignDataStorage(), new DesignDataProcessor(), new DesignBattleHistoryService(),
-            NullLogger<DataSourceEngine>.Instance),
+            NullLogger<DataSourceEngine>.Instance, new DesignTimerService()),
         new DesignResetCoordinator())
     {
         // Initialize AppConfig

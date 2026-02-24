@@ -36,9 +36,6 @@ public class ResetCoordinator : IResetCoordinator
         // Clear current section data
         _storage.ClearDpsData();
 
-        // Start new section in timer service
-        _timerService.StartNewSection();
-
         // Reset team stats
         _teamStatsManager.ResetTeamStats();
 

@@ -30,7 +30,7 @@ public partial class DpsStatisticsViewModel
             SaveScopeCurrentHistory();
 
             var finalSectionDuration = _timerService.SectionDuration;
-            _timerService.Stop();
+            _timerService.StopSection();
             _resetCoordinator.ResetCurrentSection();
 
             _logger.LogInformation("Section ended, final duration: {Duration:F1}s (using DpsTimerService)",

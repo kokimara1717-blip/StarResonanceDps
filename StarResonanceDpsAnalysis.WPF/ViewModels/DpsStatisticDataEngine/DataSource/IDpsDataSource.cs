@@ -1,6 +1,5 @@
 using StarResonanceDpsAnalysis.Core.Data.Models;
 using StarResonanceDpsAnalysis.Core.Statistics;
-using StarResonanceDpsAnalysis.WPF.Config;
 using StarResonanceDpsAnalysis.WPF.Models;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels.DpsStatisticDataEngine.DataSource;
@@ -14,6 +13,7 @@ public interface IDpsDataSource
     IReadOnlyDictionary<long, PlayerInfo> GetPlayerInfoDictionary();
 
     IReadOnlyDictionary<long, PlayerStatistics> GetRawData();
+    TimeSpan BattleDuration { get; }
 
     void Refresh();
 
