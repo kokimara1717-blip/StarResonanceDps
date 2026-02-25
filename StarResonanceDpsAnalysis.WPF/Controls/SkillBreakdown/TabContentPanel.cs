@@ -156,15 +156,6 @@ public class TabContentPanel : Control
         set => SetValue(CritLuckyRateProperty, value);
     }
 
-    public static readonly DependencyProperty CritLuckyPercentageProperty = DependencyProperty.Register(
-        nameof(CritLuckyPercentage), typeof(double), typeof(TabContentPanel), new PropertyMetadata(default(double)));
-
-    public double CritLuckyPercentage
-    {
-        get => (double)GetValue(CritLuckyPercentageProperty);
-        set => SetValue(CritLuckyPercentageProperty, value);
-    }
-
     public static readonly DependencyProperty NormalCountProperty = DependencyProperty.Register(
         nameof(NormalCount), typeof(long), typeof(TabContentPanel), new PropertyMetadata(default(long)));
 

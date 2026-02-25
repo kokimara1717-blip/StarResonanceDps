@@ -1,5 +1,5 @@
-using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using StarResonanceDpsAnalysis.WPF.Extensions;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels;
 
@@ -19,13 +19,17 @@ public partial class DataStatisticsViewModel : BaseViewModel
     [ObservableProperty] private long _luckyValue;
     [ObservableProperty] private long _critLuckyValue;
 
-    public double LuckyRate => Hits > 0 ? (double)LuckyCount / Hits : 0;
+    public double LuckyRate => MathExtension.Rate(LuckyCount, Hits);
 
-    public double CritRate => Hits > 0 ? (double)CritCount / Hits : 0;
+    public double CritLuckyRate => MathExtension.Rate(CritLuckyCount, Hits);
+
+    public double CritRate => MathExtension.Rate(CritCount, Hits);
 
     public int NormalCount => Hits - CritCount;
-    
-    public double NormalRate => Hits > 0 ? (double)NormalCount / Hits : 0;
+
+    public int TotalLuckyCount => LuckyCount + CritLuckyCount;
+
+    public double NormalRate => MathExtension.Rate(NormalCount, Hits);
 
     partial void OnCritCountChanged(int value)
     {
@@ -37,6 +41,16 @@ public partial class DataStatisticsViewModel : BaseViewModel
     partial void OnLuckyCountChanged(int value)
     {
         OnPropertyChanged(nameof(LuckyRate));
+        OnPropertyChanged(nameof(CritLuckyRate));
+        OnPropertyChanged(nameof(TotalLuckyCount));
+        OnPropertyChanged(nameof(NormalCount));
+        OnPropertyChanged(nameof(NormalRate));
+    }
+
+    partial void OnCritLuckyCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(CritLuckyRate));
+        OnPropertyChanged(nameof(TotalLuckyCount));
         OnPropertyChanged(nameof(NormalCount));
         OnPropertyChanged(nameof(NormalRate));
     }
@@ -47,5 +61,6 @@ public partial class DataStatisticsViewModel : BaseViewModel
         OnPropertyChanged(nameof(CritRate));
         OnPropertyChanged(nameof(NormalCount));
         OnPropertyChanged(nameof(NormalRate));
+        OnPropertyChanged(nameof(CritLuckyRate));
     }
 }
