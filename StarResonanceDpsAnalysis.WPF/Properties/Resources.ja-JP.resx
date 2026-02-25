@@ -127,7 +127,7 @@
     <value>総ダメージを表示</value>
   </data>
   <data name="Menu_Personal_Training_Mode" xml:space="preserve">
-    <value>ソロ/トレーニングモード</value>
+    <value>個人トレーニングモード</value>
   </data>
   <data name="Menu_SkillDiary" xml:space="preserve">
     <value>スキルログ</value>
@@ -247,13 +247,13 @@
     <value>基本設定</value>
   </data>
   <data name="Settings_Section_Basic_Sub" xml:space="preserve">
-    <value>自動検出に失敗した場合は手動で調整してください</value>
+    <value>自動検出できない場合は、手動で設定してください</value>
   </data>
   <data name="Settings_Section_Shortcut_Title" xml:space="preserve">
     <value>ショートカット</value>
   </data>
   <data name="Settings_Section_Shortcut_Sub" xml:space="preserve">
-    <value>選択したショートカットを消すには［Delete］を押してください</value>
+    <value>選択中のショートカットは [Delete] キーで削除できます</value>
   </data>
   <data name="Settings_Shortcut_MouseThrough" xml:space="preserve">
     <value>マウス透過</value>
@@ -277,7 +277,7 @@
     <value>戦闘設定</value>
   </data>
   <data name="Settings_Section_Combat_Sub" xml:space="preserve">
-    <value>戦闘後は画面のみをクリア、履歴は残ります</value>
+    <value>戦闘後は画面のみをクリアし、履歴は保持します</value>
   </data>
   <data name="Settings_NetworkAdapter_Label" xml:space="preserve">
     <value>ネットワークアダプター</value>
@@ -289,7 +289,7 @@
     <value>秒</value>
   </data>
   <data name="Settings_Combat_ClearAfterTeleport" xml:space="preserve">
-    <value>マップ切替時にリセット</value>
+    <value>マップ切り替え時にリセット</value>
   </data>
   <data name="Settings_Switch_On" xml:space="preserve">
     <value>オン</value>
@@ -340,7 +340,7 @@
     <value>DPS表示方式</value>
   </data>
   <data name="Settings_Display_DpsMode_Tooltip" xml:space="preserve">
-    <value>DPSの算出方法：総ダメージ÷時間、または全体平均DPS。</value>
+    <value>DPSの算出方法：総ダメージ÷時間、または全体平均DPS</value>
   </data>
   <data name="Settings_Display_DpsMode_On" xml:space="preserve">
     <value>全体平均DPS</value>
@@ -352,10 +352,10 @@
     <value>オン＝総ダメージ÷時間、オフ＝全体平均DPS（ValuePerSecond）</value>
   </data>
   <data name="Settings_Display_TimeSeriesCapacity" xml:space="preserve">
-    <value>時系列サンプル数</value>
+    <value>時系列データのサンプル数</value>
   </data>
   <data name="Settings_Display_TimeSeriesCapacity_Tooltip" xml:space="preserve">
-    <value>DPS/HPS/DTPSの推移グラフに保存する最大データ点数です。増やすほど履歴は長くなりますがメモリを使用します（範囲：50～1000）。</value>
+    <value>DPS/HPS/DTPSの推移グラフに保存する最大サンプル数です。値を大きくすると保持できる履歴が長くなりますが、メモリ使用量も増えます（範囲：50～1000）</value>
   </data>
   <data name="Settings_Common_Samples" xml:space="preserve">
     <value>サンプル</value>
@@ -379,7 +379,7 @@
     <value>表示設定</value>
   </data>
   <data name="Settings_Section_Language_Description" xml:space="preserve">
-    <value>インターフェース表示に関する設定</value>
+    <value>インターフェースに関する設定</value>
   </data>
   <data name="Settings_Language_Auto" xml:space="preserve">
     <value>システムと同じ</value>
@@ -394,10 +394,10 @@
     <value>Português (Brasil)</value>
   </data>
   <data name="NumberDisplay_Wan" xml:space="preserve">
-    <value>桁数日本語表記 (万億兆)</value>
+    <value>日本語表記の桁略記 (万億兆)</value>
   </data>
   <data name="NumberDisplay_KMB" xml:space="preserve">
-    <value>桁数英語表記 (KMBT)</value>
+    <value>英語表記の桁略記 (KMBT)</value>
   </data>
   <data name="NumberSuffix_K" xml:space="preserve">
     <value>K</value>
@@ -439,7 +439,7 @@
     <value>ちょ、DPS見ないで！</value>
   </data>
   <data name="MainView_Plugin_DpsTool_Description" xml:space="preserve">
-    <value>DPS統計とスキル内訳ツールを提供します</value>
+    <value>DPS統計やスキル内訳などの機能を搭載しています</value>
   </data>
   <data name="MainView_Plugin_Label_Author" xml:space="preserve">
     <value>作者：</value>
@@ -553,7 +553,7 @@
     <value>スキル詳細</value>
   </data>
   <data name="SkillBreakdown_Header_Title" xml:space="preserve">
-    <value>スキル内訳</value>
+    <value>スキル詳細</value>
   </data>
   <data name="SkillBreakdown_Card_RealtimeChart" xml:space="preserve">
     <value>リアルタイムDPS/HPS/DTPSグラフ</value>
@@ -562,13 +562,13 @@
     <value>ここに折れ線グラフが表示されます</value>
   </data>
   <data name="SkillBreakdown_Card_ShareChart" xml:space="preserve">
-    <value>スキル貢献度グラフ</value>
+    <value>スキル割合グラフ</value>
   </data>
   <data name="SkillBreakdown_Placeholder_PieChart" xml:space="preserve">
     <value>ここに円グラフが表示されます</value>
   </data>
   <data name="SkillBreakdown_Card_DamageDistribution" xml:space="preserve">
-    <value>ダメージ分布</value>
+    <value>ダメージ内訳</value>
   </data>
   <data name="SkillBreakdown_Placeholder_BarChart" xml:space="preserve">
     <value>ここに棒グラフが表示されます</value>
@@ -655,7 +655,7 @@
     <value>個人トレーニングモードを開く</value>
   </data>
   <data name="SkillBreakdown_Section_DamageDistribution" xml:space="preserve">
-    <value>ダメージ分布</value>
+    <value>ダメージ内訳</value>
   </data>
   <data name="StatisticType_Damage" xml:space="preserve">
     <value>ダメージ</value>
@@ -726,10 +726,10 @@
     <value>テーマ設定</value>
   </data>
   <data name="Settings_Section_Theme_Description" xml:space="preserve">
-    <value>ツールボックスの見た目をカスタマイズする設定</value>
+    <value>ツールボックスの外観をカスタマイズ</value>
   </data>
   <data name="Settings_Theme_WindowColor" xml:space="preserve">
-    <value>ウィンドウカラー</value>
+    <value>ウィンドウの色</value>
   </data>
   <data name="Settings_Theme_BackgroundImage" xml:space="preserve">
     <value>背景画像</value>
@@ -756,7 +756,7 @@
     <value>DPS更新方式</value>
   </data>
   <data name="Settings_Combat_DpsUpdateMode_Tooltip" xml:space="preserve">
-    <value>リアルタイム方式：イベントで更新
+    <value>リアルタイム方式：イベント発生時に更新
 
 タイマー方式：一定間隔で更新
 （CPU負荷が低く、更新間隔を設定できます）</value>
@@ -771,8 +771,8 @@
     <value>DPS更新間隔</value>
   </data>
   <data name="Settings_Combat_DpsUpdateInterval_Tooltip" xml:space="preserve">
-    <value>タイマー方式でのみ有効です
-推奨：500～2000ミリ秒</value>
+    <value>タイマー方式でのみ有効
+推奨値：500～2000ミリ秒</value>
   </data>
   <data name="Settings_Common_Milliseconds" xml:space="preserve">
     <value>ミリ秒</value>
@@ -784,7 +784,7 @@
     <value>トレーニングモード</value>
   </data>
   <data name="MainView_Plugin_Training_Description" xml:space="preserve">
-    <value>トレーニングモードを提供し、スキルのダメージ分布の分析や、各クラスのランキング機能を備えています</value>
+    <value>トレーニングモードを搭載し、スキルダメージ内訳の分析や各クラスのランキング表示に対応しています</value>
   </data>
   <data name="Settings_Shortcut_ToggleDps" xml:space="preserve">
     <value>DPSウィンドウを切り替え</value>
@@ -796,7 +796,7 @@
     <value>キャラクター設定</value>
   </data>
   <data name="Settings_Section_Character_Sub" xml:space="preserve">
-    <value>ソロ/トレーニングモード用にキャラクターUIDの設定</value>
+    <value>個人トレーニングモードで使用するキャラクターUIDの設定</value>
   </data>
   <data name="Settings_Character_Uid" xml:space="preserve">
     <value>キャラクターUID</value>
@@ -806,7 +806,7 @@
 確認方法：戦闘後、統計ウィンドウに現在のキャラクターが自動表示されます</value>
   </data>
   <data name="Settings_Combat_MaxHistoryCount" xml:space="preserve">
-    <value>履歴保存上限</value>
+    <value>履歴の保存上限</value>
   </data>
   <data name="Settings_Combat_MaxHistoryCount_Tooltip" xml:space="preserve">
     <value>保存する戦闘履歴の最大件数（5～50）</value>
@@ -830,7 +830,7 @@
     <value>総ヒット数</value>
   </data>
   <data name="SkillBreakdown_Section_DamageSkillsAnalysis" xml:space="preserve">
-    <value>ダメージスキル分析</value>
+    <value>スキル別ダメージ分析</value>
   </data>
   <data name="SkillBreakdown_Chart_RealTimeDps" xml:space="preserve">
     <value>リアルタイムDPS</value>
@@ -839,10 +839,10 @@
     <value>ズームをリセット</value>
   </data>
   <data name="SkillBreakdown_Chart_SkillDamageDistribution" xml:space="preserve">
-    <value>スキル別ダメージ分布</value>
+    <value>スキル別ダメージ内訳</value>
   </data>
   <data name="SkillBreakdown_Chart_HitTypeDistribution" xml:space="preserve">
-    <value>ヒット種別分布</value>
+    <value>ヒット種別内訳</value>
   </data>
   <data name="SkillBreakdown_Label_TotalHealing" xml:space="preserve">
     <value>総回復量</value>
@@ -860,10 +860,10 @@
     <value>リアルタイムHPS</value>
   </data>
   <data name="SkillBreakdown_Chart_HealingDistribution" xml:space="preserve">
-    <value>回復分布</value>
+    <value>回復内訳</value>
   </data>
   <data name="SkillBreakdown_Chart_HealTypeDistribution" xml:space="preserve">
-    <value>回復種別分布</value>
+    <value>回復種別内訳</value>
   </data>
   <data name="SkillBreakdown_Label_TotalDamageTaken" xml:space="preserve">
     <value>総被ダメージ</value>
@@ -881,7 +881,7 @@
     <value>リアルタイムDTPS</value>
   </data>
   <data name="SkillBreakdown_Chart_DamageSourcesDistribution" xml:space="preserve">
-    <value>被ダメージ要因分布</value>
+    <value>被ダメージ要因内訳</value>
   </data>
   <data name="SkillBreakdown_Chart_DpsSeriesXAxis" xml:space="preserve">
     <value>時間（秒）</value>
@@ -890,10 +890,10 @@
     <value>プレイヤー情報の表示</value>
   </data>
   <data name="Settings_PlayerInfoCustomization_Description" xml:space="preserve">
-    <value>プレイヤー情報の表示形式をカスタマイズする設定</value>
+    <value>プレイヤー情報の表示形式をカスタマイズ</value>
   </data>
   <data name="Settings_PlayerInfo_UseCustomFormat" xml:space="preserve">
-    <value>カスタム形式を有効化</value>
+    <value>カスタム形式を有効にする</value>
   </data>
   <data name="Settings_PlayerInfo_QuickPresets" xml:space="preserve">
     <value>クイックプリセット</value>
@@ -911,13 +911,13 @@
     <value>名前のみ</value>
   </data>
   <data name="Settings_PlayerInfo_AddFields" xml:space="preserve">
-    <value>情報フィールドを追加</value>
+    <value>表示項目を追加</value>
   </data>
   <data name="Settings_PlayerInfo_AddSeparators" xml:space="preserve">
     <value>区切り文字を追加</value>
   </data>
   <data name="Settings_PlayerInfo_FormatString" xml:space="preserve">
-    <value>カスタム形式文字列</value>
+    <value>カスタム形式の文字列</value>
   </data>
   <data name="Settings_PlayerInfo_FormatString_Tooltip" xml:space="preserve">
     <value>上級者向け：{Name}、{Spec}、{PowerLevel} などのプレースホルダーを使って形式文字列を直接編集できます。</value>
@@ -1020,7 +1020,7 @@
     <value>クラスカラー設定</value>
   </data>
   <data name="Settings_Section_ClassColors_Description" xml:space="preserve">
-    <value>各クラスの色をカスタマイズする設定</value>
+    <value>各クラスの色をカスタマイズ</value>
   </data>
   <data name="Settings_ClassColors_Reset_Tooltip" xml:space="preserve">
     <value>色を既定に戻す</value>
@@ -1035,10 +1035,10 @@
     <value>スタレゾツールボックス</value>
   </data>
   <data name="About_Intro_Primary" xml:space="preserve">
-    <value>『ブループロトコル：スターレゾナンス』プレイヤー向けの戦闘データ集計ツールです。</value>
+    <value>『ブループロトコル：スターレゾナンス』のプレイヤー向けの戦闘データ集計ツールです。</value>
   </data>
   <data name="About_Intro_Details" xml:space="preserve">
-    <value>本ツールはゲームクライアントを改変せず、ゲームの利用規約（サービス条款）にも抵触しません。戦闘データの理解をサポートし、不要な手間を減らして、より快適なプレイ体験を目指しています。ご利用の際は、取得したデータを差別などゲームコミュニティの環境を損なう目的で使用しないようお願いします。</value>
+    <value>本ツールはゲームクライアントを改変せず、ゲームの利用規約にも違反しません。戦闘データの分析を支援し、プレイヤーの負担を減らすことで、より快適なプレイ体験を目指しています。ご利用にあたっては、取得したデータを差別や誹謗中傷など、ゲームコミュニティの健全な環境を損なう目的で使用しないようお願いいたします。</value>
   </data>
   <data name="About_Version_Label" xml:space="preserve">
     <value>現在のバージョン：</value>
@@ -1053,13 +1053,13 @@
     <value>https://github.com/anying1073/StarResonanceDps</value>
   </data>
   <data name="About_OpenSource_Suffix" xml:space="preserve">
-    <value>でオープンソースとして公開しています。使用中に問題があれば、Issue でご報告ください。</value>
+    <value>でオープンソースとして公開しています。ご利用中に不具合や問題が発生した場合は、Issueでご報告ください。</value>
   </data>
   <data name="About_Contribution" xml:space="preserve">
-    <value>開発に参加したい場合は、Fork のうえ Pull Request をお送りください。</value>
+    <value>開発に参加したい場合は、Fork のうえ Pull Requestを作成してください。</value>
   </data>
   <data name="About_Community_Invite" xml:space="preserve">
-    <value>GitHub にアクセスできない場合やソフトの入手を希望する場合は、QQグループに参加してください：</value>
+    <value>中国語圏の開発コミュニティ（QQグループ）に興味のある方は、ぜひご参加ください:</value>
   </data>
   <data name="About_Community_GroupOne" xml:space="preserve">
     <value>678150498 (グループ1)</value>
@@ -1074,7 +1074,7 @@
     <value>https://github.com/dmlgzs/StarResonanceDamageCounter</value>
   </data>
   <data name="About_Thanks_Suffix" xml:space="preserve">
-    <value>本プロジェクトの開発にあたり、多大なご協力ご支援をいただきました。</value>
+    <value>本プロジェクトの開発にあたり、多大なるご協力・ご支援を賜りました。</value>
   </data>
   <data name="About_Copyright" xml:space="preserve">
     <value>Copyright (C) 2025 anying1073/StarResonanceDps Team.</value>
@@ -1218,9 +1218,9 @@
     <value>キャラクターUIDの設定が必要です</value>
   </data>
   <data name="Dialog_UidRequired_Message" xml:space="preserve">
-    <value>個人トレーニングモードを使用するには、先に設定でキャラクターUIDを登録してください。
+    <value>個人トレーニングモードを使用するには、設定画面でキャラクターUIDを登録してください。
 
-UIDの確認方法：ゲームに入ったら、画面左下に表示されるプレイヤー番号がUIDです。</value>
+UIDの確認方法：ゲーム内の画面左下に表示されるプレイヤー番号がUIDです。</value>
   </data>
   <data name="Common_Dash" xml:space="preserve">
     <value>-</value>
