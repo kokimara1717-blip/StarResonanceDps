@@ -558,7 +558,7 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         }
         
         /// <summary>
-        ///  Looks up a localized string similar to CritLukcy.
+        ///   CritLukcy に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string Common_HitType_CriticalLucky {
             get {
@@ -567,8 +567,7 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         }
         
         /// <summary>
-        ///  Lucky に類似しているローカライズされた文字列を検索します。
-        ///  Looks up a localized string similar to Lucky.
+        ///   Lucky に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string Common_HitType_Lucky {
             get {
@@ -944,6 +943,42 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         public static string Dialog_UidRequired_Title {
             get {
                 return ResourceManager.GetString("Dialog_UidRequired_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///     Average: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DpsDetail_Popup_Average {
+            get {
+                return ResourceManager.GetString("DpsDetail_Popup_Average", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Crit に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DpsDetail_Popup_Critical {
+            get {
+                return ResourceManager.GetString("DpsDetail_Popup_Critical", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Hits: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DpsDetail_Popup_HitCount {
+            get {
+                return ResourceManager.GetString("DpsDetail_Popup_HitCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Total Damage: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DpsDetail_Popup_TotalDamage {
+            get {
+                return ResourceManager.GetString("DpsDetail_Popup_TotalDamage", resourceCulture);
             }
         }
         
@@ -1542,6 +1577,15 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         }
         
         /// <summary>
+        ///   Select Dummy に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string Menu_Select_Training_Dummy {
+            get {
+                return ResourceManager.GetString("Menu_Select_Training_Dummy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Settings に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string Menu_Settings {
@@ -1646,6 +1690,24 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         public static string Menu_Training {
             get {
                 return ResourceManager.GetString("Menu_Training", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Elite Enemy に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string Menu_Training_Dummy_Elite_Enemy {
+            get {
+                return ResourceManager.GetString("Menu_Training_Dummy_Elite_Enemy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Elite Tank に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string Menu_Training_Dummy_Elite_Tank {
+            get {
+                return ResourceManager.GetString("Menu_Training_Dummy_Elite_Tank", resourceCulture);
             }
         }
         
@@ -3293,7 +3355,7 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CritLucky rate.
+        ///   CritLucky rate に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string SkillBreakdown_Suffix_CritLucky {
             get {
@@ -3302,7 +3364,7 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         }
         
         /// <summary>
-        ///  crits Number に類似しているローカライズされた文字列を検索します。 Looks up a localized string similar to crits Number.
+        ///   crits Number に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string SkillBreakdown_Suffix_Crits {
             get {
