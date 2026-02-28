@@ -23,7 +23,7 @@ namespace StarResonanceDpsAnalysis.WPF.ViewModels;
 /// - DpsStatisticsViewModel.Configuration.cs: Configuration and settings
 /// - DpsStatisticsViewModel.Definitions.cs: Type definitions and records
 /// </summary>
-public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
+public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, IDisposable
 {
     // ===== Services =====
     private readonly IApplicationControlService _appControlService;
@@ -59,7 +59,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
     // ===== Private State Fields =====
     private int _indicatorHoverCount;
     private bool _isInitialized;
-    private DispatcherTimer _battleDurationUpdateTimer;
+    private readonly DispatcherTimer _battleDurationUpdateTimer;
 
     // ===== Public Properties =====
     public DpsStatisticsSubViewModel CurrentStatisticData => StatisticData[StatisticIndex];
@@ -87,7 +87,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel, IDisposable
         IDpsDataProcessor dataProcessor,
         ITeamStatsUIManager teamStatsManager,
         DataSourceEngine dataSourceEngine,
-        IResetCoordinator resetCoordinator)
+        IResetCoordinator resetCoordinator) : base(dispatcher)
     {
         _logger = logger;
         _storage = storage;

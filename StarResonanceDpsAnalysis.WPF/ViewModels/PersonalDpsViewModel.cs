@@ -31,7 +31,7 @@ public enum DummyTargetType
     TDummy
 }
 
-public partial class PersonalDpsViewModel : BaseViewModel
+public partial class PersonalDpsViewModel : BaseDispatcherSupportViewModel
 {
     private readonly IWindowManagementService _windowManagementService;
     private readonly IDataStorage _dataStorage;
@@ -493,7 +493,7 @@ public partial class PersonalDpsViewModel : BaseViewModel
             _logger?.LogInformation("打桩模式3分钟计时结束，停止记录伤害");
             
             StopTimer();
-            _dispatcher.BeginInvoke(() => 
+            InvokeOnDispatcher(() =>
             {
                 StartTraining = false;
                 RefreshRemaining();
@@ -501,7 +501,7 @@ public partial class PersonalDpsViewModel : BaseViewModel
             return;
         }
         
-        _dispatcher.BeginInvoke(RefreshRemaining);
+        InvokeOnDispatcher(RefreshRemaining);
     }
 
     private TimeSpan GetElapsed()

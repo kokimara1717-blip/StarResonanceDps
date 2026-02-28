@@ -1,5 +1,6 @@
 namespace StarResonanceDpsAnalysis.WPF.ViewModels.DpsStatisticDataEngine;
 
+[Flags]
 public enum DataSourceMode
 {
     /// <summary>

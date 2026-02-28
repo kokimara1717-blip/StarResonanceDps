@@ -840,7 +840,7 @@ internal sealed class DesignDataStorage : IDataStorage
     public void ClearCurrentPlayerInfo() { }
     public void ClearPlayerInfos() { }
     public void ClearAllPlayerInfos() { }
-    public void RaiseServerChanged(string currentServerStr, string prevServer) { }
+    public void ServerChange(string currentServerStr, string prevServer) { }
     public void SetPlayerLevel(long playerUid, int tmpLevel) { }
     public bool EnsurePlayer(long playerUid) => true;
     public void SetPlayerHP(long playerUid, long hp) { }

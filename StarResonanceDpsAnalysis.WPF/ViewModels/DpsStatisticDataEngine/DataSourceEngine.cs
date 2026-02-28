@@ -25,12 +25,11 @@ public partial class DataSourceEngine
         ILogger<DataSourceEngine> logger,
         IDpsTimerService timerService)
     {
-        var dataStorage1 = dataStorage ?? throw new ArgumentNullException(nameof(dataStorage));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         // Register providers
-        Register(new PassiveUpdateModeDpsDataSource(this, dataStorage1, dataProcessor, timerService));
-        _activeUpdateModeDpsDataSource = new ActiveUpdateModeDpsDataSource(this, dataStorage1, _logger, dataProcessor, timerService);
+        Register(new PassiveUpdateModeDpsDataSource(this, dataStorage, dataProcessor, timerService));
+        _activeUpdateModeDpsDataSource = new ActiveUpdateModeDpsDataSource(this, dataStorage, _logger, dataProcessor, timerService);
         Register(_activeUpdateModeDpsDataSource);
         _historyDpsDataSource = new HistoryDpsDataSource(this, historyService, logger, dataProcessor);
         Register(_historyDpsDataSource);
