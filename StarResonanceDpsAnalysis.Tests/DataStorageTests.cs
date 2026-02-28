@@ -144,7 +144,7 @@ public class DataStorageTests : IDisposable
         DataStorage.AddBattleLog(new BattleLog { AttackerUuid = 1, Value = 100 });
         Assert.NotEmpty(DataStorage.ReadOnlySectionedDpsDatas);
 
-        DataStorage.ClearDpsData();
+        DataStorage.ClearSectionDpsData();
 
         Assert.Empty(DataStorage.ReadOnlySectionedDpsDatas);
         Assert.NotEmpty(DataStorage.ReadOnlyFullDpsDatas);

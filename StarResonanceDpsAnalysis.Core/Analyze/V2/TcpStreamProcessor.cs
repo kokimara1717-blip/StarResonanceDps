@@ -314,7 +314,7 @@ internal sealed class TcpStreamProcessor : IDisposable
         // Mark as connected only after we have positively detected the server
         _storage.IsServerConnected = true;
 
-        _storage.RaiseServerChanged(currentServerStr, prevServer);
+        _storage.ServerChange(currentServerStr, prevServer);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

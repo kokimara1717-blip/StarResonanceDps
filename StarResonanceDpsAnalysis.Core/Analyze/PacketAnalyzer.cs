@@ -268,7 +268,7 @@ public class PacketAnalyzer(ILogger<PacketAnalyzer>? logger = null) : IPacketAna
                                             logger?.LogInformation(CoreLogEvents.ServerDetected,
                                                 "Detected scene server {Server}", srcServer);
 
-                                            DataStorage.InvokeServerChangedEvent(CurrentServer, prevServer);
+                                            DataStorage.ServerChange(CurrentServer, prevServer);
                                         }
                                     }
                                     catch (Exception ex)
@@ -298,7 +298,7 @@ public class PacketAnalyzer(ILogger<PacketAnalyzer>? logger = null) : IPacketAna
                                     logger?.LogInformation(CoreLogEvents.ServerDetected,
                                         "Detected scene server (login) {Server}", srcServer);
 
-                                    DataStorage.InvokeServerChangedEvent(CurrentServer, prevServer);
+                                    DataStorage.ServerChange(CurrentServer, prevServer);
                                 }
                             }
                         }

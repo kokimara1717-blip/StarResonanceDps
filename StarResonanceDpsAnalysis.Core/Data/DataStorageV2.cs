@@ -756,7 +756,7 @@ public partial class DataStorageV2
     public event Action? BeforeSectionCleared;
     public event SectionEndedEventHandler? SectionEnded;
 
-    public void RaiseServerChanged(string currentServer, string prevServer)
+    public void ServerChange(string currentServer, string prevServer)
     {
         try
         {

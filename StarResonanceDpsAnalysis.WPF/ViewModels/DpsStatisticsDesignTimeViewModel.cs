@@ -249,7 +249,7 @@ public sealed class DpsStatisticsDesignTimeViewModel : DpsStatisticsViewModel
         {
         }
 
-        public void RaiseServerChanged(string currentServerStr, string prevServer)
+        public void ServerChange(string currentServerStr, string prevServer)
         {
         }
 

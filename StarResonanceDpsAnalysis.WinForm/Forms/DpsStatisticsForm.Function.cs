@@ -269,7 +269,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private void HandleClearData()
         {
-            DataStorage.ClearDpsData();
+            DataStorage.ClearSectionDpsData();
 
             _battleTimer.Reset();
         }

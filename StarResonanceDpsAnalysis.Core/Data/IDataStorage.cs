@@ -37,7 +37,7 @@ public interface IDataStorage : IDisposable
     void ClearCurrentPlayerInfo();
     void ClearPlayerInfos();
     void ClearAllPlayerInfos();
-    void RaiseServerChanged(string currentServerStr, string prevServer);
+    void ServerChange(string currentServerStr, string prevServer);
     void SetPlayerLevel(long playerUid, int tmpLevel);
     bool EnsurePlayer(long playerUid);
     void SetPlayerHP(long playerUid, long hp);

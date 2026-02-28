@@ -407,7 +407,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
 
     public void ClearDpsData()
     {
-        DataStorage.ClearDpsData();
+        DataStorage.ClearSectionDpsData();
     }
 
     public void ClearCurrentPlayerInfo()
@@ -425,9 +425,9 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
         DataStorage.ClearAllPlayerInfos();
     }
 
-    public void RaiseServerChanged(string currentServerStr, string prevServer)
+    public void ServerChange(string currentServerStr, string prevServer)
     {
-        DataStorage.InvokeServerChangedEvent(currentServerStr, prevServer);
+        DataStorage.ServerChange(currentServerStr, prevServer);
     }
 
     public void SetPlayerLevel(long playerUid, int tmpLevel)

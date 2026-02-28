@@ -282,25 +282,9 @@ public static partial class DataStorage
     /// <param name="uid">UID</param>
     private static void TriggerPlayerInfoUpdated(long uid)
     {
-        try
-        {
-            PlayerInfoUpdated?.Invoke(PlayerInfoDatas[uid]);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(
-                $"An error occurred during trigger event(PlayerInfoUpdated) => {ex.Message}\r\n{ex.StackTrace}");
-        }
+        RaisePlayerInfoUpdated(uid);
 
-        try
-        {
-            DataUpdated?.Invoke();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(
-                $"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
-        }
+        RaiseDataUpdated();
     }
 
     /// <summary>
@@ -333,7 +317,6 @@ public static partial class DataStorage
         }
     }
 
-    private static bool HasCausedDamage = false;
     /// <summary>
     /// 添加战斗日志 (会自动创建日志分段)
     /// </summary>
@@ -350,9 +333,7 @@ public static partial class DataStorage
             var prevTt = new TimeSpan(LastBattleLog.TimeTicks);
             if (tt - prevTt > SectionTimeout || ForceNewBattleSection)
             {
-
                 sectionFlag = true;
-
                 ForceNewBattleSection = false;
             }
         }
@@ -361,23 +342,13 @@ public static partial class DataStorage
             sectionFlag = true;
         }
 
-        if (log.IsHeal)
-        {
-            if (!HasCausedDamage) return;
-        }
-        else
-        {
-            HasCausedDamage = true;
-        }
-
-
         // 如果创建新战斗分段
         if (sectionFlag)
         {
             try
             {
                 RaiseBeforeSectionCleared();
-                PrivateClearDpsData();
+                PrivateClearSectionDpsData();
                 RaiseNewSectionCreated();
             }
             catch (Exception ex)
@@ -451,38 +422,9 @@ public static partial class DataStorage
 
         EnsureSampleRecordingStarted();
 
-        try
-        {
-            // 触发战斗日志创建事件
-            BattleLogCreated?.Invoke(log);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(
-                $"An error occurred during trigger event(BattleLogCreated) => {ex.Message}\r\n{ex.StackTrace}");
-        }
-
-        try
-        {
-            // 触发DPS数据更新事件
-            DpsDataUpdated?.Invoke();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(
-                $"An error occurred during trigger event(DpsDataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
-        }
-
-        try
-        {
-            // 触发数据更新事件
-            DataUpdated?.Invoke();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(
-                $"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
-        }
+        RaiseBattleLogCreated(log);
+        RaiseDpsDataUpdated();
+        RaiseDataUpdated();
     }
 
     private static void EnsureSectionMonitorStarted()
@@ -630,6 +572,7 @@ public static partial class DataStorage
         return playerDic;
     }
 
+
     /// <summary>
     /// 清除所有DPS数据 (包括全程和阶段性)
     /// </summary>
@@ -640,62 +583,43 @@ public static partial class DataStorage
         FullDpsDatas.Clear();
         Adapter.ClearAll();
 
-        try
-        {
-            DpsDataUpdated?.Invoke();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(
-                $"An error occurred during trigger event(DpsDataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
-        }
-
-        try
-        {
-            DataUpdated?.Invoke();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(
-                $"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
-        }
+        RaiseDpsDataUpdated();
+        RaiseDataUpdated();
     }
-
-    private static void PrivateClearDpsData()
+    private static void PrivateClearSectionDpsData()
     {
         SectionedDpsDatas.Clear();
         Adapter.ResetSection();
-        HasCausedDamage = false;
-
-        try
-        {
-            DpsDataUpdated?.Invoke();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(
-                $"An error occurred during trigger event(DpsDataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
-        }
-
-        try
-        {
-            DataUpdated?.Invoke();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(
-                $"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
-        }
     }
 
     /// <summary>
     /// 标记新的战斗日志分段 (清空阶段性Dps数据)
     /// </summary>
-    public static void ClearDpsData()
+    public static void ClearSectionDpsData()
     {
         ForceNewBattleSection = true;
 
-        PrivateClearDpsData();
+        PrivateClearSectionDpsData();
+
+        try
+        {
+            DpsDataUpdated?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"An error occurred during trigger event(DpsDataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
+        }
+
+        try
+        {
+            DataUpdated?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
+        }
     }
 
     /// <summary>
@@ -744,20 +668,6 @@ public static partial class DataStorage
                 $"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
         }
     }
-
-    internal static void InvokeServerChangedEvent(string currentServer, string prevServer)
-    {
-        try
-        {
-            ServerChanged?.Invoke(currentServer, prevServer);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(
-                $"An error occurred during trigger event(ServerChanged) => {ex.Message}\r\n{ex.StackTrace}");
-        }
-    }
-
     #region SetPlayerProperties
 
     /// <summary>
@@ -949,6 +859,77 @@ public static partial class DataStorage
     {
         BeforeSectionCleared?.Invoke();
     }
+
+    private static void RaiseDpsDataUpdated()
+    {
+        try
+        {
+            DpsDataUpdated?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"An error occurred during trigger event(DpsDataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
+        }
+    }
+    private static void RaiseDataUpdated()
+    {
+        try
+        {
+            DataUpdated?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
+        }
+    }
+
+    private static void RaisePlayerInfoUpdated(long uid)
+    {
+        try
+        {
+            PlayerInfoUpdated?.Invoke(PlayerInfoDatas[uid]);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"An error occurred during trigger event(PlayerInfoUpdated) => {ex.Message}\r\n{ex.StackTrace}");
+        }
+    }
+
+    private static void RaiseBattleLogCreated(BattleLog log)
+    {
+        try
+        {
+            // 触发战斗日志创建事件
+            BattleLogCreated?.Invoke(log);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"An error occurred during trigger event(BattleLogCreated) => {ex.Message}\r\n{ex.StackTrace}");
+        }
+    }
+
+    private static void RaiseServerChanged(string currentServer, string prevServer)
+    {
+        try
+        {
+            ServerChanged?.Invoke(currentServer, prevServer);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"An error occurred during trigger event(ServerChanged) => {ex.Message}\r\n{ex.StackTrace}");
+        }
+    }
+
+    public static void ServerChange(string curr, string prev)
+    {
+        RaiseServerChanged(curr, prev);
+    }
+
     #endregion
 
     public static IReadOnlyDictionary<long, PlayerStatistics> GetStatistics(bool fullSession)
