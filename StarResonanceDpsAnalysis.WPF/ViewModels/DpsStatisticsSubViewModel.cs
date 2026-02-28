@@ -209,25 +209,9 @@ public partial class DpsStatisticsSubViewModel : BaseViewModel
 
     private static void UpdatePlayerInfo(StatisticDataViewModel slot, PlayerInfo? playerInfo)
     {
-        if (playerInfo != null)
-        {
-            Debug.Assert(playerInfo != null, nameof(playerInfo) + " != null");
-            slot.Player.Name = playerInfo.Name;
-            slot.Player.Class = playerInfo.Class;
-            slot.Player.Spec = playerInfo.Spec;
-            slot.Player.PowerLevel = playerInfo.CombatPower ?? 0;
-            slot.Player.SeasonLevel = playerInfo.SeasonLevel;
-            slot.Player.SeasonStrength = playerInfo.SeasonStrength ?? 0;
-        }
-        else
-        {
-            slot.Player.Name = null;
-            slot.Player.Class = Classes.Unknown;
-            slot.Player.Spec = ClassSpec.Unknown;
-            slot.Player.PowerLevel = 0;
-            slot.Player.SeasonLevel = 0;
-            slot.Player.SeasonStrength = 0;
-        }
+        if (playerInfo == null) return;
+        Debug.Assert(playerInfo != null, nameof(playerInfo) + " != null");
+        slot.Player.Update(playerInfo);
     }
 
     /// <summary>
