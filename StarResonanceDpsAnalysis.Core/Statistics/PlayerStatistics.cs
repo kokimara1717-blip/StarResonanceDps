@@ -1,9 +1,12 @@
+using System.Diagnostics;
+
 namespace StarResonanceDpsAnalysis.Core.Statistics;
 
 /// <summary>
 /// Holds all statistics for a single player
 /// Following SRP: Only responsible for holding player statistics data
 /// </summary>
+[DebuggerDisplay("U:{Uid};A:{AttackDamage.Total};T:{TakenDamage.Total};H:{Healing.Total};N:{IsNpc}")]
 public sealed class PlayerStatistics
 {
     public long Uid { get; }

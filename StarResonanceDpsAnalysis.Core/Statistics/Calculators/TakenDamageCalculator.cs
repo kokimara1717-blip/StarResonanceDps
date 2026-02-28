@@ -13,26 +13,29 @@ public sealed class TakenDamageCalculator : IStatisticsCalculator
     public void Calculate(BattleLog log, StatisticsContext context)
     {
         // Process damage taken by players
-        if (!log.IsTargetPlayer || log.IsHeal)
+        if (log.IsHeal)
             return;
 
         context.CombatStarted = true;
 
-        var fullStats = context.GetOrCreateFullStats(log.TargetUuid);
-        var sectionStats = context.GetOrCreateSectionStats(log.TargetUuid);
+        if (log.IsTargetPlayer)
+        {
+            var fullStats = context.GetOrCreateFullStats(log.TargetUuid);
+            var sectionStats = context.GetOrCreateSectionStats(log.TargetUuid);
 
-        UpdateStatistics(log, fullStats);
-        UpdateStatistics(log, sectionStats);
+            UpdateStatistics(log, fullStats);
+            UpdateStatistics(log, sectionStats);
+        }
+        else
+        {
+            var npcFull = context.GetOrCreateFullStats(log.TargetUuid);
+            var npcSection = context.GetOrCreateSectionStats(log.TargetUuid);
+            npcFull.IsNpc = true;
+            npcSection.IsNpc = true;
 
-        // Also track NPC damage if attacker is not a player
-        if (log.IsAttackerPlayer) return;
-        var npcFull = context.GetOrCreateFullStats(log.AttackerUuid);
-        var npcSection = context.GetOrCreateSectionStats(log.AttackerUuid);
-        npcFull.IsNpc = true;
-        npcSection.IsNpc = true;
-
-        UpdateNpcAttackStats(log, npcFull);
-        UpdateNpcAttackStats(log, npcSection);
+            UpdateNpcTakenDamageStats(log, npcFull);
+            UpdateNpcTakenDamageStats(log, npcSection);
+        }
     }
 
     public void ResetSection(StatisticsContext context)
@@ -92,13 +95,13 @@ public sealed class TakenDamageCalculator : IStatisticsCalculator
         }
     }
 
-    private void UpdateNpcAttackStats(BattleLog log, PlayerStatistics stats)
+    private void UpdateNpcTakenDamageStats(BattleLog log, PlayerStatistics stats)
     {
         // Update NPC's attack damage output
         stats.StartTick ??= log.TimeTicks;
         stats.LastTick = log.TimeTicks;
 
-        var values = stats.AttackDamage;
+        var values = stats.TakenDamage;
         values.Total += log.Value;
 
         // Update skill breakdown

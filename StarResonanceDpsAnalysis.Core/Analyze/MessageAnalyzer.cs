@@ -659,71 +659,50 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
 
         public static void ProcessEnemyAttrs(long enemyUid, RepeatedField<Attr> attrs, byte[] arg3)
         {
-            #region
-            //foreach (var attr in attrs)
-            //{
-            //    if (attr.Id == 0 || attr.RawData == null)
-            //        continue;
-            //    var reader = new Google.Protobuf.CodedInputStream(attr.RawData.ToByteArray());
+            if (attrs.Count == 0) return;
 
-            //    // Console.WriteLine(@$"发现属性ID {attr.Id} 对应敌人E{enemyUid} 原始数据={Convert.ToBase64String(attr.RawData.ToByteArray())}");
-            //    switch (attr.Id)
-            //    {
-            //        case (int)AttrType.AttrName:
+            DataStorage.TestCreatePlayerInfoByUID(enemyUid);
 
-            //            // 怪物名直接是 string
-            //            string enemyName = reader.ReadString();
+            foreach (var attr in attrs)
+            {
+                if (attr.Id == 0 || attr.RawData == null || attr.RawData.Length == 0) continue;
 
-            //            Console.WriteLine($"发现怪物名 {enemyName}，对应ID {enemyUid}");
-            //            break;
+                var rawBytes = attr.RawData.ToByteArray();
 
-            //        case (int)AttrType.AttrId:
+                var reader = new CodedInputStream(rawBytes);
+                try
+                {
+                    switch ((EAttrType)attr.Id)
+                    {
+                        case EAttrType.AttrName:
+                            var enemyName = reader.ReadString();
+                            DataStorage.SetPlayerName(enemyUid, enemyName);
+                            break;
+                        case EAttrType.AttrId:
+                            var templateId = reader.ReadInt32();
+                            DataStorage.SetNpcTemplateId(enemyUid, templateId);
+                            break;
+                        case EAttrType.AttrHp:
+                            var enemyHp = reader.ReadInt32();
+                            DataStorage.SetPlayerHP(enemyUid, enemyHp);
+                            break;
+                        case EAttrType.AttrMaxHp:
+                            var enemyMaxHp = reader.ReadInt32();
+                            DataStorage.SetPlayerMaxHP(enemyUid, enemyMaxHp);
+                            break;
 
-            //            // 怪物模板 ID
-            //            int templateId = reader.ReadInt32();
-            //            string name = MonsterNameResolver.Instance.GetName(templateId);
-            //            if (!string.IsNullOrEmpty(name))
-            //            {
-            //                Console.WriteLine($"怪物名：{name}，对应模板ID {templateId}");
-            //            }
-
-            //            break;
-
-            //        case (int)AttrType.AttrHp:
-
-            //            var data = attr.RawData.ToByteArray();
-            //            if (data.Length == 0)
-            //            {
-            //                //Console.WriteLine($"怪物 {enemyUid} 的血量数据为空，跳过");
-            //                break;
-            //            }
-            //            int enemyHp = reader.ReadInt32();
-
-            //            //Console.WriteLine($"发现怪物当前血量 {enemyHp}，对应敌人ID {enemyUid}"); 
-            //            break;
-
-            //        case (int)AttrType.AttrMaxHp:
-
-            //            int enemyMaxHp = reader.ReadInt32();
-
-            //            Console.WriteLine($"发现怪物最大血量 {enemyMaxHp}，对应敌人ID {enemyUid}");
-            //            break;
-
-            //        default:
-
-            //            // 未知属性静默，可选 debug
-            //            // this.logger.Debug($"Found unknown attrId {attr.Id} for E{enemyUid} {Convert.ToBase64String(attr.RawData)}");
-            //            break;
-
-            //    }
-            //}
-            #endregion
+                        case EAttrType.AttrMonsterSeasonLevel:
+                            var seasonLv = reader.ReadInt32();
+                            DataStorage.SetPlayerSeasonLevel(enemyUid, seasonLv);
+                            break;
+                    }
+                }
+                catch (InvalidProtocolBufferException ex)
+                {
+                    //_logger?.LogWarning(ex, "Failed to decode attr {AttrId} for enemy {EnemyUid}", attr.Id, enemyUid);
+                }
+            }
         }
-
-
-
-
-
 
         /// <summary>
         /// 从流中读取字符串（带4字节对齐）
