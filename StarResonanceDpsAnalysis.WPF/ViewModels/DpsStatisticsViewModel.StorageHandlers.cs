@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using StarResonanceDpsAnalysis.Core.Data.Models;
 using StarResonanceDpsAnalysis.Core.Extends.Data;
 using StarResonanceDpsAnalysis.WPF.Models;
+using StarResonanceDpsAnalysis.WPF.ViewModels.DpsStatisticDataEngine;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels;
 
@@ -77,7 +78,7 @@ public partial class DpsStatisticsViewModel
         InvokeOnDispatcher(() =>
         {
             _logger.LogInformation("=== NewSectionCreated triggered (数据已被清空) ===");
-            ResetSubViewModelsIfInCurrentScope();
+            ResetSubViewModelsIf(() => (_dataSourceEngine.CurrentMode & DataSourceMode.Paused) == 0);
             _timerService.Start();
             _timerService.StartNewSection();
 

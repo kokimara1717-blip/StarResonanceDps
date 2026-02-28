@@ -297,28 +297,21 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
         };
     }
 
-    private void InvokeOnDispatcher(Action action)
-    {
-        if (_dispatcher.CheckAccess())
-        {
-            action();
-        }
-        else
-        {
-            _dispatcher.Invoke(action);
-        }
-    }
-
     [RelayCommand]
     private void RecordWindowPosition(System.Drawing.Rectangle rect)
     {
         AppConfig.StartUpState = rect;
     }
 
+    private void ResetSubViewModelsIf(Func<bool> condition)
+    {
+        if (!condition()) return;
+        ResetSubViewModels();
+    }
+
     private void ResetSubViewModelsIfInCurrentScope()
     {
-        if (ScopeTime != ScopeTime.Current) return;
-        ResetSubViewModels();
+        ResetSubViewModelsIf(() => ScopeTime != ScopeTime.Current);
     }
 
     private void ResetSubViewModels()
