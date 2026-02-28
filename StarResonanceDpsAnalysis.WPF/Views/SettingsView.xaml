@@ -939,13 +939,25 @@
                                                 Grid.Column="0"
                                                 Style="{StaticResource FieldName}"
                                                 Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Character_Uid}}" />
-                                            <TextBox
-                                                Grid.Column="2"
-                                                Style="{StaticResource AntTextBoxStyle}"
-                                                Text="{Binding AppConfig.Uid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                ToolTip="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Character_Uid_Tooltip}}" />
-                                        </Grid>
+                                            <Grid Grid.Column="2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition Width="10" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
 
+
+                                                <TextBox
+                                                    Style="{StaticResource AntTextBoxStyle}"
+                                                    Text="{Binding AppConfig.Uid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    ToolTip="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Character_Uid_Tooltip}}" />
+                                                <Button
+                                                    Grid.Column="2"
+                                                    Command="{Binding TryGetCurrentUidCommand}"
+                                                    Content="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_PlayerUid_Get}}"
+                                                    Style="{StaticResource AutoSelectButton}" />
+                                            </Grid>
+                                        </Grid>
                                     </Border>
 
                                 </StackPanel>

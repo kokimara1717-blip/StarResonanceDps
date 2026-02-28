@@ -600,6 +600,22 @@ public partial class SettingsViewModel : BaseViewModel
         _configManager.CurrentConfig.ThemeColor = hexColor;
     }
 
+    [RelayCommand]
+    private void TryGetCurrentUid()
+    {
+        if (_dataStorage.CurrentPlayerInfo.UID == 0)
+        {
+            _messageDialogService.Show("Set Player UID",
+                "No current player UID captured. Please change map and try again.");
+        }
+        else
+        {
+            _messageDialogService.Show("Set Player UID",
+                "You are trying to set UID for current player. This data may not be accurate, please verify on your own.");
+            AppConfig.Uid = _dataStorage.CurrentPlayerInfo.UID;
+        }
+    }
+
     /// <summary>
     /// ⭐ 当前主题颜色（用于颜色选择器初始化）
     /// </summary>

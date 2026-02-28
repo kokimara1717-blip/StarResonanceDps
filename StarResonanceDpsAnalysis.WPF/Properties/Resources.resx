@@ -1377,4 +1377,7 @@ Would you like to restart the application as administrator?</value>
 
 How to get UID: in game, the bottom-left player number is your UID.</value>
   </data>
+  <data name="Settings_PlayerUid_Get" xml:space="preserve">
+    <value>Get</value>
+  </data>
 </root>

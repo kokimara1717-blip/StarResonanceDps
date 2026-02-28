@@ -1326,4 +1326,7 @@ UID 확인: 게임 내 왼쪽 아래 플레이어 번호가 UID입니다.</value
 
 UID 확인: 게임 내 왼쪽 아래 플레이어 번호가 UID입니다.</value>
   </data>
+  <data name="Settings_PlayerUid_Get" xml:space="preserve">
+    <value>얻다</value>
+  </data>
 </root>

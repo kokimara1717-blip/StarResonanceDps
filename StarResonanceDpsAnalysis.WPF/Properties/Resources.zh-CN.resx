@@ -1352,4 +1352,7 @@
 
 如何获取UID：进入游戏后，左下角玩家编号就是UID</value>
   </data>
+  <data name="Settings_PlayerUid_Get" xml:space="preserve">
+    <value>获取</value>
+  </data>
 </root>

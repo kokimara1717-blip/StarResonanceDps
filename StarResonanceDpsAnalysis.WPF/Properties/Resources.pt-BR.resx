@@ -1303,4 +1303,7 @@ Como obter o UID: no jogo, o número do jogador no canto inferior esquerdo é o 
 
 Como obter o UID: no jogo, o número do jogador no canto inferior esquerdo é o UID.</value>
   </data>
+  <data name="Settings_PlayerUid_Get" xml:space="preserve">
+    <value>Pegar</value>
+  </data>
 </root>
