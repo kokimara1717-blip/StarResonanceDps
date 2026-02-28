@@ -126,6 +126,7 @@ public partial class DpsStatisticsViewModel
             ResetSubViewModels();
             UnloadHistoryData();
 
+            UpdateData();
             // Refresh real-time data
             UpdateBattleDuration();
 
