@@ -1,12 +1,14 @@
-using System.Diagnostics;
-using System.Windows;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using StarResonanceDpsAnalysis.Core.Models;
+using StarResonanceDpsAnalysis.Core.Statistics;
 using StarResonanceDpsAnalysis.WPF.Extensions;
 using StarResonanceDpsAnalysis.WPF.Logging;
 using StarResonanceDpsAnalysis.WPF.Models;
 using StarResonanceDpsAnalysis.WPF.Properties;
+using StarResonanceDpsAnalysis.WPF.ViewModels.DpsStatisticDataEngine;
+using System.Diagnostics;
+using System.Windows;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels;
 
@@ -231,15 +233,41 @@ public partial class DpsStatisticsViewModel
         var vm = _windowManagement.SkillBreakdownView.DataContext as SkillBreakdownViewModel;
         Debug.Assert(vm != null, "vm!=null");
 
-        var playerStats = _dataSourceEngine.CurrentSource.GetRawData();
-        if (!playerStats.TryGetValue(target.Player.Uid, out var stats)) return;
-        _logger.LogInformation("Using PlayerStatistics for SkillBreakdown (accurate data)");
+        var uid = target.Player.Uid;
+        var scope = _dataSourceEngine.CurrentSource.Scope;
 
-        var playerInfo = _dataSourceEngine.GetPlayerInfoDictionary().TryGetValue(target.Player.Uid, out var info)
+        var logs = _dataSourceEngine.CurrentSource.GetBattleLogsForPlayer(uid);
+        PlayerStatistics? stats = null;
+
+        // 1) Prefer live/raw stats when they still exist.
+        // This preserves real-time updates before log save / section clear.
+        var raw = _dataSourceEngine.CurrentSource.GetRawData();
+        if (raw.TryGetValue(uid, out var liveStats))
+        {
+            stats = liveStats;
+        }
+        // 2) If live/raw stats are already gone, rebuild one detached snapshot from logs.
+        // This is the expected "frozen graph" path after save / clear.
+        else if (logs.Count > 0)
+        {
+            stats = SkillBreakdownReplayBuilder.BuildForPlayer(
+                uid,
+                logs,
+                Math.Max(1, _storage.SampleRecordingInterval),
+                Math.Clamp(AppConfig.TimeSeriesSampleCapacity, 50, 1000));
+        }
+
+        if (stats == null)
+        {
+            _logger.LogWarning("PlayerStatistics not found for UID {Uid} when opening SkillBreakdown", uid);
+            return;
+        }
+
+        var playerInfo = _dataSourceEngine.GetPlayerInfoDictionary().TryGetValue(uid, out var info)
             ? info
             : null;
 
-        vm.InitializeFrom(stats, playerInfo, StatisticIndex);
+        vm.InitializeFrom(stats, playerInfo, StatisticIndex, logs, scope);
         _windowManagement.SkillBreakdownView.Show();
         _windowManagement.SkillBreakdownView.Activate();
     }
