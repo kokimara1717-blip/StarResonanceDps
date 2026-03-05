@@ -827,10 +827,10 @@ internal sealed class DesignDataStorage : IDataStorage
     public event DataUpdatedEventHandler? DataUpdated;
     public event ServerChangedEventHandler? ServerChanged;
     public event Action? BeforeSectionCleared;
-    public void SetPlayerCombatStateTime(long uid, long time) { }
 
     public event SectionEndedEventHandler? SectionEnded;
 #pragma warning restore
+    public void SetPlayerCombatStateTime(long uid, long time) { }
 
     public void LoadPlayerInfoFromFile() { }
     public void SavePlayerInfoToFile() { }

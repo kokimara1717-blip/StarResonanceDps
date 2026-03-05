@@ -53,10 +53,6 @@ public sealed class StatisticsEngine
     public void ResetSection()
     {
         _context.ClearSection();
-        foreach (var calculator in _calculators)
-        {
-            calculator.ResetSection(_context);
-        }
     }
     
     /// <summary>

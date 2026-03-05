@@ -12,12 +12,7 @@ public interface IStatisticsCalculator
     /// Calculate statistics from a battle log
     /// </summary>
     void Calculate(BattleLog log, StatisticsContext context);
-    
-    /// <summary>
-    /// Reset statistics for a new section
-    /// </summary>
-    void ResetSection(StatisticsContext context);
-    
+
     /// <summary>
     /// Get the type of statistics this calculator handles
     /// </summary>

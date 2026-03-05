@@ -23,11 +23,6 @@ public sealed class HealingCalculator : IStatisticsCalculator
         UpdateStatistics(log, sectionStats);
     }
 
-    public void ResetSection(StatisticsContext context)
-    {
-        // Section reset is handled by context
-    }
-
     private void UpdateStatistics(BattleLog log, PlayerStatistics stats)
     {
         stats.StartTick ??= log.TimeTicks;

@@ -2,19 +2,16 @@ using StarResonanceDpsAnalysis.Core.Data.Models;
 
 namespace StarResonanceDpsAnalysis.Core.Statistics.Calculators;
 
-/// <summary>
-/// Calculates attack damage statistics
-/// Following SRP: Only handles attack damage calculation
-/// Following OCP: Can be extended without modifying other calculators
-/// </summary>
-public sealed class AttackDamageCalculator : IStatisticsCalculator
+public sealed class TrainingDamageCalculator : IStatisticsCalculator
 {
-    public string StatisticTypeName => "Damage";
+    public long TargetDummyUid { get; set; }
 
     public void Calculate(BattleLog log, StatisticsContext context)
     {
-        // Only process if attacker is player and target is not player (attacking NPCs)
         if (!log.IsAttackerPlayer || log.IsTargetPlayer || log.IsHeal)
+            return;
+
+        if (TargetDummyUid > 0 && log.TargetUuid != TargetDummyUid)
             return;
 
         context.CombatStarted = true;
@@ -26,27 +23,24 @@ public sealed class AttackDamageCalculator : IStatisticsCalculator
         UpdateStatistics(log, sectionStats);
     }
 
-    private void UpdateStatistics(BattleLog log, PlayerStatistics stats)
+    public string StatisticTypeName => nameof(TrainingDamageCalculator);
+
+    private static void UpdateStatistics(BattleLog log, PlayerStatistics stats)
     {
-        // Update timing
         stats.StartTick ??= log.TimeTicks;
         stats.LastTick = log.TimeTicks;
         var ticks = stats.ElapsedTicks();
 
-        // Update totals
         var values = stats.AttackDamage;
         values.Total += log.Value;
         values.ValuePerSecond = ticks > 0 ? (double)values.Total * TimeSpan.TicksPerSecond / ticks : 0;
 
-        // Update skill breakdown
         var skill = stats.GetOrCreateSkill(log.SkillID);
         skill.TotalValue += log.Value;
         skill.UseTimes++;
 
-        // Handle different hit types (aligned with PlayerStat.cs logic)
         if (log.IsCritical && log.IsLucky)
         {
-            // Both crit and lucky: increment both counters and add to CritValue
             values.CritAndLuckyCount++;
             values.CritAndLuckyValue += log.Value;
             skill.CritAndLuckyTimes++;
@@ -54,7 +48,6 @@ public sealed class AttackDamageCalculator : IStatisticsCalculator
         }
         else if (log.IsCritical)
         {
-            // Only crit
             values.CritCount++;
             values.CritValue += log.Value;
             skill.CritTimes++;
@@ -62,7 +55,6 @@ public sealed class AttackDamageCalculator : IStatisticsCalculator
         }
         else if (log.IsLucky)
         {
-            // Only lucky
             values.LuckyCount++;
             values.LuckyValue += log.Value;
             skill.LuckyTimes++;
@@ -70,7 +62,6 @@ public sealed class AttackDamageCalculator : IStatisticsCalculator
         }
         else
         {
-            // Normal hit
             values.NormalValue += log.Value;
         }
 

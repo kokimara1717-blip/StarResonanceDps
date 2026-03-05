@@ -335,7 +335,7 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
 
     private void ResetSubViewModelsIfInCurrentScope()
     {
-        ResetSubViewModelsIf(() => ScopeTime != ScopeTime.Current);
+        ResetSubViewModelsIf(() => ScopeTime == ScopeTime.Current);
     }
 
     private void ResetSubViewModels()

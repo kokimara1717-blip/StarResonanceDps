@@ -7,6 +7,7 @@ using SharpPcap;
 using StarResonanceDpsAnalysis.Core.Data;
 using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.Core.Logging;
+using ZstdNet;
 
 namespace StarResonanceDpsAnalysis.Core.Analyze;
 
@@ -415,7 +416,23 @@ public class PacketAnalyzer(ILogger<PacketAnalyzer>? logger = null) : IPacketAna
                         break;
                     }
 
-                    MessageAnalyzer.Process(messagePacket, logger);
+                    try
+                    {
+                        MessageAnalyzer.Process(messagePacket, logger);
+                    }
+                    catch (ZstdException e)
+                    {
+                        if (e.Code == ZSTD_ErrorCode.ZSTD_error_corruption_detected)
+                        {
+                            logger?.LogWarning(CoreLogEvents.AnalyzerError, e,
+                                "Detected corrupted zstd payload, reset stream buffer and wait for next packets");
+                            TcpStream.SetLength(0);
+                            TcpStream.Position = 0;
+                            break;
+                        }
+
+                        throw;
+                    }
                 }
 
                 // 压实剩余未解析数据到流头（零拷贝尽量减少临时数组）

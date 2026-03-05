@@ -17,6 +17,7 @@ public partial class DataSourceEngine
     private readonly ILogger<DataSourceEngine> _logger;
     private readonly Dictionary<DataSourceMode, IDpsDataSource> _providers = new();
     private readonly HistoryDpsDataSource _historyDpsDataSource;
+    private readonly DummyTrainingModeDataSource _dummyTrainingModeDataSource;
 
     public DataSourceEngine(
         IDataStorage dataStorage,
@@ -33,6 +34,8 @@ public partial class DataSourceEngine
         Register(_activeUpdateModeDpsDataSource);
         _historyDpsDataSource = new HistoryDpsDataSource(this, historyService, logger, dataProcessor);
         Register(_historyDpsDataSource);
+        _dummyTrainingModeDataSource = new DummyTrainingModeDataSource(this, dataStorage, logger);
+        Register(_dummyTrainingModeDataSource);
     }
 
     public DataSourceMode CurrentMode
@@ -72,6 +75,12 @@ public partial class DataSourceEngine
             _historyDpsDataSource.SetHistoryFilePath(param.BattleHistoryFilePath);
         if (param.ActiveUpdateInterval != null)
             _activeUpdateModeDpsDataSource.SetUpdateInterval(param.ActiveUpdateInterval.Value);
+        if (param.DummyTarget != null)
+            _dummyTrainingModeDataSource.DummyTarget = param.DummyTarget.Value;
+        if (param.PlayerUid != null)
+            _dummyTrainingModeDataSource.PlayerUid = param.PlayerUid.Value;
+        if(param.TrainingTimeLimit!=null)
+            _dummyTrainingModeDataSource.TimeLimit = param.TrainingTimeLimit.Value;
         CurrentSource.Refresh();
     }
 

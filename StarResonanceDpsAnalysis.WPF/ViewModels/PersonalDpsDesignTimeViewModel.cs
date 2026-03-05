@@ -3,6 +3,7 @@ using System.Windows.Threading;
 using Microsoft.Extensions.Logging.Abstractions;
 using StarResonanceDpsAnalysis.Core.Data;
 using StarResonanceDpsAnalysis.WPF.Services;
+using StarResonanceDpsAnalysis.WPF.ViewModels.DpsStatisticDataEngine;
 using StarResonanceDpsAnalysis.WPF.Views;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels;
@@ -13,15 +14,12 @@ public sealed class PersonalDpsDesignTimeViewModel : PersonalDpsViewModel
         new DesignWindowManagementService(),
         new DesignDataStorage(),
         Dispatcher.CurrentDispatcher,
-        new DesignConfigManager(),
-        new DesignAppControlService(),
+        new DesignConfigManager(), null!,
+        new DesignMessageDialogService(),
         NullLogger<PersonalDpsViewModel>.Instance)
     {
-        StartTraining = true;
-
         TotalDamage = 52_224_900d;
         Dps = 9_526_200d;
-        TeamDamagePercent = 0.375;
     }
 
     private sealed class DesignAppControlService : IApplicationControlService

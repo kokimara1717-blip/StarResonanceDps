@@ -62,7 +62,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                 var msgTypeId = packetType & 0x7FFF;
 
                 if (!MessageHandlerMap.TryGetValue((MessageType)msgTypeId, out var handler)) continue;
-                handler?.Invoke(packetReader, isZstdCompressed, logger);
+                    handler?.Invoke(packetReader, isZstdCompressed, logger);
             }
         }
 
@@ -71,7 +71,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         /// Key = methodId
         /// Value = 对应的处理方法
         /// </summary>
-        private static readonly Dictionary<uint, Action<byte[], bool>> ProcessMethods = new()
+        private static readonly Dictionary<uint, Action<byte[], bool, ILogger?>> ProcessMethods = new()
         {
             { 0x00000006U, ProcessSyncNearEntities },        // 同步周边玩家实体
             { 0x00000015U, ProcessSyncContainerData },       // 同步自身完整容器数据
@@ -95,7 +95,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
             if (isZstdCompressed) msgPayload = DecompressZstdIfNeeded(msgPayload);
 
             if (!ProcessMethods.TryGetValue(methodId, out var processMethod)) return;
-            processMethod(msgPayload, isZstdCompressed);
+            processMethod(msgPayload, isZstdCompressed, logger);
         }
 
         #region Zstd 解压逻辑
@@ -162,7 +162,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         /// <summary>
         /// 同步周边实体 怪物和玩家
         /// </summary>
-        public static void ProcessSyncNearEntities(byte[] payloadBuffer, bool b)
+        public static void ProcessSyncNearEntities(byte[] payloadBuffer, bool b, ILogger? logger = null)
         {
             var syncNearEntities = WorldNtf.Types.SyncNearEntities.Parser.ParseFrom(payloadBuffer);
             if (syncNearEntities.Appear == null || syncNearEntities.Appear.Count == 0) return;
@@ -194,7 +194,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         /// <summary>
         /// 同步自身完整容器数据（基础属性、昵称、职业、战力）
         /// </summary>
-        public static void ProcessSyncContainerData(byte[] payloadBuffer, bool b)
+        public static void ProcessSyncContainerData(byte[] payloadBuffer, bool b, ILogger? logger = null)
         {
             ModulePayloadBuffer = payloadBuffer;
 
@@ -254,7 +254,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         /// <summary>
         /// 同步自身部分更新（脏数据） //增量更新，有数据就更新
         /// </summary>
-        public static void ProcessSyncContainerDirtyData(byte[] payloadBuffer, bool b)
+        public static void ProcessSyncContainerDirtyData(byte[] payloadBuffer, bool b, ILogger? logger = null)
         {
             try
             {
@@ -374,7 +374,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         /// <summary>
         /// 同步自身增量伤害
         /// </summary>
-        public static void ProcessSyncToMeDeltaInfo(byte[] payloadBuffer, bool b)
+        public static void ProcessSyncToMeDeltaInfo(byte[] payloadBuffer, bool b, ILogger? logger = null)
         {
             var syncToMeDeltaInfo = WorldNtf.Types.SyncToMeDeltaInfo.Parser.ParseFrom(payloadBuffer);
             var aoiSyncToMeDelta = syncToMeDeltaInfo.DeltaInfo;
@@ -393,7 +393,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         /// <summary>
         /// 同步周边增量伤害（范围内其他角色的技能/伤害）
         /// </summary>
-        public static void ProcessSyncNearDeltaInfo(byte[] payloadBuffer, bool b)
+        public static void ProcessSyncNearDeltaInfo(byte[] payloadBuffer, bool b, ILogger? logger = null)
         {
             try
             {
@@ -402,9 +402,9 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
 
                 foreach (var aoiSyncDelta in syncNearDeltaInfo.DeltaInfos) ProcessAoiSyncDelta(aoiSyncDelta);
             }
-            catch (InvalidProtocolBufferException)
+            catch (InvalidProtocolBufferException ex)
             {
-                // Ignore temporarily
+                logger?.LogWarning(ex, "Failed to parse SyncNearDeltaInfo payload");
             }
         }
 

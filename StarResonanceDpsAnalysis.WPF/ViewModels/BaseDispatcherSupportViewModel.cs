@@ -15,4 +15,16 @@ public class BaseDispatcherSupportViewModel(Dispatcher dispatcher): BaseViewMode
             dispatcher.Invoke(action);
         }
     }
+
+    protected void BeginInvokeOnDispatcher(Action action)
+    {
+        if (dispatcher.CheckAccess())
+        {
+            action();
+        }
+        else
+        {
+            dispatcher.BeginInvoke(action);
+        }
+    }
 }

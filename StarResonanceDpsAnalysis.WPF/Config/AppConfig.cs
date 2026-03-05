@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using StarResonanceDpsAnalysis.Core.Models;
 using StarResonanceDpsAnalysis.Core.Statistics;
 using StarResonanceDpsAnalysis.WPF.Models;
+using StarResonanceDpsAnalysis.WPF.ViewModels;
 using KeyBinding = StarResonanceDpsAnalysis.WPF.Models.KeyBinding;
 
 namespace StarResonanceDpsAnalysis.WPF.Config;
@@ -179,7 +180,7 @@ public partial class AppConfig : ObservableObject
     /// 默认值：Center (中间木桩)
     /// </summary>
     [ObservableProperty]
-    private int _defaultDummyTarget = 0; // 0=Center, 1=TDummy
+    private DummyTargetType _defaultDummyTarget = DummyTargetType.Center; // 0=Center, 1=TDummy
 
     /// <summary>
     /// DPS统计页面 - 技能显示数量
@@ -296,6 +297,9 @@ public partial class AppConfig : ObservableObject
     /// </summary>
     [ObservableProperty]
     private bool _useConverterBasedDps = true;
+
+    [ObservableProperty]
+    private int _trainingDuration = 180; // Default training duration in seconds (3 minutes)
 
     public bool UseProcessPortsFilter { get; set; }
 

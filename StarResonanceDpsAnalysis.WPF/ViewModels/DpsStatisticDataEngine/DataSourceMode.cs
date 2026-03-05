@@ -13,6 +13,11 @@ public enum DataSourceMode
     /// </summary>
     Active = 1,
 
+    /// <summary>
+    /// 木桩训练模式
+    /// </summary>
+    DummyTraining = 2,
+
     Paused = 1 << 3,
     History = Paused | 1,
 }

@@ -25,25 +25,7 @@ public partial class DpsStatisticsViewModel
 
     private void UpdateBattleDuration()
     {
-        InvokeOnDispatcher(Do);
-        return;
-
-        void Do()
-        {
-            BattleDuration = _dataSourceEngine.CurrentSource.BattleDuration;
-            _logger.LogTrace("Update battle duration: {duration}", BattleDuration);
-            //if (!_timerService.IsRunning) return;
-
-            //if (ScopeTime == ScopeTime.Current)
-            //{
-            //    // Use timer service for section elapsed
-            //    BattleDuration = _timerService.SectionDuration;
-            //}
-            //else // ScopeTime.Total
-            //{
-            //    BattleDuration = _timerService.TotalDuration;
-            //}
-        }
+        InvokeOnDispatcher(() => BattleDuration = _dataSourceEngine.CurrentSource.BattleDuration);
     }
 
     private void ResetBattleDurationIfInCurrentScope()
