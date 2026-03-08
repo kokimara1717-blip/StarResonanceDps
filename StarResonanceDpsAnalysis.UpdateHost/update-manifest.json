@@ -1,0 +1,6 @@
+{
+  "version": "3.0.0.7",
+  "downloadUrl": "https://your-host.example.com/downloads/StarResonanceDpsAnalysis.WPF-3.0.0.7.zip",
+  "notes": "- Add auto update channel\n- Fix startup stability",
+  "publishedAt": "2026-01-01T00:00:00Z"
+}

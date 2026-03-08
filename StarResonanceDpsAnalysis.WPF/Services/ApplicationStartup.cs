@@ -20,6 +20,7 @@ public sealed class ApplicationStartup : IApplicationStartup
     private readonly IDataStorage _dataStorage;
     private readonly IClassColorService _classColorService;
     private readonly LocalizationManager _localization;
+    private readonly IAutoUpdateService _autoUpdateService;
     private AppConfig _appConfig;
 
     public ApplicationStartup(ILogger<ApplicationStartup> logger,
@@ -29,7 +30,8 @@ public sealed class ApplicationStartup : IApplicationStartup
         IPacketAnalyzer packetAnalyzer,
         IDataStorage dataStorage,
         IClassColorService classColorService,
-        LocalizationManager localization)
+        LocalizationManager localization,
+        IAutoUpdateService autoUpdateService)
     {
         _logger = logger;
         _configManager = configManager;
@@ -39,6 +41,7 @@ public sealed class ApplicationStartup : IApplicationStartup
         _dataStorage = dataStorage;
         _classColorService = classColorService;
         _localization = localization;
+        _autoUpdateService = autoUpdateService;
         _configManager.ConfigurationUpdated += ConfigManagerOnConfigurationUpdated;
         _appConfig = _configManager.CurrentConfig;
         _appConfig.MouseThroughEnabled = false;
@@ -83,6 +86,14 @@ public sealed class ApplicationStartup : IApplicationStartup
             // Start analyzer
             _packetAnalyzer.Start();
             _hotkeyService.Start();
+
+            if (_appConfig is { EnableAutoUpdate: true, AutoUpdateCheckOnStartup: true })
+            {
+                _ = _autoUpdateService.CheckForUpdatesAsync(true)
+                    .ContinueWith(task => _logger.LogWarning(task.Exception, "Auto update task failed"),
+                        TaskContinuationOptions.OnlyOnFaulted);
+            }
+
             _logger.LogInformation(WpfLogEvents.StartupInit, "Startup initialization completed");
         }
         catch (Exception ex)

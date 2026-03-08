@@ -26,6 +26,7 @@
   <Project Path="StarResonanceDpsAnalysis.Tests/StarResonanceDpsAnalysis.Tests.csproj">
     <Platform Project="x64" />
   </Project>
+  <Project Path="StarResonanceDpsAnalysis.UpdateHost/StarResonanceDpsAnalysis.UpdateHost.csproj" />
   <Project Path="StarResonanceDpsAnalysis.WinForm/StarResonanceDpsAnalysis.WinForm.csproj">
     <Platform Project="x64" />
   </Project>

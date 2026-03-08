@@ -26,6 +26,12 @@ public enum DpsUpdateMode
     Active = 1,
 }
 
+public enum UpdateSourceType
+{
+    GitHub = 0,
+    SelfHosted = 1,
+}
+
 /// <summary>
 /// 应用配置类
 /// 集成了配置管理器功能，支持INI文件持久化和属性变更通知
@@ -300,6 +306,30 @@ public partial class AppConfig : ObservableObject
 
     [ObservableProperty]
     private int _trainingDuration = 180; // Default training duration in seconds (3 minutes)
+
+    [ObservableProperty]
+    private bool _enableAutoUpdate = true;
+
+    [ObservableProperty]
+    private bool _autoUpdateCheckOnStartup = true;
+
+    [ObservableProperty]
+    private UpdateSourceType _updateSource = UpdateSourceType.GitHub;
+
+    [ObservableProperty]
+    private string _githubRepository = "anying1073/StarResonanceDps";
+
+    [ObservableProperty]
+    private bool _githubIncludePrerelease;
+
+    [ObservableProperty]
+    private string _githubAssetNameContains = "WPF";
+
+    [ObservableProperty]
+    private string _selfHostedManifestUrl = string.Empty;
+
+    [ObservableProperty]
+    private int _updateRequestTimeoutSeconds = 10;
 
     public bool UseProcessPortsFilter { get; set; }
 

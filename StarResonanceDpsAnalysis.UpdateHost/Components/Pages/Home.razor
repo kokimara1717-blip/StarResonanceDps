@@ -1,0 +1,97 @@
+@page "/"
+@inject UpdateManifestService ManifestService
+@inject NavigationManager NavigationManager
+@inject IHttpContextAccessor HttpContextAccessor
+
+<PageTitle>@T("Star Resonance DPS Analysis", "星痕共鸣 DPS 分析")</PageTitle>
+
+<div class="bpsr-bg">
+    <section class="bpsr-panel">
+        <div class="bpsr-header">
+            <h1>@T("Star Resonance Update Host", "星痕共鸣更新服务")</h1>
+            <div class="bpsr-lang-switch">
+                <a class="@GetLanguageButtonClass("en")" href="/?lang=en">EN</a>
+                <a class="@GetLanguageButtonClass("zh")" href="/?lang=zh">中文</a>
+            </div>
+        </div>
+
+        <p class="bpsr-subtitle">@T("Live update feed with monitored GitHub release cache.", "基于 GitHub 监控缓存的实时更新信息。")</p>
+
+        <div class="bpsr-links">
+            @* <a href="/api/update/latest">Latest API</a> 
+            <a href="/summary.json">summary.json</a>*@
+            <a href="/releases">@T("Release List", "版本列表")</a>
+        </div>
+
+        @if (_manifest == null)
+        {
+            <div class="bpsr-empty">@T("No update manifest found.", "未找到更新清单。")</div>
+        }
+        else
+        {
+            <div class="bpsr-card-grid">
+                <article class="bpsr-card">
+                    <h3>@T("Version", "版本")</h3>
+                    <p>@_manifest.Version</p>
+                </article>
+
+                <article class="bpsr-card">
+                    <h3>@T("Published", "发布时间")</h3>
+                    <p>@(_manifest.PublishedAt?.ToString("u") ?? "-")</p>
+                </article>
+            </div>
+
+            <article class="bpsr-card">
+                <h3>@T("Download", "下载")</h3>
+                <a class="bpsr-download" href="@_manifest.DownloadUrl">@_manifest.DownloadUrl</a>
+            </article>
+
+            @if (!string.IsNullOrWhiteSpace(_manifest.Notes))
+            {
+                <article class="bpsr-card">
+                    <h3>@T("Notes", "说明")</h3>
+                    <p>@_manifest.Notes</p>
+                </article>
+            }
+        }
+    </section>
+</div>
+
+@code {
+    private UpdateManifestDto? _manifest;
+    private string _language = "en";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _language = ResolveLanguage();
+        _manifest = await ManifestService.GetLatestManifestAsync();
+    }
+
+    private string ResolveLanguage()
+    {
+        if (NavigationManager.Uri.Contains("lang=zh", StringComparison.OrdinalIgnoreCase))
+        {
+            return "zh";
+        }
+
+        if (NavigationManager.Uri.Contains("lang=en", StringComparison.OrdinalIgnoreCase))
+        {
+            return "en";
+        }
+
+        var preferredLanguage = HttpContextAccessor.HttpContext?.Request.Headers.AcceptLanguage.ToString();
+        return !string.IsNullOrWhiteSpace(preferredLanguage) && preferredLanguage.StartsWith("zh", StringComparison.OrdinalIgnoreCase)
+            ? "zh"
+            : "en";
+    }
+
+    private string T(string english, string chinese)
+    {
+        return _language == "zh" ? chinese : english;
+    }
+
+    private string GetLanguageButtonClass(string language)
+    {
+        return _language == language ? "bpsr-lang-btn active" : "bpsr-lang-btn";
+    }
+}

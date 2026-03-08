@@ -430,7 +430,27 @@
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
+                        <Button Click="Nav_Update_Click" Style="{StaticResource SectionTitleButton}">
+                            <Button.Template>
+                                <ControlTemplate>
+                                    <Border x:Name="bb" Style="{StaticResource SectionTitleBorder}">
 
+                                        <Grid>
+                                            <TextBlock Style="{StaticResource SectionListTitleText}"
+                                                       Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Section_Update_Title}}" />
+
+                                            <Border Style="{StaticResource SectionTitlePointer}" />
+                                        </Grid>
+                                    </Border>
+
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bb" Property="Background" Value="#EEE" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
                     </StackPanel>
                 </Border>
 
@@ -1610,6 +1630,40 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
+
+                                </StackPanel>
+                            </Border>
+
+                            <ctrl:CardHeader
+                                x:Name="SectionUpdate"
+                                Title="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Section_Update_Title}}"
+                                Subtitle="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Section_Update_Sub}}" />
+
+                            <Border Style="{StaticResource SectionBorder}">
+                                <StackPanel Style="{StaticResource SectionStackPanel}">
+
+                                    <Border Style="{StaticResource SectionFieldBorderBase}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="39*" />
+                                                <ColumnDefinition Width="*" MinWidth="10" />
+                                                <ColumnDefinition Width="60*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock
+                                                Grid.Column="0"
+                                                Style="{StaticResource FieldName}"
+                                                Text="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Update_Check_Button}}" />
+
+                                            <Button
+                                                Grid.Column="2"
+                                                HorizontalAlignment="Right"
+                                                Command="{Binding CheckForUpdatesManualCommand}"
+                                                Content="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Update_Check_Button}}"
+                                                ToolTip="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Update_Check_Tooltip}}"
+                                                Style="{StaticResource AutoSelectButton}" />
+                                        </Grid>
+                                    </Border>
 
                                 </StackPanel>
                             </Border>

@@ -126,10 +126,12 @@ public partial class App : Application
                 RegisterViews(services);
 
                 services.AddPacketAnalyzer();
+                services.AddHttpClient();
                 services.AddThemes();
                 services.AddWindowManagementService();
                 services.AddMessageDialogService();
                 services.AddClassColorService();
+                services.AddSingleton<IAutoUpdateService, AppUpdateService>();
 
                 // ? Register new DPS services (SOLID refactoring)
                 services.AddDpsServices();

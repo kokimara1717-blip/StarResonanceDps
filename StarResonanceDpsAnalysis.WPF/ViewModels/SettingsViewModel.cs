@@ -69,6 +69,7 @@ public partial class SettingsViewModel : BaseViewModel
     private readonly IMessageDialogService _messageDialogService;
     private readonly IDataStorage _dataStorage;
     private readonly IClassColorService _classColorService;
+    private readonly IAutoUpdateService _autoUpdateService;
     private readonly ILogger<SettingsViewModel> _logger;
 
     /// <inheritdoc/>
@@ -78,6 +79,7 @@ public partial class SettingsViewModel : BaseViewModel
         IMessageDialogService messageDialogService,
         IDataStorage dataStorage,
         IClassColorService classColorService,
+        IAutoUpdateService autoUpdateService,
         ILogger<SettingsViewModel> logger)
     {
         _configManager = configManager;
@@ -86,6 +88,7 @@ public partial class SettingsViewModel : BaseViewModel
         _messageDialogService = messageDialogService;
         _dataStorage = dataStorage;
         _classColorService = classColorService;
+        _autoUpdateService = autoUpdateService;
         _logger = logger;
         _appConfig = configManager.CurrentConfig.Clone();
 
@@ -601,6 +604,12 @@ public partial class SettingsViewModel : BaseViewModel
     }
 
     [RelayCommand]
+    private async Task CheckForUpdatesManualAsync()
+    {
+        await _autoUpdateService.CheckForUpdatesAsync(false);
+    }
+
+    [RelayCommand]
     private void TryGetCurrentUid()
     {
         if (_dataStorage.CurrentPlayerInfo.UID == 0)
@@ -760,6 +769,7 @@ public sealed class SettingsDesignTimeViewModel : SettingsViewModel
         new DesignMessageDialogService(),
         new DesignDataStorage(),
         new ClassColorService(null!),
+        new DesignAutoUpdateService(),
         NullLogger<SettingsViewModel>.Instance)
     {
         AppConfig = new AppConfig
@@ -801,6 +811,12 @@ public sealed class SettingsDesignTimeViewModel : SettingsViewModel
 internal sealed class DesignMessageDialogService : IMessageDialogService
 {
     public bool? Show(string title, string content, Window? owner = null) => true;
+}
+
+internal sealed class DesignAutoUpdateService : IAutoUpdateService
+{
+    public Task CheckForUpdatesAsync(bool silentIfNoUpdate = true, CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
 }
 
 /// <summary>
