@@ -1129,7 +1129,16 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         }
         
         /// <summary>
-        ///   Team: に類似しているローカライズされた文字列を検索します。
+        ///   All NPC に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DpsStatistics_NPC_Label {
+            get {
+                return ResourceManager.GetString("DpsStatistics_NPC_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Team に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string DpsStatistics_Team_Label {
             get {
@@ -1147,7 +1156,7 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         }
         
         /// <summary>
-        ///   Team Healing に類似しているローカライズされた文字列を検索します。
+        ///   Team HPS に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string DpsStatistics_TeamLabel_Healing {
             get {
@@ -1156,7 +1165,7 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         }
         
         /// <summary>
-        ///   NPC Damage Taken に類似しているローカライズされた文字列を検索します。
+        ///   All NPC DTPS に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string DpsStatistics_TeamLabel_NpcTakenDamage {
             get {
@@ -1165,7 +1174,7 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         }
         
         /// <summary>
-        ///   Team Damage Taken に類似しているローカライズされた文字列を検索します。
+        ///   Team DTPS に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string DpsStatistics_TeamLabel_TakenDamage {
             get {
@@ -1174,7 +1183,7 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         }
         
         /// <summary>
-        ///   Team DPS に類似しているローカライズされた文字列を検索します。
+        ///   Team Damage に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string DpsStatistics_TeamTotal_Damage {
             get {
@@ -3303,7 +3312,7 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         }
         
         /// <summary>
-        ///   Total damage に類似しているローカライズされた文字列を検索します。
+        ///   Total Damage に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string SkillBreakdown_Label_TotalDamage {
             get {

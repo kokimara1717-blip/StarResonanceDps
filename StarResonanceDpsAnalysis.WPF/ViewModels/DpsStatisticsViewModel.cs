@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using StarResonanceDpsAnalysis.Core.Data;
 using StarResonanceDpsAnalysis.Core.Data.Models;
+using StarResonanceDpsAnalysis.Core.Statistics;
 using StarResonanceDpsAnalysis.WPF.Config;
 using StarResonanceDpsAnalysis.WPF.Localization;
 using StarResonanceDpsAnalysis.WPF.Models;
@@ -58,12 +59,16 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
     [ObservableProperty] private StatisticType _statisticIndex;
     [ObservableProperty] private ulong _teamTotalDamage;
     [ObservableProperty] private double _teamTotalDps;
+    [ObservableProperty] private string _teamLabel = string.Empty;
+    [ObservableProperty] private string _currentPlayerLabel = string.Empty;
     [ObservableProperty] private string _teamTotalLabel = string.Empty;
 
     // ===== Private State Fields =====
     private int _indicatorHoverCount;
     private bool _isInitialized;
     private readonly DispatcherTimer _battleDurationUpdateTimer;
+
+    private long _lastAutoSavedUid;
 
     // ===== Public Properties =====
     public DpsStatisticsSubViewModel CurrentStatisticData => StatisticData[StatisticIndex];
@@ -76,7 +81,6 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
     private readonly DataSourceEngine _dataSourceEngine;
 
     // ===== Constructor =====
-
     public DpsStatisticsViewModel(ILogger<DpsStatisticsViewModel> logger,
         IDataStorage storage,
         IConfigManager configManager,
@@ -127,7 +131,6 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
 
         // Subscribe to engine processed data ready event
         _dataSourceEngine = dataSourceEngine;
-
         _dataSourceEngine.ProcessedDataReady += ApplyProcessedData;
 
         // Configure engine mode according to config
@@ -149,9 +152,12 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
         // Bind team stats manager to show team total setting
         _teamStatsManager.ShowTeamTotal = ShowTeamTotalDamage;
         _teamStatsManager.TeamStatsUpdated += OnTeamStatsUpdated;
-        TeamTotalLabel = GetTeamTotalLabel(StatisticIndex);
 
         _localizationManager.CultureChanged += OnLocalizationCultureChanged;
+
+        TeamLabel = GetTeamLabel(StatisticIndex);
+        CurrentPlayerLabel = GetCurrentPlayerLabel(StatisticIndex);
+        TeamTotalLabel = GetTeamTotalLabel(StatisticIndex);
 
         _logger.LogDebug("DpsStatisticsViewModel constructor completed");
     }
@@ -189,14 +195,12 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
             _timerService.Stop();
         }
 
-        // Use ResetCoordinator to handle History save + reset
         _resetCoordinator.ResetWithHistory(
             ScopeTime,
             saveHistory: true,
             BattleDuration,
             Options.MinimalDurationInSeconds);
 
-        // Clear UI data
         ResetSubViewModelsIfInCurrentScope();
 
         TeamTotalDamage = 0;
@@ -237,7 +241,6 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
     {
         _logger.LogInformation("ResetSection START");
 
-        // Delegate to ResetCoordinator
         _resetCoordinator.ResetCurrentSection();
         if (IsViewingHistory)
         {
@@ -269,7 +272,6 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
     }
 
     // ===== Private Helper Methods =====
-
     private void OnSampleDataRequested(object? sender, EventArgs e)
     {
         AddRandomData();
@@ -277,13 +279,46 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
 
     private void OnTeamStatsUpdated(object? sender, TeamStatsUpdatedEventArgs e)
     {
-        // Update observable properties when team stats change
         InvokeOnDispatcher(() =>
         {
             TeamTotalDamage = e.TotalDamage;
             TeamTotalDps = e.TotalDps;
+            CurrentPlayerLabel = GetCurrentPlayerLabel(StatisticIndex);
             TeamTotalLabel = GetTeamTotalLabel(StatisticIndex);
         });
+    }
+
+    private string GetTeamLabel(StatisticType statisticType)
+    {
+        return statisticType switch
+        {
+            StatisticType.Damage => _localizationManager.GetString(
+                ResourcesKeys.DpsStatistics_Team_Label,
+                defaultValue: "Team"),
+            StatisticType.Healing => _localizationManager.GetString(
+                ResourcesKeys.DpsStatistics_Team_Label,
+                defaultValue: "Team"),
+            StatisticType.TakenDamage => _localizationManager.GetString(
+                ResourcesKeys.DpsStatistics_Team_Label,
+                defaultValue: "Team"),
+            StatisticType.NpcTakenDamage => _localizationManager.GetString(
+                ResourcesKeys.DpsStatistics_NPC_Label,
+                defaultValue: "All NPC"),
+            _ => _localizationManager.GetString(
+                ResourcesKeys.SkillBreakdown_Label_TotalDamage,
+                defaultValue: "Team")
+        };
+    }
+
+    private string GetCurrentPlayerLabel(StatisticType statisticType)
+    {
+        return statisticType switch
+        {
+            StatisticType.Damage => "DPS",
+            StatisticType.Healing => "HPS",
+            StatisticType.TakenDamage =>"DTPS",
+            _ => "DPS"
+        };
     }
 
     private string GetTeamTotalLabel(StatisticType statisticType)
@@ -291,19 +326,19 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
         return statisticType switch
         {
             StatisticType.Damage => _localizationManager.GetString(
-                ResourcesKeys.DpsStatistics_TeamTotal_Damage,
+                ResourcesKeys.DpsStatistics_TeamLabel_Damage,
                 defaultValue: "Team DPS"),
             StatisticType.Healing => _localizationManager.GetString(
-                ResourcesKeys.DpsStatistics_TeamTotal_Healing,
-                defaultValue: "Team Healing"),
+                ResourcesKeys.DpsStatistics_TeamLabel_Healing,
+                defaultValue: "Team HPS"),
             StatisticType.TakenDamage => _localizationManager.GetString(
-                ResourcesKeys.DpsStatistics_TeamTotal_TakenDamage,
-                defaultValue: "Team Damage Taken"),
+                ResourcesKeys.DpsStatistics_TeamLabel_TakenDamage,
+                defaultValue: "Team DTPS"),
             StatisticType.NpcTakenDamage => _localizationManager.GetString(
-                ResourcesKeys.DpsStatistics_TeamTotal_NpcTakenDamage,
-                defaultValue: "NPC Damage Taken"),
+                ResourcesKeys.DpsStatistics_TeamLabel_NpcTakenDamage,
+                defaultValue: "NPC DTPS"),
             _ => _localizationManager.GetString(
-                ResourcesKeys.DpsStatistics_TeamTotal_Damage,
+                ResourcesKeys.DpsStatistics_TeamLabel_Damage,
                 defaultValue: "Team DPS")
         };
     }
@@ -317,6 +352,8 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
                 ApplyNpcLocalizedName(info, culture);
             }
 
+            TeamLabel = GetTeamLabel(StatisticIndex);
+            CurrentPlayerLabel = GetCurrentPlayerLabel(StatisticIndex);
             TeamTotalLabel = GetTeamTotalLabel(StatisticIndex);
         });
     }
@@ -357,20 +394,13 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
         _battleDurationUpdateTimer.Stop();
     }
 
-    /// <summary>
-    /// Wrap the original PlayerInfoUpdated handler so NPC names are corrected
-    /// from JSON before the existing UI update logic runs.
-    /// </summary>
     private void StorageOnPlayerInfoUpdatedWithNpcLocalization(PlayerInfo info)
     {
         ApplyNpcLocalizedName(info);
+        TryAssignUidFromStorage();
         StorageOnPlayerInfoUpdated(info);
     }
 
-    /// <summary>
-    /// For NPC entries, replace packet-provided name with localized Monster JSON name.
-    /// Uses key format: "Monster:{templateId}".
-    /// </summary>
     private void ApplyNpcLocalizedName(PlayerInfo info, CultureInfo? culture = null)
     {
         var templateId = info.NpcTemplateId;
@@ -388,6 +418,37 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
         if (!string.Equals(info.Name, resolved, StringComparison.Ordinal))
         {
             info.Name = resolved;
+        }
+    }
+
+    private void TryAssignUidFromStorage()
+    {
+        if (IsViewingHistory) return; // 履歴表示中は触らない
+        var uid = _storage.CurrentPlayerInfo.UID;
+        if (uid <= 0) return;
+
+        // 既に設定済みなら上書きしない（必要なら下の別案へ）
+        if (_configManager.CurrentConfig.Uid > 0) return;
+
+        // 連打防止
+        if (_lastAutoSavedUid == uid) return;
+
+        _lastAutoSavedUid = uid;
+        _configManager.CurrentConfig.Uid = uid;
+
+        _ = SaveUidAsync(uid);
+    }
+
+    private async Task SaveUidAsync(long uid)
+    {
+        try
+        {
+            await _configManager.SaveAsync();
+            _logger.LogInformation("Auto assigned UID from storage: {Uid}", uid);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to auto assign UID from storage");
         }
     }
 }
