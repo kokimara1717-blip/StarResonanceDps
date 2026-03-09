@@ -262,7 +262,7 @@
     <value>Clear Data</value>
   </data>
   <data name="Settings_Shortcut_MouseThrough_Tooltip" xml:space="preserve">
-    <value>Focus this box and press a shortcut (e.g. Ctrl+F6). Press Delete to clear.</value>
+    <value>Focus this box and press a shortcut (e.g. F6). Press Delete to clear.</value>
   </data>
   <data name="Settings_Shortcut_ClearData_Tooltip" xml:space="preserve">
     <value>Focus this box and press a shortcut (e.g. F9). Press Delete to clear.</value>
@@ -301,7 +301,7 @@
     <value>Number display mode</value>
   </data>
   <data name="Settings_Display_Opacity" xml:space="preserve">
-    <value>Overlay opacity</value>
+    <value>Overlay Opacity</value>
   </data>
   <data name="Settings_Display_PlayerNameMask" xml:space="preserve">
     <value>Mask player names</value>
@@ -321,8 +321,14 @@
   <data name="Settings_PlayerInfo_Preset_Detailed_Tooltip" xml:space="preserve">
     <value>PlayerName - FrostMage [S8 Lv50] (25000)</value>
   </data>
-  <data name="Settings_PlayerInfo_Preset_NameOnly_Tooltip" xml:space="preserve">
+  <data name="Settings_PlayerInfo_Name" xml:space="preserve">
     <value>PlayerName</value>
+  </data>
+  <data name="Settings_PlayerInfo_Tip" xml:space="preserve">
+    <value>e.g., </value>
+  </data>
+  <data name="Settings_PlayerInfo_ClassSpec" xml:space="preserve">
+    <value>Class Spec</value>
   </data>
   <data name="Settings_PlayerInfo_Separator_Space" xml:space="preserve">
     <value>Space</value>
@@ -699,7 +705,7 @@
     <comment>切换置顶</comment>
   </data>
   <data name="Settings_Shortcut_TopMost_Tooltip" xml:space="preserve">
-    <value>Focus this box and press a shortcut (e.g. Ctrl+F9). Press Delete to clear.</value>
+    <value>Focus this box and press a shortcut (e.g. F9). Press Delete to clear.</value>
   </data>
   <data name="Settings_NetworkAdapterAutoSelect_Failed" xml:space="preserve">
     <value>Network adapter auto select failed, please check you have proper network connections</value>
@@ -1449,10 +1455,55 @@ Open download page now?</value>
   <data name="Settings_Update_Check_Button" xml:space="preserve">
     <value>Check for updates</value>
   </data>
+  <data name="Settings_Update_Check_Message" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
   <data name="Settings_Update_Check_Tooltip" xml:space="preserve">
     <value>Check GitHub or self-host update source now.</value>
   </data>
   <data name="DpsStatistics_NPC_Label" xml:space="preserve">
     <value>All NPC</value>
+  </data>
+  <data name="Settings_UID_Setting_Title" xml:space="preserve">
+    <value>Set Player UID</value>
+  </data>
+  <data name="Settings_UID_Setting_Message1" xml:space="preserve">
+    <value>No current player UID captured. Please change map and try again.</value>
+  </data>
+  <data name="Settings_UID_Setting_Message2" xml:space="preserve">
+    <value>You are trying to set UID for current player. This data may not be accurate, please verify on your own.</value>
+  </data>
+  <data name="Settings_NetworkAdapterAutoSelect_Title" xml:space="preserve">
+    <value>Set Network Adapter</value>
+  </data>
+  <data name="Settings_Theme_BackgroundImage_Filter" xml:space="preserve">
+    <value>PNG Image (*.png)|*.png</value>
+  </data>
+  <data name="Settings_PlayerInfo_PlayerUID" xml:space="preserve">
+    <value>Player UID</value>
+  </data>
+  <data name="Settings_PlayerInfo_SeasonStrength" xml:space="preserve">
+    <value>Season Strength</value>
+  </data>
+  <data name="Settings_PlayerInfo_SeasonLevel" xml:space="preserve">
+    <value>Season Level</value>
+  </data>
+  <data name="Settings_PlayerInfo_GuildName" xml:space="preserve">
+    <value>Guild Name</value>
+  </data>
+  <data name="Settings_PlayerInfo_MyGuild" xml:space="preserve">
+    <value>MyGuild</value>
+  </data>
+  <data name="Settings_CustomFormat_Message" xml:space="preserve">
+    <value>Custom format is disabled. Using default visibility settings.</value>
+  </data>
+  <data name="Settings_Theme_BackgroundColor" xml:space="preserve">
+    <value>Background Color</value>
+  </data>
+  <data name="Settings_Background_Opacity" xml:space="preserve">
+    <value>Background Opacity</value>
+  </data>
+  <data name="Settings_BackgroundImage_Opacity" xml:space="preserve">
+    <value>Background Image Opacity</value>
   </data>
 </root>
