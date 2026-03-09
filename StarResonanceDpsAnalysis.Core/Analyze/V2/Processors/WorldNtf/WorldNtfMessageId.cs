@@ -1,4 +1,4 @@
-﻿namespace StarResonanceDpsAnalysis.Core.Analyze.V2.Processors.WorldNtf;
+namespace StarResonanceDpsAnalysis.Core.Analyze.V2.Processors.WorldNtf;
 
 public enum WorldNtfMessageId : uint
 {
@@ -28,8 +28,8 @@ public enum WorldNtfMessageId : uint
     NotifyShowTips = 0x0000002AU,
     SyncServerTime = 0x0000002BU,
     NotifyNoticeInfo = 0x0000002CU,
-    SyncNearDeltaInfo = 45U,
-    SyncToMeDeltaInfo = 46U,
+    SyncNearDeltaInfo = 0x2DU,
+    SyncToMeDeltaInfo = 0x2EU,
     NotifyClientKickOff = 0x00000031U,
     PaymentResponse = 0x00000033U,
     NotifyUnlockCookBook = 0x00000035U,

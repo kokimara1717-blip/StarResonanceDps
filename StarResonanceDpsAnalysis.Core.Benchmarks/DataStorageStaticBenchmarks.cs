@@ -38,19 +38,19 @@ public class DataStorageStaticBenchmarks
     [IterationSetup]
     public void IterationSetup()
     {
-        DataStorage.ClearAllDpsData();
-        DataStorage.ClearAllPlayerInfos();
+        DataStorage.Instance.ClearAllDpsData();
+        DataStorage.Instance.ClearAllPlayerInfos();
         // Pre-populate some players
         for (int i = 0; i < 50; i++)
         {
-            DataStorage.TestCreatePlayerInfoByUID(i);
+            DataStorage.Instance.EnsurePlayer(i);
         }
     }
 
     [Benchmark(Description = "Static.AddBattleLog")]
     public void AddBattleLog_Single()
     {
-        DataStorage.AddBattleLog(_sampleLog);
+        DataStorage.Instance.AddBattleLog(_sampleLog);
     }
 
     [Benchmark(Description = "Static.AddBattleLog (1000 logs)")]
@@ -58,25 +58,25 @@ public class DataStorageStaticBenchmarks
     {
         for (int i = 0; i < _logBatch.Length; i++)
         {
-            DataStorage.AddBattleLog(_logBatch[i]);
+            DataStorage.Instance.AddBattleLog(_logBatch[i]);
         }
     }
 
-    [Benchmark(Description = "Static.TestCreatePlayerInfoByUID (New)")]
-    public void TestCreatePlayerInfoByUID_New()
+    [Benchmark(Description = "Static.EnsurePlayer (New)")]
+    public void EnsurePlayer_New()
     {
-        DataStorage.TestCreatePlayerInfoByUID(9999L);
+        DataStorage.Instance.EnsurePlayer(9999L);
     }
 
-    [Benchmark(Description = "Static.TestCreatePlayerInfoByUID (Existing)")]
-    public void TestCreatePlayerInfoByUID_Existing()
+    [Benchmark(Description = "Static.EnsurePlayer (Existing)")]
+    public void EnsurePlayer_Existing()
     {
-        DataStorage.TestCreatePlayerInfoByUID(1L);
+        DataStorage.Instance.EnsurePlayer(1L);
     }
 
     [Benchmark(Description = "Static.GetOrCreateDpsDataByUID")]
     public void GetOrCreateDpsData()
     {
-        DataStorage.GetOrCreateDpsDataByUID(2L);
+        DataStorage.Instance.GetOrCreateDpsDataByUid(2L);
     }
 }

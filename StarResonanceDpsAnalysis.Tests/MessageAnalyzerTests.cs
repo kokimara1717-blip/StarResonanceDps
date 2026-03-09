@@ -8,9 +8,9 @@ public class MessageAnalyzerTests : IDisposable
 {
     public MessageAnalyzerTests()
     {
-        DataStorage.ClearAllDpsData();
-        DataStorage.ClearAllPlayerInfos();
-        DataStorage.ClearCurrentPlayerInfo();
+        DataStorage.Instance.ClearAllDpsData();
+        DataStorage.Instance.ClearAllPlayerInfos();
+        DataStorage.Instance.ClearCurrentPlayerInfo();
     }
 
     [Fact]
@@ -22,7 +22,7 @@ public class MessageAnalyzerTests : IDisposable
 
         MessageAnalyzer.Process(envelope);
 
-        Assert.True(DataStorage.ReadOnlyPlayerInfoDatas.TryGetValue(playerUid, out var info));
+        Assert.True(DataStorage.Instance.ReadOnlyPlayerInfoDatas.TryGetValue(playerUid, out var info));
         Assert.Equal("Static Hero", info!.Name);
         Assert.Equal(66, info.Level);
     }
@@ -37,8 +37,8 @@ public class MessageAnalyzerTests : IDisposable
 
     public void Dispose()
     {
-        DataStorage.ClearAllDpsData();
-        DataStorage.ClearAllPlayerInfos();
-        DataStorage.ClearCurrentPlayerInfo();
+        DataStorage.Instance.ClearAllDpsData();
+        DataStorage.Instance.ClearAllPlayerInfos();
+        DataStorage.Instance.ClearCurrentPlayerInfo();
     }
 }

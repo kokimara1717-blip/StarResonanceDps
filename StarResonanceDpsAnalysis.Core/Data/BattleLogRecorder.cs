@@ -49,7 +49,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
                 if (State != RunningState.Standby)
                     throw new InvalidOperationException("Recorder is already started or stopped.");
 
-                DataStorage.BattleLogCreated += OnBattleLogCreated;
+                DataStorage.Instance.BattleLogCreated += OnBattleLogCreated;
             }
         }
 
@@ -77,7 +77,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
                 if (State != RunningState.Running)
                     throw new InvalidOperationException("Recorder is not running.");
 
-                DataStorage.BattleLogCreated -= OnBattleLogCreated;
+                DataStorage.Instance.BattleLogCreated -= OnBattleLogCreated;
 
                 State = RunningState.Stopped;
 
@@ -95,7 +95,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
             if (State != RunningState.Stopped)
                 throw new InvalidOperationException("Recorder must be stopped before saving.");
 
-            var playerDict = DataStorage.BuildPlayerDicFromBattleLog(BattleLogs);
+            var playerDict = DataStorage.Instance.BuildPlayerDicFromBattleLog(BattleLogs);
 
             BattleLogWriter.WriteToFile(path, new()
             {

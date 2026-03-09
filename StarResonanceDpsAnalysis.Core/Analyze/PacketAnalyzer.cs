@@ -67,7 +67,7 @@ public class PacketAnalyzer(ILogger<PacketAnalyzer>? logger = null) : IPacketAna
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ForceReconnect(string reason)
     {
-        DataStorage.IsServerConnected = false;
+        DataStorage.Instance.IsServerConnected = false;
 
         logger?.LogWarning(CoreLogEvents.Reconnect,
             "Reconnect due to {Reason} at {Time}", reason, DateTime.Now.ToString("HH:mm:ss"));
@@ -182,7 +182,7 @@ public class PacketAnalyzer(ILogger<PacketAnalyzer>? logger = null) : IPacketAna
         try
         {
             // 标记已开始监听服务器
-            DataStorage.IsServerConnected = true;
+            DataStorage.Instance.IsServerConnected = true;
 
             // 使用 PacketDotNet 解析为通用数据包对象（包含以太网/IP/TCP 等）
             var packet = Packet.ParsePacket(raw.LinkLayerType, raw.Data);
@@ -269,7 +269,7 @@ public class PacketAnalyzer(ILogger<PacketAnalyzer>? logger = null) : IPacketAna
                                             logger?.LogInformation(CoreLogEvents.ServerDetected,
                                                 "Detected scene server {Server}", srcServer);
 
-                                            DataStorage.ServerChange(CurrentServer, prevServer);
+                                            DataStorage.Instance.ServerChange(CurrentServer, prevServer);
                                         }
                                     }
                                     catch (Exception ex)
@@ -299,7 +299,7 @@ public class PacketAnalyzer(ILogger<PacketAnalyzer>? logger = null) : IPacketAna
                                     logger?.LogInformation(CoreLogEvents.ServerDetected,
                                         "Detected scene server (login) {Server}", srcServer);
 
-                                    DataStorage.ServerChange(CurrentServer, prevServer);
+                                    DataStorage.Instance.ServerChange(CurrentServer, prevServer);
                                 }
                             }
                         }

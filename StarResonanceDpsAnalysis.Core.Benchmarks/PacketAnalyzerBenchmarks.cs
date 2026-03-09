@@ -64,9 +64,9 @@ public class PacketAnalyzerBenchmarks
     public void IterationSetup()
     {
         // reset state between iterations
-        DataStorage.ClearAllDpsData();
-        DataStorage.ClearAllPlayerInfos();
-        DataStorage.ClearCurrentPlayerInfo();
+        DataStorage.Instance.ClearAllDpsData();
+        DataStorage.Instance.ClearAllPlayerInfos();
+        DataStorage.Instance.ClearCurrentPlayerInfo();
 
         _storage.ClearAllDpsData();
         _storage.ClearAllPlayerInfos();

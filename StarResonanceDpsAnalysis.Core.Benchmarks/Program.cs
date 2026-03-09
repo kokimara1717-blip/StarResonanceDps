@@ -32,9 +32,9 @@ public class DataStorageBenchmarks
     [IterationSetup]
     public void IterationSetup()
     {
-        DataStorage.ClearAllDpsData();
-        DataStorage.ClearAllPlayerInfos();
-        DataStorage.ClearCurrentPlayerInfo();
+        DataStorage.Instance.ClearAllDpsData();
+        DataStorage.Instance.ClearAllPlayerInfos();
+        DataStorage.Instance.ClearCurrentPlayerInfo();
 
         _storageV2.ClearAllDpsData();
         _storageV2.ClearAllPlayerInfos();
@@ -45,7 +45,7 @@ public class DataStorageBenchmarks
     {
         foreach (var log in _logs)
         {
-            DataStorage.AddBattleLog(log);
+            DataStorage.Instance.AddBattleLog(log);
         }
     }
 
@@ -62,8 +62,8 @@ public class DataStorageBenchmarks
     {
         const long attackerUid = 123L;
         const long targetUid = 456L;
-        DataStorage.TestCreatePlayerInfoByUID(attackerUid);
-        DataStorage.TestCreatePlayerInfoByUID(targetUid);
+        DataStorage.Instance.EnsurePlayer(attackerUid);
+        DataStorage.Instance.EnsurePlayer(targetUid);
         _storageV2.EnsurePlayer(attackerUid);
         _storageV2.EnsurePlayer(targetUid);
 
@@ -113,9 +113,9 @@ public class MessageParsingBenchmarks
     [IterationSetup]
     public void IterationSetup()
     {
-        DataStorage.ClearAllDpsData();
-        DataStorage.ClearAllPlayerInfos();
-        DataStorage.ClearCurrentPlayerInfo();
+        DataStorage.Instance.ClearAllDpsData();
+        DataStorage.Instance.ClearAllPlayerInfos();
+        DataStorage.Instance.ClearCurrentPlayerInfo();
 
         _storageV2.ClearAllDpsData();
         _storageV2.ClearAllPlayerInfos();

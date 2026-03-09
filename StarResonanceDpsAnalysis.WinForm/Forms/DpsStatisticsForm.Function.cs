@@ -52,7 +52,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private void LoadAppConfig()
         {
-            DataStorage.SectionTimeout = TimeSpan.FromSeconds(AppConfig.CombatTimeClearDelaySeconds);
+            DataStorage.Instance.SectionTimeout = TimeSpan.FromSeconds(AppConfig.CombatTimeClearDelaySeconds);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         {
             try
             {
-                DataStorage.LoadPlayerInfoFromFile();
+                DataStorage.Instance.LoadPlayerInfoFromFile();
             }
             catch (FileNotFoundException)
             {
@@ -72,8 +72,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             {
                 AppMessageBox.ShowMessage("用户缓存被篡改，或文件损坏。为软件正常运行，将清空用户缓存。", this);
 
-                DataStorage.ClearAllPlayerInfos();
-                DataStorage.SavePlayerInfoToFile();
+                DataStorage.Instance.ClearAllPlayerInfos();
+                DataStorage.Instance.SavePlayerInfoToFile();
             }
         }
 
@@ -261,7 +261,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private void HandleClearAllData()
         {
-            DataStorage.ClearAllDpsData();
+            DataStorage.Instance.ClearAllDpsData();
 
             _fullBattleTimer.Reset();
             _battleTimer.Reset();
@@ -269,7 +269,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private void HandleClearData()
         {
-            DataStorage.ClearSectionDpsData();
+            DataStorage.Instance.ClearSectionDpsData();
 
             _battleTimer.Reset();
         }

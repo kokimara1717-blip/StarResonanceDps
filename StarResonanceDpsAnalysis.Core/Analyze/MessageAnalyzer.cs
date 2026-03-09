@@ -8,6 +8,7 @@ using Google.Protobuf.Collections;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using StarResonanceDpsAnalysis.Core.Analyze.Models;
+using StarResonanceDpsAnalysis.Core.Analyze.V2.Processors.WorldNtf;
 using StarResonanceDpsAnalysis.Core.Data;
 using StarResonanceDpsAnalysis.Core.Data.Models;
 using StarResonanceDpsAnalysis.Core.Extends.BlueProto;
@@ -71,13 +72,13 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         /// Key = methodId
         /// Value = 对应的处理方法
         /// </summary>
-        private static readonly Dictionary<uint, Action<byte[], bool, ILogger?>> ProcessMethods = new()
+        private static readonly Dictionary<WorldNtfMessageId, Action<byte[], bool, ILogger?>> ProcessMethods = new()
         {
-            { 0x00000006U, ProcessSyncNearEntities },        // 同步周边玩家实体
-            { 0x00000015U, ProcessSyncContainerData },       // 同步自身完整容器数据
-            { 0x00000016U, ProcessSyncContainerDirtyData },  // 同步自身部分更新（脏数据）
-            { 0x0000002EU, ProcessSyncToMeDeltaInfo },       // 同步自己受到的增量伤害
-            { 0x0000002DU, ProcessSyncNearDeltaInfo }        // 同步周边增量伤害
+            { WorldNtfMessageId.SyncNearEntities, ProcessSyncNearEntities },        // 同步周边玩家实体
+            { WorldNtfMessageId.SyncContainerData, ProcessSyncContainerData },       // 同步自身完整容器数据
+            { WorldNtfMessageId.SyncContainerDirtyData, ProcessSyncContainerDirtyData },  // 同步自身部分更新（脏数据）
+            { WorldNtfMessageId.SyncToMeDeltaInfo, ProcessSyncToMeDeltaInfo },       // 同步自己受到的增量伤害
+            { WorldNtfMessageId.SyncNearDeltaInfo, ProcessSyncNearDeltaInfo }        // 同步周边增量伤害
         };
 
         /// <summary>
@@ -88,7 +89,8 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
             var serviceUuid = (ServiceIds)packet.ReadUInt64BE();
             Debug.Assert(Enum.IsDefined(serviceUuid));
             _ = packet.ReadUInt32BE();
-            var methodId = packet.ReadUInt32BE();
+            var methodId = (WorldNtfMessageId)packet.ReadUInt32BE();
+            Debug.Assert(Enum.IsDefined(methodId));
 
             if (serviceUuid != ServiceIds.WorldNtf) return;
 
@@ -152,12 +154,10 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         }
         #endregion
 
-        private static readonly List<Action<long, RepeatedField<Attr>, byte[]>?> ProcessSyncNearEntitiesMethods = new()
+        private static readonly Dictionary<EEntityType, Action<long, RepeatedField<Attr>, byte[]>?> ProcessSyncNearEntitiesMethods = new()
         {
-            null,
-            ProcessEnemyAttrs, // EEntityType.EntMonster(1)
-            null, null, null, null, null, null, null, null,
-            ProcessPlayerAttrs // EEntityType.EntChar(10)
+            { EEntityType.EntMonster,ProcessEnemyAttrs },// EEntityType.EntMonster(1)
+            { EEntityType.EntChar,ProcessPlayerAttrs } // EEntityType.EntChar(10)
         };
 
         /// <summary>
@@ -171,13 +171,9 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
             foreach (var entity in syncNearEntities.Appear)
             {
                 // プレイヤーもモンスターも、対応ハンドラがあるなら処理する
-                var entTypeIndex = (int)entity.EntType;
-                if (entTypeIndex < 0 || entTypeIndex >= ProcessSyncNearEntitiesMethods.Count)
-                    continue;
-
-                var processMethod = ProcessSyncNearEntitiesMethods[entTypeIndex];
-                if (processMethod == null)
-                    continue;
+                var ret = ProcessSyncNearEntitiesMethods.TryGetValue(entity.EntType, out var processMethod);
+                if (!ret) continue;
+                if (processMethod == null) continue;
 
                 // 提取UID
                 var entityUid = entity.Uuid.ShiftRight16();
@@ -207,50 +203,50 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
             var playerUid = vData.CharId;
 
             // ✅ 统一通过 setter 设置当前玩家UID，而不是直接赋值
-            DataStorage.SetCurrentPlayerUid(playerUid);
-            DataStorage.TestCreatePlayerInfoByUID(playerUid);
+            DataStorage.Instance.SetCurrentPlayerUid(playerUid);
+            DataStorage.Instance.EnsurePlayer(playerUid);
 
             var tmpLevel = vData.RoleLevel?.Level ?? 0;
             if (tmpLevel != 0)
             {
-                DataStorage.CurrentPlayerInfo.Level = tmpLevel;
-                DataStorage.SetPlayerLevel(playerUid, tmpLevel);
+                DataStorage.Instance.CurrentPlayerInfo.Level = tmpLevel;
+                DataStorage.Instance.SetPlayerLevel(playerUid, tmpLevel);
             }
 
             var tmpHP = vData.Attr?.CurHp ?? 0;
             if (tmpHP != 0)
             {
-                DataStorage.CurrentPlayerInfo.HP = tmpHP;
-                DataStorage.SetPlayerHP(playerUid, tmpHP);
+                DataStorage.Instance.CurrentPlayerInfo.HP = tmpHP;
+                DataStorage.Instance.SetPlayerHP(playerUid, tmpHP);
             }
 
             var tmpMaxHP = vData.Attr?.MaxHp ?? 0;
             if (tmpMaxHP != 0)
             {
-                DataStorage.CurrentPlayerInfo.MaxHP = tmpMaxHP;
-                DataStorage.SetPlayerMaxHP(playerUid, tmpMaxHP);
+                DataStorage.Instance.CurrentPlayerInfo.MaxHP = tmpMaxHP;
+                DataStorage.Instance.SetPlayerMaxHP(playerUid, tmpMaxHP);
             }
 
             if (vData.CharBase != null)
             {
                 if (!string.IsNullOrEmpty(vData.CharBase.Name))
                 {
-                    DataStorage.CurrentPlayerInfo.Name = vData.CharBase.Name;
-                    DataStorage.SetPlayerName(playerUid, vData.CharBase.Name);
+                    DataStorage.Instance.CurrentPlayerInfo.Name = vData.CharBase.Name;
+                    DataStorage.Instance.SetPlayerName(playerUid, vData.CharBase.Name);
                 }
 
                 if (vData.CharBase.FightPoint != 0)
                 {
-                    DataStorage.CurrentPlayerInfo.CombatPower = vData.CharBase.FightPoint;
-                    DataStorage.SetPlayerCombatPower(playerUid, vData.CharBase.FightPoint);
+                    DataStorage.Instance.CurrentPlayerInfo.CombatPower = vData.CharBase.FightPoint;
+                    DataStorage.Instance.SetPlayerCombatPower(playerUid, vData.CharBase.FightPoint);
                 }
             }
 
             var professionList = vData.ProfessionList;
             if (professionList != null && professionList.CurProfessionId != 0)
             {
-                DataStorage.CurrentPlayerInfo.ProfessionID = professionList.CurProfessionId;
-                DataStorage.SetPlayerProfessionID(playerUid, professionList.CurProfessionId);
+                DataStorage.Instance.CurrentPlayerInfo.ProfessionID = professionList.CurProfessionId;
+                DataStorage.Instance.SetPlayerProfessionID(playerUid, professionList.CurProfessionId);
             }
         }
 
@@ -261,9 +257,9 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         {
             try
             {
-                var playerUid = DataStorage.CurrentPlayerInfo.UID;
+                var playerUid = DataStorage.Instance.CurrentPlayerInfo.UID;
                 if (playerUid == 0) return;
-                DataStorage.TestCreatePlayerInfoByUID(playerUid);
+                DataStorage.Instance.EnsurePlayer(playerUid);
 
                 var dirty = Zproto.WorldNtf.Types.SyncContainerDirtyData.Parser.ParseFrom(payloadBuffer);
                 if (dirty?.VData?.Buffer == null || dirty.VData.Buffer.Length == 0) return;
@@ -289,8 +285,8 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                                 var playerName = StreamReadString(br);
                                 if (!string.IsNullOrEmpty(playerName))
                                 {
-                                    DataStorage.CurrentPlayerInfo.Name = playerName;
-                                    DataStorage.SetPlayerName(playerUid, playerName);
+                                    DataStorage.Instance.CurrentPlayerInfo.Name = playerName;
+                                    DataStorage.Instance.SetPlayerName(playerUid, playerName);
                                 }
                                 break;
 
@@ -299,8 +295,8 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                                 _ = br.ReadInt32();
                                 if (fightPoint != 0)
                                 {
-                                    DataStorage.CurrentPlayerInfo.CombatPower = fightPoint;
-                                    DataStorage.SetPlayerCombatPower(playerUid, fightPoint);
+                                    DataStorage.Instance.CurrentPlayerInfo.CombatPower = fightPoint;
+                                    DataStorage.Instance.SetPlayerCombatPower(playerUid, fightPoint);
                                 }
                                 break;
                         }
@@ -314,14 +310,14 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                         {
                             case 1:
                                 var curHp = (int)br.ReadUInt32();
-                                DataStorage.CurrentPlayerInfo.HP = curHp;
-                                DataStorage.SetPlayerHP(playerUid, curHp);
+                                DataStorage.Instance.CurrentPlayerInfo.HP = curHp;
+                                DataStorage.Instance.SetPlayerHP(playerUid, curHp);
                                 break;
 
                             case 2:
                                 var maxHp = (int)br.ReadUInt32();
-                                DataStorage.CurrentPlayerInfo.MaxHP = maxHp;
-                                DataStorage.SetPlayerMaxHP(playerUid, maxHp);
+                                DataStorage.Instance.CurrentPlayerInfo.MaxHP = maxHp;
+                                DataStorage.Instance.SetPlayerMaxHP(playerUid, maxHp);
                                 break;
                         }
                         break;
@@ -336,8 +332,8 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                             _ = br.ReadInt32();
                             if (curProfessionId != 0)
                             {
-                                DataStorage.CurrentPlayerInfo.ProfessionID = curProfessionId;
-                                DataStorage.SetPlayerProfessionID(playerUid, curProfessionId);
+                                DataStorage.Instance.CurrentPlayerInfo.ProfessionID = curProfessionId;
+                                DataStorage.Instance.SetPlayerProfessionID(playerUid, curProfessionId);
                             }
                         }
                         break;
@@ -385,7 +381,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
             if (uuid != 0)
             {
                 // ✅ 统一通过 setter 设置当前玩家UID，而不是直接赋值
-                DataStorage.SetCurrentPlayerUid(uuid);
+                DataStorage.Instance.SetCurrentPlayerUid(uuid);
             }
 
             var aoiSyncDelta = aoiSyncToMeDelta.BaseDelta;
@@ -465,7 +461,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                 int damageSource = (int)(d.HasDamageSource ? d.DamageSource : 0);
 
                 (var id, var ticks) = IDGenerator.Next();
-                DataStorage.AddBattleLog(new()
+                DataStorage.Instance.AddBattleLog(new()
                 {
                     PacketID = id,
                     TimeTicks = ticks,
@@ -506,7 +502,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         /// </summary>
         public static void ProcessPlayerAttrs(long playerUid, RepeatedField<Attr> attrs, byte[] payload)
         {
-            DataStorage.TestCreatePlayerInfoByUID(playerUid);
+            DataStorage.Instance.EnsurePlayer(playerUid);
 
             foreach (var attr in attrs)
             {
@@ -518,29 +514,29 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                 {
                     case EAttrType.AttrName:
                         var playerName = reader.ReadString();
-                        DataStorage.SetPlayerName(playerUid, playerName);
+                        DataStorage.Instance.SetPlayerName(playerUid, playerName);
                         Debug.WriteLine($"SyncNearEntitiesV1: SetPlayerName:{playerUid}@{playerName}");
                         break;
                     case EAttrType.AttrProfessionId:
-                        DataStorage.SetPlayerProfessionID(playerUid, reader.ReadInt32());
+                        DataStorage.Instance.SetPlayerProfessionID(playerUid, reader.ReadInt32());
                         break;
                     case EAttrType.AttrFightPoint:
-                        DataStorage.SetPlayerCombatPower(playerUid, reader.ReadInt32());
+                        DataStorage.Instance.SetPlayerCombatPower(playerUid, reader.ReadInt32());
                         break;
                     case EAttrType.AttrLevel:
-                        DataStorage.SetPlayerLevel(playerUid, reader.ReadInt32());
+                        DataStorage.Instance.SetPlayerLevel(playerUid, reader.ReadInt32());
                         break;
                     case EAttrType.AttrRankLevel:
-                        DataStorage.SetPlayerRankLevel(playerUid, reader.ReadInt32());
+                        DataStorage.Instance.SetPlayerRankLevel(playerUid, reader.ReadInt32());
                         break;
                     case EAttrType.AttrCri:
-                        DataStorage.SetPlayerCritical(playerUid, reader.ReadInt32());
+                        DataStorage.Instance.SetPlayerCritical(playerUid, reader.ReadInt32());
                         break;
                     case EAttrType.AttrLuck:
-                        DataStorage.SetPlayerLucky(playerUid, reader.ReadInt32());
+                        DataStorage.Instance.SetPlayerLucky(playerUid, reader.ReadInt32());
                         break;
                     case EAttrType.AttrHp:
-                        DataStorage.SetPlayerHP(playerUid, reader.ReadInt32());
+                        DataStorage.Instance.SetPlayerHP(playerUid, reader.ReadInt32());
                         break;
                     case EAttrType.AttrMaxHp:
                         _ = reader.ReadInt32();
@@ -552,33 +548,33 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                     case EAttrType.AttrSeasonStrengthPer:
                     case EAttrType.AttrSeasonStrengthExPer:
                         var strength = reader.ReadInt32();
-                        DataStorage.SetPlayerSeasonStrength(playerUid, strength);
+                        DataStorage.Instance.SetPlayerSeasonStrength(playerUid, strength);
                         break;
                     case EAttrType.AttrSeasonLevel:
                         var level = reader.ReadInt32();
-                        DataStorage.SetPlayerSeasonLevel(playerUid, level);
+                        DataStorage.Instance.SetPlayerSeasonLevel(playerUid, level);
                         break;
                     case EAttrType.AttrCombatState:
                         var state = reader.ReadBool();
                         Debug.WriteLine($"CombatState:[{BitConverter.ToString(data)}]");
-                        DataStorage.SetPlayerCombatState(playerUid, state);
-                        DataStorage.SetPlayerCombatStateTime(playerUid, DateTime.UtcNow.Ticks);
+                        DataStorage.Instance.SetPlayerCombatState(playerUid, state);
+                        DataStorage.Instance.SetPlayerCombatStateTime(playerUid, DateTime.UtcNow.Ticks);
                         break;
                     case EAttrType.AttrCombatStateTime:
                         var time = reader.ReadInt64();
                         Debug.WriteLine($"CombatStateTime:[{BitConverter.ToString(data)}].[{time}].[{TimeSpan.FromTicks(time):c}");
-                        if (DataStorage.ReadOnlyPlayerInfoDatas.TryGetValue(playerUid, out var info))
+                        if (DataStorage.Instance.ReadOnlyPlayerInfoDatas.TryGetValue(playerUid, out var info))
                         {
                             var tick = info.CombatStateTime;
                             var tickDiff = DateTime.UtcNow.Ticks - tick;
                             var ts = TimeSpan.FromTicks(tickDiff);
                             if (ts > TimeSpan.FromSeconds(1))
                             {
-                                DataStorage.SetPlayerCombatState(playerUid, false);
+                                DataStorage.Instance.SetPlayerCombatState(playerUid, false);
                             }
                         }
 
-                        DataStorage.SetPlayerCombatStateTime(playerUid, DateTime.UtcNow.Ticks);
+                        DataStorage.Instance.SetPlayerCombatStateTime(playerUid, DateTime.UtcNow.Ticks);
                         break;
                     case EAttrType.AttrCanIntoCombat:
                         Debug.WriteLine($"CanIntoCombat:{BitConverter.ToString(data)}");
@@ -596,7 +592,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         {
             if (attrs.Count == 0) return;
 
-            DataStorage.TestCreatePlayerInfoByUID(enemyUid);
+            DataStorage.Instance.EnsurePlayer(enemyUid);
 
             foreach (var attr in attrs)
             {
@@ -616,22 +612,22 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
 
                         case EAttrType.AttrId:
                             var templateId = reader.ReadInt32();
-                            DataStorage.SetNpcTemplateId(enemyUid, templateId);
+                            DataStorage.Instance.SetNpcTemplateId(enemyUid, templateId);
                             break;
 
                         case EAttrType.AttrHp:
                             var enemyHp = reader.ReadInt32();
-                            DataStorage.SetPlayerHP(enemyUid, enemyHp);
+                            DataStorage.Instance.SetPlayerHP(enemyUid, enemyHp);
                             break;
 
                         case EAttrType.AttrMaxHp:
                             var enemyMaxHp = reader.ReadInt32();
-                            DataStorage.SetPlayerMaxHP(enemyUid, enemyMaxHp);
+                            DataStorage.Instance.SetPlayerMaxHP(enemyUid, enemyMaxHp);
                             break;
 
                         case EAttrType.AttrMonsterSeasonLevel:
                             var seasonLv = reader.ReadInt32();
-                            DataStorage.SetPlayerSeasonLevel(enemyUid, seasonLv);
+                            DataStorage.Instance.SetPlayerSeasonLevel(enemyUid, seasonLv);
                             break;
                     }
                 }

@@ -40,35 +40,35 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
     private bool _disposed;
 
     // Properties (forwarding to DataStorage)
-    public PlayerInfo CurrentPlayerInfo => DataStorage.CurrentPlayerInfo;
+    public PlayerInfo CurrentPlayerInfo => DataStorage.Instance.CurrentPlayerInfo;
 
-    public ReadOnlyDictionary<long, PlayerInfo> ReadOnlyPlayerInfoDatas => DataStorage.ReadOnlyPlayerInfoDatas;
+    public ReadOnlyDictionary<long, PlayerInfo> ReadOnlyPlayerInfoDatas => DataStorage.Instance.ReadOnlyPlayerInfoDatas;
 
-    public ReadOnlyDictionary<long, DpsData> ReadOnlyFullDpsDatas => DataStorage.ReadOnlyFullDpsDatas;
+    public ReadOnlyDictionary<long, DpsData> ReadOnlyFullDpsDatas => DataStorage.Instance.ReadOnlyFullDpsData;
 
-    public IReadOnlyList<DpsData> ReadOnlyFullDpsDataList => DataStorage.ReadOnlyFullDpsDataList;
+    public IReadOnlyList<DpsData> ReadOnlyFullDpsDataList => DataStorage.Instance.ReadOnlyFullDpsDataList;
 
-    public ReadOnlyDictionary<long, DpsData> ReadOnlySectionedDpsDatas => DataStorage.ReadOnlySectionedDpsDatas;
+    public ReadOnlyDictionary<long, DpsData> ReadOnlySectionedDpsDatas => DataStorage.Instance.ReadOnlySectionedDpsData;
 
-    public IReadOnlyList<DpsData> ReadOnlySectionedDpsDataList => DataStorage.ReadOnlySectionedDpsDataList;
+    public IReadOnlyList<DpsData> ReadOnlySectionedDpsDataList => DataStorage.Instance.ReadOnlySectionedDpsDataList;
 
     public TimeSpan SectionTimeout
     {
-        get => DataStorage.SectionTimeout;
-        set => DataStorage.SectionTimeout = value;
+        get => DataStorage.Instance.SectionTimeout;
+        set => DataStorage.Instance.SectionTimeout = value;
     }
 
-    // DataStorage.IsServerConnected has public getter and internal setter; expose getter only.
+    // DataStorage.Instance.IsServerConnected has public getter and internal setter; expose getter only.
     public bool IsServerConnected
     {
-        get => DataStorage.IsServerConnected;
-        set => DataStorage.IsServerConnected = value;
+        get => DataStorage.Instance.IsServerConnected;
+        set => DataStorage.Instance.IsServerConnected = value;
     }
 
     public int SampleRecordingInterval
     {
-        get => DataStorage.SampleRecordingInterval;
-        set => DataStorage.SampleRecordingInterval = value;
+        get => DataStorage.Instance.SampleRecordingInterval;
+        set => DataStorage.Instance.SampleRecordingInterval = value;
     }
 
     // Dispose: detach all wrappers from DataStorage static events
@@ -82,7 +82,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
         {
             foreach (var wrapper in _serverConnMap.Values)
             {
-                DataStorage.ServerConnectionStateChanged -=
+                DataStorage.Instance.ServerConnectionStateChanged -=
                     (ServerConnectionStateChangedEventHandler)wrapper!;
             }
 
@@ -94,7 +94,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
         {
             foreach (var wrapper in _playerInfoUpdatedMap.Values)
             {
-                DataStorage.PlayerInfoUpdated -= (PlayerInfoUpdatedEventHandler)wrapper!;
+                DataStorage.Instance.PlayerInfoUpdated -= (PlayerInfoUpdatedEventHandler)wrapper!;
             }
 
             _playerInfoUpdatedMap.Clear();
@@ -105,7 +105,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
         {
             foreach (var wrapper in _newSectionCreatedMap.Values)
             {
-                DataStorage.NewSectionCreated -= (NewSectionCreatedEventHandler)wrapper!;
+                DataStorage.Instance.NewSectionCreated -= (NewSectionCreatedEventHandler)wrapper!;
             }
 
             _newSectionCreatedMap.Clear();
@@ -116,7 +116,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
         {
             foreach (var wrapper in _battleLogCreatedMap.Values)
             {
-                DataStorage.BattleLogCreated -= (BattleLogCreatedEventHandler)wrapper!;
+                DataStorage.Instance.BattleLogCreated -= (BattleLogCreatedEventHandler)wrapper!;
             }
 
             _battleLogCreatedMap.Clear();
@@ -127,7 +127,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
         {
             foreach (var wrapper in _dpsDataUpdatedMap.Values)
             {
-                DataStorage.DpsDataUpdated -= (DpsDataUpdatedEventHandler)wrapper!;
+                DataStorage.Instance.DpsDataUpdated -= (DpsDataUpdatedEventHandler)wrapper!;
             }
 
             _dpsDataUpdatedMap.Clear();
@@ -138,7 +138,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
         {
             foreach (var wrapper in _dataUpdatedMap.Values)
             {
-                DataStorage.DataUpdated -= (DataUpdatedEventHandler)wrapper!;
+                DataStorage.Instance.DataUpdated -= (DataUpdatedEventHandler)wrapper!;
             }
 
             _dataUpdatedMap.Clear();
@@ -149,7 +149,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
         {
             foreach (var wrapper in _serverChangedMap.Values)
             {
-                DataStorage.ServerChanged -= (ServerChangedEventHandler)wrapper!;
+                DataStorage.Instance.ServerChanged -= (ServerChangedEventHandler)wrapper!;
             }
 
             _serverChangedMap.Clear();
@@ -169,7 +169,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
                 if (_serverConnMap.ContainsKey(value)) return;
                 ServerConnectionStateChangedEventHandler wrapper = s => value(s);
                 _serverConnMap.Add(value, wrapper);
-                DataStorage.ServerConnectionStateChanged += wrapper;
+                DataStorage.Instance.ServerConnectionStateChanged += wrapper;
             }
         }
         remove
@@ -179,7 +179,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
             {
                 if (_serverConnMap.TryGetValue(value, out var wrapper))
                 {
-                    DataStorage.ServerConnectionStateChanged -=
+                    DataStorage.Instance.ServerConnectionStateChanged -=
                         (ServerConnectionStateChangedEventHandler)wrapper!;
                     _serverConnMap.Remove(value);
                 }
@@ -197,7 +197,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
                 if (_playerInfoUpdatedMap.ContainsKey(value)) return;
                 PlayerInfoUpdatedEventHandler wrapper = p => value(p);
                 _playerInfoUpdatedMap.Add(value, wrapper);
-                DataStorage.PlayerInfoUpdated += wrapper;
+                DataStorage.Instance.PlayerInfoUpdated += wrapper;
             }
         }
         remove
@@ -207,7 +207,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
             {
                 if (_playerInfoUpdatedMap.TryGetValue(value, out var wrapper))
                 {
-                    DataStorage.PlayerInfoUpdated -= (PlayerInfoUpdatedEventHandler)wrapper!;
+                    DataStorage.Instance.PlayerInfoUpdated -= (PlayerInfoUpdatedEventHandler)wrapper!;
                     _playerInfoUpdatedMap.Remove(value);
                 }
             }
@@ -224,7 +224,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
                 if (_newSectionCreatedMap.ContainsKey(value)) return;
                 NewSectionCreatedEventHandler wrapper = () => value();
                 _newSectionCreatedMap.Add(value, wrapper);
-                DataStorage.NewSectionCreated += wrapper;
+                DataStorage.Instance.NewSectionCreated += wrapper;
             }
         }
         remove
@@ -234,7 +234,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
             {
                 if (_newSectionCreatedMap.TryGetValue(value, out var wrapper))
                 {
-                    DataStorage.NewSectionCreated -= (NewSectionCreatedEventHandler)wrapper!;
+                    DataStorage.Instance.NewSectionCreated -= (NewSectionCreatedEventHandler)wrapper!;
                     _newSectionCreatedMap.Remove(value);
                 }
             }
@@ -251,7 +251,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
                 if (_sectionEndedMap.ContainsKey(value)) return;
                 SectionEndedEventHandler wrapper = () => value();
                 _sectionEndedMap.Add(value, wrapper);
-                DataStorage.SectionEnded += wrapper;
+                DataStorage.Instance.SectionEnded += wrapper;
             }
 
         }
@@ -262,7 +262,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
             {
                 if (_sectionEndedMap.TryGetValue(value, out var wrapper))
                 {
-                    DataStorage.SectionEnded -= (SectionEndedEventHandler)wrapper!;
+                    DataStorage.Instance.SectionEnded -= (SectionEndedEventHandler)wrapper!;
                     _sectionEndedMap.Remove(value);
                 }
             }
@@ -279,7 +279,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
                 if (_battleLogCreatedMap.ContainsKey(value)) return;
                 BattleLogCreatedEventHandler wrapper = b => value(b);
                 _battleLogCreatedMap.Add(value, wrapper);
-                DataStorage.BattleLogCreated += wrapper;
+                DataStorage.Instance.BattleLogCreated += wrapper;
             }
         }
         remove
@@ -289,7 +289,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
             {
                 if (_battleLogCreatedMap.TryGetValue(value, out var wrapper))
                 {
-                    DataStorage.BattleLogCreated -= (BattleLogCreatedEventHandler)wrapper!;
+                    DataStorage.Instance.BattleLogCreated -= (BattleLogCreatedEventHandler)wrapper!;
                     _battleLogCreatedMap.Remove(value);
                 }
             }
@@ -306,7 +306,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
                 if (_dpsDataUpdatedMap.ContainsKey(value)) return;
                 DpsDataUpdatedEventHandler wrapper = () => value();
                 _dpsDataUpdatedMap.Add(value, wrapper);
-                DataStorage.DpsDataUpdated += wrapper;
+                DataStorage.Instance.DpsDataUpdated += wrapper;
             }
         }
         remove
@@ -316,7 +316,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
             {
                 if (_dpsDataUpdatedMap.TryGetValue(value, out var wrapper))
                 {
-                    DataStorage.DpsDataUpdated -= (DpsDataUpdatedEventHandler)wrapper!;
+                    DataStorage.Instance.DpsDataUpdated -= (DpsDataUpdatedEventHandler)wrapper!;
                     _dpsDataUpdatedMap.Remove(value);
                 }
             }
@@ -333,7 +333,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
                 if (_dataUpdatedMap.ContainsKey(value)) return;
                 DataUpdatedEventHandler wrapper = () => value();
                 _dataUpdatedMap.Add(value, wrapper);
-                DataStorage.DataUpdated += wrapper;
+                DataStorage.Instance.DataUpdated += wrapper;
             }
         }
         remove
@@ -343,7 +343,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
             {
                 if (_dataUpdatedMap.TryGetValue(value, out var wrapper))
                 {
-                    DataStorage.DataUpdated -= (DataUpdatedEventHandler)wrapper!;
+                    DataStorage.Instance.DataUpdated -= (DataUpdatedEventHandler)wrapper!;
                     _dataUpdatedMap.Remove(value);
                 }
             }
@@ -360,7 +360,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
                 if (_serverChangedMap.ContainsKey(value)) return;
                 ServerChangedEventHandler wrapper = (cur, prev) => value(cur, prev);
                 _serverChangedMap.Add(value, wrapper);
-                DataStorage.ServerChanged += wrapper;
+                DataStorage.Instance.ServerChanged += wrapper;
             }
         }
         remove
@@ -370,7 +370,7 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
             {
                 if (_serverChangedMap.TryGetValue(value, out var wrapper))
                 {
-                    DataStorage.ServerChanged -= (ServerChangedEventHandler)wrapper!;
+                    DataStorage.Instance.ServerChanged -= (ServerChangedEventHandler)wrapper!;
                     _serverChangedMap.Remove(value);
                 }
             }
@@ -379,198 +379,198 @@ public class InstantizedDataStorage : IDataStorage, IDisposable
 
     public event Action? BeforeSectionCleared
     {
-        add => DataStorage.BeforeSectionCleared += value;
-        remove => DataStorage.BeforeSectionCleared -= value;
+        add => DataStorage.Instance.BeforeSectionCleared += value;
+        remove => DataStorage.Instance.BeforeSectionCleared -= value;
     }
 
 
     // Public methods (forward to DataStorage)
     public void LoadPlayerInfoFromFile()
     {
-        DataStorage.LoadPlayerInfoFromFile();
+        DataStorage.Instance.LoadPlayerInfoFromFile();
     }
 
     public void SavePlayerInfoToFile()
     {
-        DataStorage.SavePlayerInfoToFile();
+        DataStorage.Instance.SavePlayerInfoToFile();
     }
 
     public Dictionary<long, PlayerInfoFileData> BuildPlayerDicFromBattleLog(List<BattleLog> battleLogs)
     {
-        return DataStorage.BuildPlayerDicFromBattleLog(battleLogs);
+        return DataStorage.Instance.BuildPlayerDicFromBattleLog(battleLogs);
     }
 
     public void ClearAllDpsData()
     {
-        DataStorage.ClearAllDpsData();
+        DataStorage.Instance.ClearAllDpsData();
     }
 
     public void ClearDpsData()
     {
-        DataStorage.ClearSectionDpsData();
+        DataStorage.Instance.ClearSectionDpsData();
     }
 
     public void ClearCurrentPlayerInfo()
     {
-        DataStorage.ClearCurrentPlayerInfo();
+        DataStorage.Instance.ClearCurrentPlayerInfo();
     }
 
     public void ClearPlayerInfos()
     {
-        DataStorage.ClearPlayerInfos();
+        DataStorage.Instance.ClearPlayerInfos();
     }
 
     public void ClearAllPlayerInfos()
     {
-        DataStorage.ClearAllPlayerInfos();
+        DataStorage.Instance.ClearAllPlayerInfos();
     }
 
     public void ServerChange(string currentServerStr, string prevServer)
     {
-        DataStorage.ServerChange(currentServerStr, prevServer);
+        DataStorage.Instance.ServerChange(currentServerStr, prevServer);
     }
 
     public void SetPlayerLevel(long playerUid, int tmpLevel)
     {
         EnsurePlayer(playerUid);
-        DataStorage.SetPlayerLevel(playerUid, tmpLevel);
+        DataStorage.Instance.SetPlayerLevel(playerUid, tmpLevel);
     }
 
     public bool EnsurePlayer(long playerUid)
     {
-        return DataStorage.TestCreatePlayerInfoByUID(playerUid);
+        return DataStorage.Instance.EnsurePlayer(playerUid);
     }
 
     public void SetPlayerHP(long playerUid, long hp)
     {
         EnsurePlayer(playerUid);
-        DataStorage.SetPlayerHP(playerUid, hp);
+        DataStorage.Instance.SetPlayerHP(playerUid, hp);
     }
 
     public void SetPlayerMaxHP(long playerUid, long maxHp)
     {
         EnsurePlayer(playerUid);
-        DataStorage.SetPlayerMaxHP(playerUid, maxHp);
+        DataStorage.Instance.SetPlayerMaxHP(playerUid, maxHp);
     }
 
     public void SetPlayerCombatState(long uid, bool combatState)
     {
         EnsurePlayer(uid);
-        DataStorage.SetPlayerCombatState(uid, combatState);
+        DataStorage.Instance.SetPlayerCombatState(uid, combatState);
     }
 
     public void SetPlayerName(long playerUid, string playerName)
     {
         EnsurePlayer(playerUid);
-        DataStorage.SetPlayerName(playerUid, playerName);
+        DataStorage.Instance.SetPlayerName(playerUid, playerName);
     }
 
     public void SetPlayerCombatPower(long playerUid, int combatPower)
     {
         EnsurePlayer(playerUid);
-        DataStorage.ReadOnlyPlayerInfoDatas[playerUid].CombatPower = combatPower;
+        DataStorage.Instance.ReadOnlyPlayerInfoDatas[playerUid].CombatPower = combatPower;
     }
 
     public void SetPlayerProfessionID(long playerUid, int professionId)
     {
         EnsurePlayer(playerUid);
-        DataStorage.ReadOnlyPlayerInfoDatas[playerUid].ProfessionID = professionId;
+        DataStorage.Instance.ReadOnlyPlayerInfoDatas[playerUid].ProfessionID = professionId;
     }
 
     public void AddBattleLog(BattleLog log)
     {
-        DataStorage.AddBattleLog(log);
+        DataStorage.Instance.AddBattleLog(log);
     }
 
     public void SetPlayerRankLevel(long playerUid, int readInt32)
     {
         EnsurePlayer(playerUid);
-        DataStorage.SetPlayerRankLevel(playerUid, readInt32);
+        DataStorage.Instance.SetPlayerRankLevel(playerUid, readInt32);
     }
 
     public void SetPlayerCritical(long playerUid, int readInt32)
     {
         EnsurePlayer(playerUid);
-        DataStorage.SetPlayerCritical(playerUid, readInt32);
+        DataStorage.Instance.SetPlayerCritical(playerUid, readInt32);
     }
 
     public void SetPlayerLucky(long playerUid, int readInt32)
     {
         EnsurePlayer(playerUid);
-        DataStorage.SetPlayerLucky(playerUid, readInt32);
+        DataStorage.Instance.SetPlayerLucky(playerUid, readInt32);
     }
 
     public void SetPlayerElementFlag(long playerUid, int readInt32)
     {
         EnsurePlayer(playerUid);
-        DataStorage.ReadOnlyPlayerInfoDatas[playerUid].ElementFlag = readInt32;
+        DataStorage.Instance.ReadOnlyPlayerInfoDatas[playerUid].ElementFlag = readInt32;
     }
 
     public void SetPlayerReductionLevel(long playerUid, int readInt32)
     {
         EnsurePlayer(playerUid);
-        DataStorage.ReadOnlyPlayerInfoDatas[playerUid].ReductionLevel = readInt32;
+        DataStorage.Instance.ReadOnlyPlayerInfoDatas[playerUid].ReductionLevel = readInt32;
     }
 
     public void SetPlayerEnergyFlag(long playerUid, int readInt32)
     {
         EnsurePlayer(playerUid);
-        DataStorage.ReadOnlyPlayerInfoDatas[playerUid].EnergyFlag = readInt32;
+        DataStorage.Instance.ReadOnlyPlayerInfoDatas[playerUid].EnergyFlag = readInt32;
     }
 
     public void SetNpcTemplateId(long playerUid, int templateId)
     {
         EnsurePlayer(playerUid);
-        DataStorage.SetNpcTemplateId(playerUid, templateId);
+        DataStorage.Instance.SetNpcTemplateId(playerUid, templateId);
     }
 
     public void SetPlayerSeasonLevel(long playerUid, int seasonLevel)
     {
         EnsurePlayer(playerUid);
-        DataStorage.SetPlayerSeasonLevel(playerUid, seasonLevel);
+        DataStorage.Instance.SetPlayerSeasonLevel(playerUid, seasonLevel);
     }
 
     public void SetPlayerSeasonStrength(long playerUid, int seasonStrength)
     {
         EnsurePlayer(playerUid);
-        DataStorage.SetPlayerSeasonStrength(playerUid, seasonStrength);
+        DataStorage.Instance.SetPlayerSeasonStrength(playerUid, seasonStrength);
     }
 
     public void SetPlayerGuild(long playerUid, string guild)
     {
         EnsurePlayer(playerUid);
-        DataStorage.SetPlayerGuild(playerUid, guild);
+        DataStorage.Instance.SetPlayerGuild(playerUid, guild);
     }
 
     public void SetCurrentPlayerUid(long playerUid)
     {
         EnsurePlayer(playerUid);
-        DataStorage.SetCurrentPlayerUid(playerUid);
+        DataStorage.Instance.SetCurrentPlayerUid(playerUid);
     }
 
     public IReadOnlyList<BattleLog> GetBattleLogsForPlayer(long uid, bool fullSession)
     {
-        return DataStorage.GetBattleLogsForPlayer(uid, fullSession);
+        return DataStorage.Instance.GetBattleLogsForPlayer(uid, fullSession);
     }
 
     public IReadOnlyList<BattleLog> GetBattleLogs(bool fullSession)
     {
-        return DataStorage.GetBattleLogs(fullSession);
+        return DataStorage.Instance.GetBattleLogs(fullSession);
     }
 
     public IReadOnlyDictionary<long, PlayerStatistics> GetStatistics(bool fullSession)
     {
-        return DataStorage.GetStatistics(fullSession);
+        return DataStorage.Instance.GetStatistics(fullSession);
     }
 
     public int GetStatisticsCount(bool fullSession)
     {
-        return DataStorage.GetStatisticsCount(fullSession);
+        return DataStorage.Instance.GetStatisticsCount(fullSession);
     }
 
     public void SetPlayerCombatStateTime(long uid, long time)
     {
         EnsurePlayer(uid);
-        DataStorage.SetPlayerCombatStateTime(uid, time);
+        DataStorage.Instance.SetPlayerCombatStateTime(uid, time);
     }
 }

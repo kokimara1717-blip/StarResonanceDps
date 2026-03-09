@@ -118,7 +118,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         {
             var value = inputNumber_ClearSectionedDataTime.Value.ToInt();
 
-            DataStorage.SectionTimeout = TimeSpan.FromSeconds(value);
+            DataStorage.Instance.SectionTimeout = TimeSpan.FromSeconds(value);
             AppConfig.CombatTimeClearDelaySeconds = value;
         }
 

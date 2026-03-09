@@ -13,82 +13,84 @@ namespace StarResonanceDpsAnalysis.Core.Data;
 /// <summary>
 /// 数据存储
 /// </summary>
-public static partial class DataStorage
+public class DataStorage : IDataStorage, IAsyncDisposable
 {
     //private static readonly StatisticsEngine _engine = new();
-    private static readonly StatisticsAdapter Adapter = new();
-    private static readonly object SectionTimeoutLock = new();
-    private static Timer? _sectionTimeoutTimer;
-    private static DateTime _lastLogWallClockAtUtc = DateTime.MinValue;
-    private static bool _isSectionTimedOut;
-    private static int _sampleRecordingInterval = 1000;
-    private static bool _isSampleRecordingStarted;
+    private readonly StatisticsAdapter _adapter = new();
+    private readonly object _sectionTimeoutLock = new();
+    private Timer? _sectionTimeoutTimer;
+    private DateTime _lastLogWallClockAtUtc = DateTime.MinValue;
+    private bool _isSectionTimedOut;
+    private int _sampleRecordingInterval = 1000;
+    private bool _isSampleRecordingStarted;
+
+    public static DataStorage Instance { get; } = new();
 
     /// <summary>
     /// 当前玩家信息
     /// </summary>
-    public static PlayerInfo CurrentPlayerInfo { get; private set; } = new();
+    public PlayerInfo CurrentPlayerInfo { get; private set; } = new();
 
     /// <summary>
     /// 玩家信息字典 (Key: UID)
     /// </summary>
-    private static Dictionary<long, PlayerInfo> PlayerInfoDatas { get; } = [];
+    private Dictionary<long, PlayerInfo> PlayerInfoDatas { get; } = [];
 
     /// <summary>
     /// 只读玩家信息字典 (Key: UID)
     /// </summary>
-    public static ReadOnlyDictionary<long, PlayerInfo> ReadOnlyPlayerInfoDatas => PlayerInfoDatas.AsReadOnly();
+    public ReadOnlyDictionary<long, PlayerInfo> ReadOnlyPlayerInfoDatas => PlayerInfoDatas.AsReadOnly();
 
     /// <summary>
     /// 最后一次战斗日志
     /// </summary>
-    private static BattleLog? LastBattleLog { get; set; }
+    private BattleLog? LastBattleLog { get; set; }
 
     /// <summary>
     /// 全程玩家DPS字典 (Key: UID)
     /// </summary>
-    private static Dictionary<long, DpsData> FullDpsDatas { get; } = [];
+    private Dictionary<long, DpsData> FullDpsData { get; } = [];
 
     /// <summary>
     /// 只读全程玩家DPS字典 (Key: UID)
     /// </summary>
-    public static ReadOnlyDictionary<long, DpsData> ReadOnlyFullDpsDatas => FullDpsDatas.AsReadOnly();
+    public ReadOnlyDictionary<long, DpsData> ReadOnlyFullDpsData => FullDpsData.AsReadOnly();
 
-    public static IReadOnlyDictionary<long, PlayerStatistics> ReadOnlyFullPlayerStatistics =>
-        Adapter.GetStatistics(true);
+    public IReadOnlyDictionary<long, PlayerStatistics> ReadOnlyFullPlayerStatistics =>
+        _adapter.GetStatistics(true);
 
     /// <summary>
     /// 只读全程玩家DPS列表; 注意! 频繁读取该属性可能会导致性能问题!
     /// </summary>
-    public static IReadOnlyList<DpsData> ReadOnlyFullDpsDataList => FullDpsDatas.Values.ToList().AsReadOnly();
+    public IReadOnlyList<DpsData> ReadOnlyFullDpsDataList => FullDpsData.Values.ToList().AsReadOnly();
 
     /// <summary>
     /// 阶段性玩家DPS字典 (Key: UID)
     /// </summary>
-    private static Dictionary<long, DpsData> SectionedDpsDatas { get; } = [];
+    private Dictionary<long, DpsData> SectionedDpsData { get; } = [];
 
     /// <summary>
     /// 阶段性只读玩家DPS字典 (Key: UID)
     /// </summary>
-    public static ReadOnlyDictionary<long, DpsData> ReadOnlySectionedDpsDatas => SectionedDpsDatas.AsReadOnly();
+    public ReadOnlyDictionary<long, DpsData> ReadOnlySectionedDpsData => SectionedDpsData.AsReadOnly();
 
-    public static IReadOnlyDictionary<long, PlayerStatistics> ReadOnlySectionedPlayerStatistics =>
-        Adapter.GetStatistics(false);
+    public IReadOnlyDictionary<long, PlayerStatistics> ReadOnlySectionedPlayerStatistics =>
+        _adapter.GetStatistics(false);
 
     /// <summary>
     /// 阶段性只读玩家DPS列表; 注意! 频繁读取该属性可能会导致性能问题!
     /// </summary>
-    public static IReadOnlyList<DpsData> ReadOnlySectionedDpsDataList => SectionedDpsDatas.Values.ToList().AsReadOnly();
+    public IReadOnlyList<DpsData> ReadOnlySectionedDpsDataList => SectionedDpsData.Values.ToList().AsReadOnly();
 
     /// <summary>
     /// 战斗日志分段超时时间 (默认: 5000ms)
     /// </summary>
-    public static TimeSpan SectionTimeout { get; set; } = TimeSpan.FromMilliseconds(5000);
+    public TimeSpan SectionTimeout { get; set; } = TimeSpan.FromMilliseconds(5000);
 
     /// <summary>
     /// Sample recording interval in milliseconds
     /// </summary>
-    public static int SampleRecordingInterval
+    public int SampleRecordingInterval
     {
         get => _sampleRecordingInterval;
         set
@@ -100,12 +102,12 @@ public static partial class DataStorage
             _sampleRecordingInterval = clamped;
             if (_isSampleRecordingStarted)
             {
-                Adapter.StartSampleRecording(_sampleRecordingInterval);
+                _adapter.StartSampleRecording(_sampleRecordingInterval);
             }
         }
     }
 
-    public static ILogger<IDataStorage> Logger { get; set; } = NullLogger<IDataStorage>.Instance;
+    public ILogger<IDataStorage> Logger { get; set; } = NullLogger<IDataStorage>.Instance;
 
     /// <summary>
     /// 强制新分段标记
@@ -113,34 +115,32 @@ public static partial class DataStorage
     /// <remarks>
     /// 设置为 true 后将在下一次添加战斗日志时, 强制创建一个新的分段之后重置为 false
     /// </remarks>
-    private static bool ForceNewBattleSection { get; set; }
+    private bool ForceNewBattleSection { get; set; }
 
     /// <summary>
     /// 是否正在监听服务器
     /// </summary>
-    public static bool IsServerConnected
+    public bool IsServerConnected
     {
         get;
-        internal set
+        set
         {
-            if (field != value)
+            if (field == value) return;
+            field = value;
+
+            if (value)
             {
-                field = value;
+                EnsureSectionMonitorStarted();
+            }
 
-                if (value)
-                {
-                    EnsureSectionMonitorStarted();
-                }
-
-                try
-                {
-                    ServerConnectionStateChanged?.Invoke(value);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(
-                        $"An error occurred during trigger event(ServerConnectionStateChanged) => {ex.Message}\r\n{ex.StackTrace}");
-                }
+            try
+            {
+                ServerConnectionStateChanged?.Invoke(value);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"An error occurred during trigger event(ServerConnectionStateChanged) => {ex.Message}\r\n{ex.StackTrace}");
             }
         }
     }
@@ -148,45 +148,45 @@ public static partial class DataStorage
     /// <summary>
     /// 服务器的监听连接状态变更事件
     /// </summary>
-    public static event ServerConnectionStateChangedEventHandler? ServerConnectionStateChanged;
+    public event ServerConnectionStateChangedEventHandler? ServerConnectionStateChanged;
 
     /// <summary>
     /// 玩家信息更新事件
     /// </summary>
-    public static event PlayerInfoUpdatedEventHandler? PlayerInfoUpdated;
+    public event PlayerInfoUpdatedEventHandler? PlayerInfoUpdated;
 
     /// <summary>
     /// 战斗日志新分段创建事件
     /// </summary>
-    public static event NewSectionCreatedEventHandler? NewSectionCreated;
+    public event NewSectionCreatedEventHandler? NewSectionCreated;
 
     /// <summary>
     /// 战斗日志更新事件
     /// </summary>
-    public static event BattleLogCreatedEventHandler? BattleLogCreated;
+    public event BattleLogCreatedEventHandler? BattleLogCreated;
 
     /// <summary>
     /// DPS数据更新事件
     /// </summary>
-    public static event DpsDataUpdatedEventHandler? DpsDataUpdated;
+    public event DpsDataUpdatedEventHandler? DpsDataUpdated;
 
     /// <summary>
     /// 数据更新事件 (玩家信息或战斗日志更新时触发)
     /// </summary>
-    public static event DataUpdatedEventHandler? DataUpdated;
+    public event DataUpdatedEventHandler? DataUpdated;
 
     /// <summary>
     /// 服务器变更事件 (地图变更)
     /// </summary>
-    public static event ServerChangedEventHandler? ServerChanged;
+    public event ServerChangedEventHandler? ServerChanged;
 
-    public static event SectionEndedEventHandler? SectionEnded;
-    public static event Action? BeforeSectionCleared;
+    public event SectionEndedEventHandler? SectionEnded;
+    public event Action? BeforeSectionCleared;
 
     /// <summary>
     /// 从文件加载缓存玩家信息
     /// </summary>
-    public static void LoadPlayerInfoFromFile()
+    public void LoadPlayerInfoFromFile()
     {
         PlayerInfoCacheFileV3_0_0 playerInfoCaches;
         try
@@ -196,7 +196,7 @@ public static partial class DataStorage
         catch (FileNotFoundException e)
         {
             // 缓存文件不存在, 直接忽略
-            Console.WriteLine($"Player info cache file not found: {e.Message}");
+            Debug.WriteLine($"Player info cache file not found: {e.Message}");
             return;
         }
 
@@ -232,7 +232,7 @@ public static partial class DataStorage
     /// <summary>
     /// 保存缓存玩家信息到文件
     /// </summary>
-    public static void SavePlayerInfoToFile()
+    public void SavePlayerInfoToFile()
     {
         try
         {
@@ -256,7 +256,7 @@ public static partial class DataStorage
     /// 如果传入的 UID 已存在, 则不会进行任何操作;
     /// 否则会创建一个新的 PlayerInfo 并触发 PlayerInfoUpdated 事件
     /// </remarks>
-    internal static bool TestCreatePlayerInfoByUID(long uid)
+    public bool EnsurePlayer(long uid)
     {
         /*
          * 因为修改 PlayerInfo 必须触发 PlayerInfoUpdated 事件,
@@ -276,18 +276,33 @@ public static partial class DataStorage
         return false;
     }
 
+    public void SetPlayerElementFlag(long playerUid, int readInt32)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SetPlayerReductionLevel(long playerUid, int readInt32)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SetPlayerEnergyFlag(long playerUid, int readInt32)
+    {
+        throw new NotImplementedException();
+    }
+
     /// <summary>
     /// 设置当前玩家 UID，并同步到 CurrentPlayerInfo
     /// </summary>
     /// <param name="uid">当前玩家UID</param>
-    internal static void SetCurrentPlayerUid(long uid)
+    public void SetCurrentPlayerUid(long uid)
     {
         if (uid == 0) return;
 
         var changed = CurrentPlayerInfo.UID != uid;
         CurrentPlayerInfo.UID = uid;
 
-        var existed = TestCreatePlayerInfoByUID(uid);
+        var existed = EnsurePlayer(uid);
 
         if (changed && existed)
         {
@@ -300,7 +315,7 @@ public static partial class DataStorage
     /// 触发玩家信息更新事件
     /// </summary>
     /// <param name="uid">UID</param>
-    private static void TriggerPlayerInfoUpdated(long uid)
+    private void TriggerPlayerInfoUpdated(long uid)
     {
         RaisePlayerInfoUpdated(uid);
 
@@ -316,10 +331,10 @@ public static partial class DataStorage
     /// 如果传入的 UID 已存在, 则不会进行任何操作;
     /// 否则会创建一个新的对应 UID 的 List&lt;BattleLog&gt;
     /// </remarks>
-    internal static (DpsData fullData, DpsData sectionedData) GetOrCreateDpsDataByUID(long uid)
+    internal (DpsData fullData, DpsData sectionedData) GetOrCreateDpsDataByUid(long uid)
     {
-        var fullDpsData = GetOrCreate(FullDpsDatas, uid, () => new DpsData { UID = uid });
-        var sectionedDpsData = GetOrCreate(SectionedDpsDatas, uid, () => new DpsData { UID = uid });
+        var fullDpsData = GetOrCreate(FullDpsData, uid, () => new DpsData { UID = uid });
+        var sectionedDpsData = GetOrCreate(SectionedDpsData, uid, () => new DpsData { UID = uid });
 
         return (fullDpsData, sectionedDpsData);
 
@@ -341,7 +356,7 @@ public static partial class DataStorage
     /// 添加战斗日志 (会自动创建日志分段)
     /// </summary>
     /// <param name="log">战斗日志</param>
-    internal static void AddBattleLog(BattleLog log)
+    public void AddBattleLog(BattleLog log)
     {
         // 当前封包时间
         var tt = new TimeSpan(log.TimeTicks);
@@ -436,7 +451,7 @@ public static partial class DataStorage
             }
         }
 
-        Adapter.ProcessLog(log);
+        _adapter.ProcessLog(log);
         // 最后一个日志赋值
         UpdateLastLogState(log);
 
@@ -447,19 +462,19 @@ public static partial class DataStorage
         RaiseDataUpdated();
     }
 
-    private static void EnsureSectionMonitorStarted()
+    private void EnsureSectionMonitorStarted()
     {
         if (_sectionTimeoutTimer != null) return;
-        _sectionTimeoutTimer = new Timer(static _ => CheckSectionTimeout(), null, TimeSpan.FromSeconds(1),
+        _sectionTimeoutTimer = new Timer(_ => CheckSectionTimeout(), null, TimeSpan.FromSeconds(1),
             TimeSpan.FromSeconds(1));
     }
 
-    private static void CheckSectionTimeout()
+    private void CheckSectionTimeout()
     {
         DateTime last;
         bool alreadyTimedOut;
 
-        lock (SectionTimeoutLock)
+        lock (_sectionTimeoutLock)
         {
             last = _lastLogWallClockAtUtc;
             alreadyTimedOut = _isSectionTimedOut;
@@ -470,9 +485,9 @@ public static partial class DataStorage
 
         if (DateTime.UtcNow - last <= SectionTimeout) return;
 
-        if (Adapter.GetStatisticsCount(false) == 0)
+        if (_adapter.GetStatisticsCount(false) == 0)
         {
-            lock (SectionTimeoutLock)
+            lock (_sectionTimeoutLock)
             {
                 _isSectionTimedOut = true;
             }
@@ -480,7 +495,7 @@ public static partial class DataStorage
             return;
         }
 
-        lock (SectionTimeoutLock)
+        lock (_sectionTimeoutLock)
         {
             _isSectionTimedOut = true;
             ForceNewBattleSection = true;
@@ -489,18 +504,18 @@ public static partial class DataStorage
         RaiseSectionEnded();
     }
 
-    private static void EnsureSampleRecordingStarted()
+    private void EnsureSampleRecordingStarted()
     {
         if (_isSampleRecordingStarted) return;
-        Adapter.StartSampleRecording(_sampleRecordingInterval);
+        _adapter.StartSampleRecording(_sampleRecordingInterval);
         _isSampleRecordingStarted = true;
     }
 
-    private static void UpdateLastLogState(BattleLog log)
+    private void UpdateLastLogState(BattleLog log)
     {
         LastBattleLog = log;
 
-        lock (SectionTimeoutLock)
+        lock (_sectionTimeoutLock)
         {
             _lastLogWallClockAtUtc = DateTime.UtcNow;
             _isSectionTimedOut = false;
@@ -515,13 +530,13 @@ public static partial class DataStorage
     /// <param name="uid"></param>
     /// <param name="log"></param>
     /// <returns></returns>
-    private static (DpsData fullData, DpsData sectionedData) SetLogInfos(long uid, BattleLog log)
+    private (DpsData fullData, DpsData sectionedData) SetLogInfos(long uid, BattleLog log)
     {
         // 检查或创建玩家信息
-        TestCreatePlayerInfoByUID(uid);
+        EnsurePlayer(uid);
 
         // 检查或创建玩家战斗日志列表
-        var (fullData, sectionedData) = GetOrCreateDpsDataByUID(uid);
+        var (fullData, sectionedData) = GetOrCreateDpsDataByUid(uid);
 
         fullData.StartLoggedTick ??= log.TimeTicks;
         fullData.LastLoggedTick = log.TimeTicks;
@@ -548,7 +563,7 @@ public static partial class DataStorage
         return (fullData, sectionedData);
     }
 
-    private static void TrySetSubProfessionBySkillId(long uid, long skillId)
+    private void TrySetSubProfessionBySkillId(long uid, long skillId)
     {
         if (!PlayerInfoDatas.TryGetValue(uid, out var playerInfo))
         {
@@ -570,7 +585,7 @@ public static partial class DataStorage
     /// </summary>
     /// <param name="battleLogs">战斗日志</param>
     /// <returns></returns>
-    public static Dictionary<long, PlayerInfoFileData> BuildPlayerDicFromBattleLog(List<BattleLog> battleLogs)
+    public Dictionary<long, PlayerInfoFileData> BuildPlayerDicFromBattleLog(List<BattleLog> battleLogs)
     {
         var playerDic = new Dictionary<long, PlayerInfoFileData>();
         foreach (var log in battleLogs)
@@ -594,39 +609,44 @@ public static partial class DataStorage
     /// <summary>
     /// 清除所有DPS数据 (包括全程和阶段性)
     /// </summary>
-    public static void ClearAllDpsData()
+    public void ClearAllDpsData()
     {
         ForceNewBattleSection = true;
 
         // Preserve current section logs before full clear.
-        if (Adapter.GetStatisticsCount(false) > 0)
+        if (_adapter.GetStatisticsCount(false) > 0)
         {
             RaiseBeforeSectionCleared();
         }
 
-        SectionedDpsDatas.Clear();
-        FullDpsDatas.Clear();
-        Adapter.ClearAll();
+        SectionedDpsData.Clear();
+        FullDpsData.Clear();
+        _adapter.ClearAll();
 
         RaiseDpsDataUpdated();
         RaiseDataUpdated();
     }
 
-    private static void PrivateClearSectionDpsData()
+    public void ClearDpsData()
     {
-        SectionedDpsDatas.Clear();
-        Adapter.ResetSection();
+        ClearSectionDpsData();
+    }
+
+    private void PrivateClearSectionDpsData()
+    {
+        SectionedDpsData.Clear();
+        _adapter.ResetSection();
     }
 
     /// <summary>
     /// 标记新的战斗日志分段 (清空阶段性Dps数据)
     /// </summary>
-    public static void ClearSectionDpsData()
+    public void ClearSectionDpsData()
     {
         ForceNewBattleSection = true;
 
         // Preserve current section logs before manual clear.
-        if (Adapter.GetStatisticsCount(false) > 0)
+        if (_adapter.GetStatisticsCount(false) > 0)
         {
             RaiseBeforeSectionCleared();
         }
@@ -639,7 +659,7 @@ public static partial class DataStorage
         }
         catch (Exception ex)
         {
-            Console.WriteLine(
+            Debug.WriteLine(
                 $"An error occurred during trigger event(DpsDataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
         }
 
@@ -649,7 +669,7 @@ public static partial class DataStorage
         }
         catch (Exception ex)
         {
-            Console.WriteLine(
+            Debug.WriteLine(
                 $"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
         }
     }
@@ -657,7 +677,7 @@ public static partial class DataStorage
     /// <summary>
     /// 清除当前玩家信息
     /// </summary>
-    public static void ClearCurrentPlayerInfo()
+    public void ClearCurrentPlayerInfo()
     {
         CurrentPlayerInfo = new PlayerInfo();
 
@@ -667,7 +687,7 @@ public static partial class DataStorage
     /// <summary>
     /// 清除所有玩家信息
     /// </summary>
-    public static void ClearPlayerInfos()
+    public void ClearPlayerInfos()
     {
         PlayerInfoDatas.Clear();
 
@@ -677,7 +697,7 @@ public static partial class DataStorage
         }
         catch (Exception ex)
         {
-            Console.WriteLine(
+            Debug.WriteLine(
                 $"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
         }
     }
@@ -685,7 +705,7 @@ public static partial class DataStorage
     /// <summary>
     /// 清除所有数据 (包括缓存历史)
     /// </summary>
-    public static void ClearAllPlayerInfos()
+    public void ClearAllPlayerInfos()
     {
         CurrentPlayerInfo = new PlayerInfo();
         PlayerInfoDatas.Clear();
@@ -696,7 +716,7 @@ public static partial class DataStorage
         }
         catch (Exception ex)
         {
-            Console.WriteLine(
+            Debug.WriteLine(
                 $"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
         }
     }
@@ -708,9 +728,9 @@ public static partial class DataStorage
     /// </summary>
     /// <param name="uid">UID</param>
     /// <param name="name">玩家名称</param>
-    internal static void SetPlayerName(long uid, string name)
+    public void SetPlayerName(long uid, string name)
     {
-        TestCreatePlayerInfoByUID(uid);
+        EnsurePlayer(uid);
         PlayerInfoDatas[uid].Name = name;
 
         TriggerPlayerInfoUpdated(uid);
@@ -721,9 +741,9 @@ public static partial class DataStorage
     /// </summary>
     /// <param name="uid">UID</param>
     /// <param name="professionId">职业ID</param>
-    internal static void SetPlayerProfessionID(long uid, int professionId)
+    public void SetPlayerProfessionID(long uid, int professionId)
     {
-        TestCreatePlayerInfoByUID(uid);
+        EnsurePlayer(uid);
         PlayerInfoDatas[uid].ProfessionID = professionId;
 
         TriggerPlayerInfoUpdated(uid);
@@ -734,22 +754,22 @@ public static partial class DataStorage
     /// </summary>
     /// <param name="uid">UID</param>
     /// <param name="combatPower">战力</param>
-    internal static void SetPlayerCombatPower(long uid, int combatPower)
+    public void SetPlayerCombatPower(long uid, int combatPower)
     {
-        TestCreatePlayerInfoByUID(uid);
+        EnsurePlayer(uid);
         PlayerInfoDatas[uid].CombatPower = combatPower;
 
         TriggerPlayerInfoUpdated(uid);
     }
 
-    internal static void SetPlayerCombatState(long uid, bool combatState)
+    public void SetPlayerCombatState(long uid, bool combatState)
     {
-        TestCreatePlayerInfoByUID(uid);
+        EnsurePlayer(uid);
         var prev = PlayerInfoDatas[uid].CombatState;
         if (prev == combatState) return;
         Debug.WriteLine($"PlayerCombatState:[{uid}] {prev} -> {combatState}");
         PlayerInfoDatas[uid].CombatState = combatState;
-        if (CurrentPlayerInfo.UID != 0) Adapter.SetCombatState(combatState);
+        if (CurrentPlayerInfo.UID != 0) _adapter.SetCombatState(combatState);
         TriggerPlayerInfoUpdated(uid);
     }
 
@@ -758,9 +778,9 @@ public static partial class DataStorage
     /// </summary>
     /// <param name="uid">UID</param>
     /// <param name="level">等级</param>
-    internal static void SetPlayerLevel(long uid, int level)
+    public void SetPlayerLevel(long uid, int level)
     {
-        TestCreatePlayerInfoByUID(uid);
+        EnsurePlayer(uid);
         PlayerInfoDatas[uid].Level = level;
 
         TriggerPlayerInfoUpdated(uid);
@@ -774,17 +794,17 @@ public static partial class DataStorage
     /// <remarks>
     /// 暂不清楚 RankLevel 的具体含义...
     /// </remarks>
-    internal static void SetPlayerRankLevel(long uid, int rankLevel)
+    public void SetPlayerRankLevel(long uid, int rankLevel)
     {
-        TestCreatePlayerInfoByUID(uid);
+        EnsurePlayer(uid);
         PlayerInfoDatas[uid].RankLevel = rankLevel;
 
         TriggerPlayerInfoUpdated(uid);
     }
 
-    internal static void SetPlayerGuild(long uid, string guild)
+    public void SetPlayerGuild(long uid, string guild)
     {
-        TestCreatePlayerInfoByUID(uid);
+        EnsurePlayer(uid);
         PlayerInfoDatas[uid].Guild = guild;
         TriggerPlayerInfoUpdated(uid);
     }
@@ -794,9 +814,9 @@ public static partial class DataStorage
     /// </summary>
     /// <param name="uid">UID</param>
     /// <param name="critical">暴击值</param>
-    internal static void SetPlayerCritical(long uid, int critical)
+    public void SetPlayerCritical(long uid, int critical)
     {
-        TestCreatePlayerInfoByUID(uid);
+        EnsurePlayer(uid);
         PlayerInfoDatas[uid].Critical = critical;
 
         TriggerPlayerInfoUpdated(uid);
@@ -807,9 +827,9 @@ public static partial class DataStorage
     /// </summary>
     /// <param name="uid">UID</param>
     /// <param name="lucky">幸运值</param>
-    internal static void SetPlayerLucky(long uid, int lucky)
+    public void SetPlayerLucky(long uid, int lucky)
     {
-        TestCreatePlayerInfoByUID(uid);
+        EnsurePlayer(uid);
         PlayerInfoDatas[uid].Lucky = lucky;
 
         TriggerPlayerInfoUpdated(uid);
@@ -820,9 +840,9 @@ public static partial class DataStorage
     /// </summary>
     /// <param name="uid">UID</param>
     /// <param name="hp">当前HP</param>
-    internal static void SetPlayerHP(long uid, long hp)
+    public void SetPlayerHP(long uid, long hp)
     {
-        TestCreatePlayerInfoByUID(uid);
+        EnsurePlayer(uid);
         PlayerInfoDatas[uid].HP = hp;
 
         TriggerPlayerInfoUpdated(uid);
@@ -833,42 +853,42 @@ public static partial class DataStorage
     /// </summary>
     /// <param name="uid">UID</param>
     /// <param name="maxHp">最大HP</param>
-    internal static void SetPlayerMaxHP(long uid, long maxHp)
+    public void SetPlayerMaxHP(long uid, long maxHp)
     {
-        TestCreatePlayerInfoByUID(uid);
+        EnsurePlayer(uid);
         PlayerInfoDatas[uid].MaxHP = maxHp;
 
         TriggerPlayerInfoUpdated(uid);
     }
 
-    internal static void SetPlayerSeasonLevel(long uid, int seasonLevel)
+    public void SetPlayerSeasonLevel(long uid, int seasonLevel)
     {
         PlayerInfoDatas[uid].SeasonLevel = seasonLevel;
         TriggerPlayerInfoUpdated(uid);
     }
 
-    internal static void SetPlayerSeasonStrength(long uid, int seasonStrength)
+    public void SetPlayerSeasonStrength(long uid, int seasonStrength)
     {
-        TestCreatePlayerInfoByUID(uid);
+        EnsurePlayer(uid);
         PlayerInfoDatas[uid].SeasonStrength = seasonStrength;
         TriggerPlayerInfoUpdated(uid);
     }
 
-    internal static void SetNpcTemplateId(long playerUid, int templateId)
+    public void SetNpcTemplateId(long playerUid, int templateId)
     {
-        TestCreatePlayerInfoByUID(playerUid);
+        EnsurePlayer(playerUid);
         PlayerInfoDatas[playerUid].NpcTemplateId = templateId;
         TriggerPlayerInfoUpdated(playerUid);
     }
 
-    internal static void SetPlayerCombatStateTime(long uid, long time)
+    public void SetPlayerCombatStateTime(long uid, long time)
     {
-        TestCreatePlayerInfoByUID(uid);
+        EnsurePlayer(uid);
         PlayerInfoDatas[uid].CombatStateTime = time;
         TriggerPlayerInfoUpdated(uid);
     }
 
-    private static void RaiseSectionEnded()
+    private void RaiseSectionEnded()
     {
         try
         {
@@ -876,12 +896,12 @@ public static partial class DataStorage
         }
         catch (Exception ex)
         {
-            Console.WriteLine(
+            Debug.WriteLine(
                 $"An error occurred during trigger event(SectionEnded) => {ex.Message}\r\n{ex.StackTrace}");
         }
     }
 
-    private static void RaiseNewSectionCreated()
+    private void RaiseNewSectionCreated()
     {
         try
         {
@@ -889,17 +909,17 @@ public static partial class DataStorage
         }
         catch (Exception ex)
         {
-            Console.WriteLine(
+            Debug.WriteLine(
                 $"An error occurred during trigger event(NewSectionStarted) => {ex.Message}\r\n{ex.StackTrace}");
         }
     }
 
-    private static void RaiseBeforeSectionCleared()
+    private void RaiseBeforeSectionCleared()
     {
         BeforeSectionCleared?.Invoke();
     }
 
-    private static void RaiseDpsDataUpdated()
+    private void RaiseDpsDataUpdated()
     {
         try
         {
@@ -907,12 +927,12 @@ public static partial class DataStorage
         }
         catch (Exception ex)
         {
-            Console.WriteLine(
+            Debug.WriteLine(
                 $"An error occurred during trigger event(DpsDataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
         }
     }
 
-    private static void RaiseDataUpdated()
+    private void RaiseDataUpdated()
     {
         try
         {
@@ -920,12 +940,12 @@ public static partial class DataStorage
         }
         catch (Exception ex)
         {
-            Console.WriteLine(
+            Debug.WriteLine(
                 $"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
         }
     }
 
-    private static void RaisePlayerInfoUpdated(long uid)
+    private void RaisePlayerInfoUpdated(long uid)
     {
         try
         {
@@ -933,12 +953,12 @@ public static partial class DataStorage
         }
         catch (Exception ex)
         {
-            Console.WriteLine(
+            Debug.WriteLine(
                 $"An error occurred during trigger event(PlayerInfoUpdated) => {ex.Message}\r\n{ex.StackTrace}");
         }
     }
 
-    private static void RaiseBattleLogCreated(BattleLog log)
+    private void RaiseBattleLogCreated(BattleLog log)
     {
         try
         {
@@ -947,12 +967,12 @@ public static partial class DataStorage
         }
         catch (Exception ex)
         {
-            Console.WriteLine(
+            Debug.WriteLine(
                 $"An error occurred during trigger event(BattleLogCreated) => {ex.Message}\r\n{ex.StackTrace}");
         }
     }
 
-    private static void RaiseServerChanged(string currentServer, string prevServer)
+    private void RaiseServerChanged(string currentServer, string prevServer)
     {
         try
         {
@@ -960,35 +980,47 @@ public static partial class DataStorage
         }
         catch (Exception ex)
         {
-            Console.WriteLine(
+            Debug.WriteLine(
                 $"An error occurred during trigger event(ServerChanged) => {ex.Message}\r\n{ex.StackTrace}");
         }
     }
 
-    public static void ServerChange(string curr, string prev)
+    public void ServerChange(string curr, string prev)
     {
         RaiseServerChanged(curr, prev);
     }
 
     #endregion
 
-    public static IReadOnlyDictionary<long, PlayerStatistics> GetStatistics(bool fullSession)
+    public IReadOnlyDictionary<long, PlayerStatistics> GetStatistics(bool fullSession)
     {
-        return Adapter.GetStatistics(fullSession);
+        return _adapter.GetStatistics(fullSession);
     }
 
-    public static IReadOnlyList<BattleLog> GetBattleLogs(bool fullSession)
+    public IReadOnlyList<BattleLog> GetBattleLogs(bool fullSession)
     {
-        return Adapter.GetBattleLogs(fullSession);
+        return _adapter.GetBattleLogs(fullSession);
     }
 
-    public static IReadOnlyList<BattleLog> GetBattleLogsForPlayer(long uid, bool fullSession)
+    public IReadOnlyList<BattleLog> GetBattleLogsForPlayer(long uid, bool fullSession)
     {
-        return Adapter.GetBattleLogsForPlayer(uid, fullSession);
+        return _adapter.GetBattleLogsForPlayer(uid, fullSession);
     }
 
-    public static int GetStatisticsCount(bool fullSession)
+    public int GetStatisticsCount(bool fullSession)
     {
-        return Adapter.GetStatisticsCount(fullSession);
+        return _adapter.GetStatisticsCount(fullSession);
+    }
+
+    public void Dispose()
+    {
+        _sectionTimeoutTimer?.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_sectionTimeoutTimer != null) await _sectionTimeoutTimer.DisposeAsync();
+        GC.SuppressFinalize(this);
     }
 }
