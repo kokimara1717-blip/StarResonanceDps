@@ -14,8 +14,7 @@ public static class ClassColorCache
 
     private static IEnumerable<Classes> GetClasses()
     {
-        var classes = Enum.GetValues<Classes>()
-            .Where(c => c != Classes.Unknown);
+        var classes = Enum.GetValues<Classes>();
 
         return classes;
     }

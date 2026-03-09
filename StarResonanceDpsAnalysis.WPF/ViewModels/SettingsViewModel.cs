@@ -331,9 +331,7 @@ public partial class SettingsViewModel : BaseViewModel
     private void InitializeClassColors()
     {
         ClassColorSettings.Clear();
-        var classes = Enum.GetValues<Classes>()
-            .Where(c => c != Classes.Unknown)
-            .ToList();
+        var classes = Enum.GetValues<Classes>();
 
         foreach (var cls in classes)
         {

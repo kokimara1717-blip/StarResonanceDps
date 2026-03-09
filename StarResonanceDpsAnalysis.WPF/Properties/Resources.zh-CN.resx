@@ -1439,6 +1439,9 @@
   <data name="DpsStatistics_NPC_Label" xml:space="preserve">
     <value>所有NPC</value>
   </data>
+  <data name="Classes_Unknown" xml:space="preserve">
+    <value>未知职业</value>
+  </data>
   <data name="Settings_UID_Setting_Title" xml:space="preserve">
     <value>设置玩家UID</value>
   </data>
