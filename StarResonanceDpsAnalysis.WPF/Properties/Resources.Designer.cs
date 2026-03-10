@@ -351,6 +351,15 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         }
         
         /// <summary>
+        ///   Unknown に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string Classes_Unknown {
+            get {
+                return ResourceManager.GetString("Classes_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Verdant Oracle に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string Classes_VerdantOracle {
@@ -2092,6 +2101,33 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         }
         
         /// <summary>
+        ///   Background Image Fit に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string Settings_BackgroundImageFit {
+            get {
+                return ResourceManager.GetString("Settings_BackgroundImageFit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Fit to Window に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string Settings_BackgroundImageFitMode_FitToWindow {
+            get {
+                return ResourceManager.GetString("Settings_BackgroundImageFitMode_FitToWindow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Fill Window に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string Settings_BackgroundImageFitMode_FitWidth {
+            get {
+                return ResourceManager.GetString("Settings_BackgroundImageFitMode_FitWidth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Discard all changes? Unsaved changes will be lost. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string Settings_CancelConfirm_Message {
@@ -3083,6 +3119,24 @@ namespace StarResonanceDpsAnalysis.WPF.Properties {
         public static string Settings_Theme_CustomColor_Tooltip {
             get {
                 return ResourceManager.GetString("Settings_Theme_CustomColor_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Dark に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string Settings_Theme_Dark {
+            get {
+                return ResourceManager.GetString("Settings_Theme_Dark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Light に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string Settings_Theme_Light {
+            get {
+                return ResourceManager.GetString("Settings_Theme_Light", resourceCulture);
             }
         }
         
