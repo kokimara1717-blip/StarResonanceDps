@@ -87,10 +87,10 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         public static void ProcessNotifyMsg(ByteReader packet, bool isZstdCompressed, ILogger? logger = null)
         {
             var serviceUuid = (ServiceIds)packet.ReadUInt64BE();
-            Debug.Assert(Enum.IsDefined(serviceUuid));
+            //Debug.Assert(Enum.IsDefined(serviceUuid));
             _ = packet.ReadUInt32BE();
             var methodId = (WorldNtfMessageId)packet.ReadUInt32BE();
-            Debug.Assert(Enum.IsDefined(methodId));
+            //Debug.Assert(Enum.IsDefined(methodId));
 
             if (serviceUuid != ServiceIds.WorldNtf) return;
 
