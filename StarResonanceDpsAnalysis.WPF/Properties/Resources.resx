@@ -304,7 +304,7 @@
     <value>Overlay Opacity</value>
   </data>
   <data name="Settings_Display_PlayerNameMask" xml:space="preserve">
-    <value>Mask player names</value>
+    <value>Mask player info</value>
   </data>
   <data name="Settings_Display_MarqueeText" xml:space="preserve">
     <value>Scroll long names</value>
@@ -377,9 +377,6 @@
   </data>
   <data name="Settings_PlayerNameMask_Warning_Message" xml:space="preserve">
     <value>Do not use data results to discriminate or harm the game community environment.</value>
-  </data>
-  <data name="Menu_TemporaryMaskPlayerName" xml:space="preserve">
-    <value>Temporary masking</value>
   </data>
   <data name="Settings_Section_Language_Title" xml:space="preserve">
     <value>Display Settings</value>

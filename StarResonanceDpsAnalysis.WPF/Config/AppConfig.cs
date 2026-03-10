@@ -110,7 +110,8 @@ public partial class AppConfig : ObservableObject
     private double _backgroundImageOpacity = 50;
 
     /// <summary>
-    /// 玩家名脱敏
+    /// 玩家信息打码<br/>
+    /// Mask player info
     /// </summary>
     [ObservableProperty]
     private bool _maskPlayerName = true;

@@ -305,7 +305,7 @@
     <value>Opacidade da sobreposição</value>
   </data>
   <data name="Settings_Display_PlayerNameMask" xml:space="preserve">
-    <value>Ocultar nomes dos jogadores</value>
+    <value>Anonimização de informações do jogador</value>
   </data>
   <data name="Settings_Display_MarqueeText" xml:space="preserve">
     <value>Rolar nomes longos</value>
@@ -378,9 +378,6 @@
   </data>
   <data name="Settings_PlayerNameMask_Warning_Message" xml:space="preserve">
     <value>Não use os resultados dos dados para discriminar ou prejudicar a comunidade do jogo.</value>
-  </data>
-  <data name="Menu_TemporaryMaskPlayerName" xml:space="preserve">
-    <value>Mascaramento temporário</value>
   </data>
   <data name="Settings_Section_Language_Title" xml:space="preserve">
     <value>Configurações de exibição</value>

@@ -379,9 +379,6 @@
   <data name="Settings_PlayerNameMask_Warning_Message" xml:space="preserve">
     <value>전투 데이터를 이용해 전투력 차별 등 커뮤니티를 해치는 행동을 하지 마세요.</value>
   </data>
-  <data name="Menu_TemporaryMaskPlayerName" xml:space="preserve">
-    <value>임시 익명 처리</value>
-  </data>
   <data name="Settings_Section_Language_Title" xml:space="preserve">
     <value>표시 설정</value>
   </data>
