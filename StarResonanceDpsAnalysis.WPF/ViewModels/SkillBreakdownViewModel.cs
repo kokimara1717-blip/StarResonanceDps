@@ -33,6 +33,7 @@ public partial class SkillBreakdownViewModel : BaseViewModel, IDisposable
     private const int LiveUiRefreshIntervalMs = 1000;
 
     private bool _suppressFreezeOnSelfClear;
+    private bool _allowAutoResumeToLive;
 
     [ObservableProperty] private StatisticType _statisticIndex;
     [ObservableProperty] private Config.AppConfig _appConfig;
@@ -64,6 +65,9 @@ public partial class SkillBreakdownViewModel : BaseViewModel, IDisposable
 
     private int TimeSeriesPointCapacity => Math.Clamp(AppConfig.TimeSeriesSampleCapacity, 50, 1000);
 
+    // Caller should pass the same refresh/reset behavior as DpsStatisticsView top-right refresh button.
+    private Action? _returnToLiveContext;
+
     public SkillBreakdownViewModel(
         ILogger<SkillBreakdownViewModel> logger,
         LocalizationManager localizationManager,
@@ -92,12 +96,8 @@ public partial class SkillBreakdownViewModel : BaseViewModel, IDisposable
         _liveRefreshTimer.Tick += OnLiveRefreshTimerTick;
         _liveRefreshTimer.Start();
 
-        // Live updates: no DataStorage re-read on every event
         _storage.DpsDataUpdated += OnStorageDpsDataUpdated;
-
-        // Freeze current live display right before section/manual clear
         _storage.BeforeSectionCleared += OnBeforeSectionCleared;
-
         _configManager.ConfigurationUpdated += OnConfigurationUpdated;
     }
 
@@ -106,11 +106,15 @@ public partial class SkillBreakdownViewModel : BaseViewModel, IDisposable
         PlayerInfo? playerInfo,
         StatisticType statisticType,
         IReadOnlyList<BattleLog>? battleLogs = null,
-        ScopeTime scopeTime = ScopeTime.Current)
+        ScopeTime scopeTime = ScopeTime.Current,
+        bool allowAutoResumeToLive = false,
+        Action? returnToLiveContext = null)
     {
         _scopeTime = scopeTime;
         _playerStatistics = playerStats;
         _isLiveSource = IsCurrentStorageInstance(playerStats, scopeTime);
+        _allowAutoResumeToLive = allowAutoResumeToLive || _isLiveSource;
+        _returnToLiveContext = returnToLiveContext;
 
         _fixedReplayLogs = battleLogs?.ToList() ?? new List<BattleLog>();
         _pendingLiveRefresh = false;
@@ -120,12 +124,10 @@ public partial class SkillBreakdownViewModel : BaseViewModel, IDisposable
 
         if (_isLiveSource)
         {
-            // Live: use direct reference, redraw immediately once.
             RefreshAllStatistics();
         }
         else
         {
-            // Frozen/history path: rebuild exactly once from logs if available.
             if (!TryRefreshFromReplayLogs(_fixedReplayLogs))
             {
                 RefreshAllStatistics();
@@ -133,16 +135,16 @@ public partial class SkillBreakdownViewModel : BaseViewModel, IDisposable
         }
 
         _logger.LogDebug(
-            "SkillBreakdown initialized: UID={Uid}, Live={Live}, Scope={Scope}, ReplayLogs={Count}",
+            "SkillBreakdown initialized: UID={Uid}, Live={Live}, AutoResume={AutoResume}, Scope={Scope}, ReplayLogs={Count}",
             playerStats.Uid,
             _isLiveSource,
+            _allowAutoResumeToLive,
             _scopeTime,
             _fixedReplayLogs.Count);
     }
 
     private bool IsCurrentStorageInstance(PlayerStatistics playerStats, ScopeTime scopeTime)
     {
-        // This is only called on window-open, so the one-time DataStorage access here is fine.
         var liveStats = _storage.GetStatistics(fullSession: scopeTime == ScopeTime.Total);
         return liveStats.TryGetValue(playerStats.Uid, out var currentLiveRef)
                && ReferenceEquals(currentLiveRef, playerStats);
@@ -154,11 +156,6 @@ public partial class SkillBreakdownViewModel : BaseViewModel, IDisposable
     /// </summary>
     private void OnStorageDpsDataUpdated()
     {
-        if (!_isLiveSource)
-        {
-            return;
-        }
-
         var dispatcher = Application.Current?.Dispatcher;
         if (dispatcher != null && !dispatcher.CheckAccess())
         {
@@ -166,7 +163,43 @@ public partial class SkillBreakdownViewModel : BaseViewModel, IDisposable
             return;
         }
 
+        if (!_isLiveSource)
+        {
+            if (!TryResumeFrozenViewToLiveIfAvailable())
+            {
+                return;
+            }
+        }
+
         _pendingLiveRefresh = true;
+    }
+
+    private bool TryResumeFrozenViewToLiveIfAvailable()
+    {
+        if (_isLiveSource || !_allowAutoResumeToLive || Uid <= 0)
+        {
+            return false;
+        }
+
+        var liveStats = _storage.GetStatistics(fullSession: _scopeTime == ScopeTime.Total);
+        if (!liveStats.TryGetValue(Uid, out var currentLiveRef))
+        {
+            return false;
+        }
+
+        _playerStatistics = currentLiveRef;
+        _isLiveSource = true;
+        _pendingLiveRefresh = true;
+        _fixedReplayLogs.Clear();
+
+        var playerInfo = _storage.ReadOnlyPlayerInfoDatas.TryGetValue(Uid, out var info)
+            ? info
+            : null;
+
+        UpdatePlayerInfo(currentLiveRef, playerInfo);
+
+        _logger.LogDebug("SkillBreakdown resumed live source for UID {Uid}", Uid);
+        return true;
     }
 
     /// <summary>
@@ -258,6 +291,13 @@ public partial class SkillBreakdownViewModel : BaseViewModel, IDisposable
 
     private void OnConfigurationUpdated(object? sender, Config.AppConfig newConfig)
     {
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher != null && !dispatcher.CheckAccess())
+        {
+            dispatcher.BeginInvoke(new Action(() => OnConfigurationUpdated(sender, newConfig)));
+            return;
+        }
+
         AppConfig = newConfig;
 
         if (_playerStatistics == null)
@@ -267,12 +307,10 @@ public partial class SkillBreakdownViewModel : BaseViewModel, IDisposable
 
         if (_isLiveSource)
         {
-            // Live: redraw from current live ref only.
             RefreshAllStatistics();
             return;
         }
 
-        // Frozen/history: rebuild from stored logs to respect new point capacity, etc.
         if (!TryRefreshFromReplayLogs(_fixedReplayLogs))
         {
             RefreshAllStatistics();
@@ -334,6 +372,41 @@ public partial class SkillBreakdownViewModel : BaseViewModel, IDisposable
         PlayerName = playerInfo?.Name ?? $"UID: {playerStats.Uid}";
         Uid = playerStats.Uid;
         PowerLevel = playerInfo?.CombatPower ?? 0;
+    }
+
+    public void ClearFromMainRefresh()
+    {
+        _pendingLiveRefresh = false;
+        _isLiveSource = false;
+        _playerStatistics = null;
+        _fixedReplayLogs.Clear();
+
+        // main 側 refresh 後、新しい live データで再開できるようにしておく
+        _allowAutoResumeToLive = true;
+
+        ClearAllStatistics();
+    }
+
+    public void OnHistoryModeExited()
+    {
+        _pendingLiveRefresh = false;
+
+        // History終了後は live 復帰を許可する
+        _allowAutoResumeToLive = true;
+
+        // すでに live データが存在するなら即座に再接続して描画
+        if (TryResumeFrozenViewToLiveIfAvailable())
+        {
+            RefreshAllStatistics();
+            return;
+        }
+
+        // まだ live データが無いなら、古い history/frozen 表示を捨てて待機
+        _isLiveSource = false;
+        _playerStatistics = null;
+        _fixedReplayLogs.Clear();
+
+        ClearAllStatistics();
     }
 
     private void ClearAllStatistics()
@@ -529,34 +602,23 @@ public partial class SkillBreakdownViewModel : BaseViewModel, IDisposable
     private void Refresh()
     {
         _pendingLiveRefresh = false;
-
-        // history / frozen 表示ならローカル表示だけ消す
-        if (!_isLiveSource)
-        {
-            ClearAllStatistics();
-            return;
-        }
+        _allowAutoResumeToLive = true;
 
         _suppressFreezeOnSelfClear = true;
         try
         {
-            if (_scopeTime == ScopeTime.Total)
-            {
-                _storage.ClearAllDpsData();
-            }
-            else
-            {
-                _storage.ClearDpsData();
-            }
+            _returnToLiveContext?.Invoke();
         }
         finally
         {
             _suppressFreezeOnSelfClear = false;
         }
 
-        // 旧参照を捨てる。次の live 更新で storage から再bind する
+        _pendingLiveRefresh = false;
+        _isLiveSource = false;
         _playerStatistics = null;
         _fixedReplayLogs.Clear();
+
         ClearAllStatistics();
     }
 

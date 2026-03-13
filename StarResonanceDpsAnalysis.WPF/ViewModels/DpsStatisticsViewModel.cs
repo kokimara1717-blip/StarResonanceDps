@@ -56,7 +56,7 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
     [ObservableProperty] private bool _showTeamTotalDamage;
     [ObservableProperty] private SortDirectionEnum _sortDirection = SortDirectionEnum.Descending;
     [ObservableProperty] private string _sortMemberPath = "Value";
-    [ObservableProperty] private StatisticType _statisticIndex;
+    [ObservableProperty] private StatisticType _statisticIndex = StatisticType.Damage;
     [ObservableProperty] private ulong _teamTotalDamage;
     [ObservableProperty] private double _teamTotalDps;
     [ObservableProperty] private string _teamLabel = string.Empty;
@@ -206,6 +206,9 @@ public partial class DpsStatisticsViewModel : BaseDispatcherSupportViewModel, ID
         TeamTotalDamage = 0;
         TeamTotalDps = 0;
         BattleDuration = TimeSpan.Zero;
+
+        var skillBreakdownVm = _windowManagement.SkillBreakdownView.DataContext as SkillBreakdownViewModel;
+        skillBreakdownVm?.ClearFromMainRefresh();
 
         if (!_isInitialized)
         {
