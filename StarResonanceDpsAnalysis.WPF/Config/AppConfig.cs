@@ -130,10 +130,10 @@ public partial class AppConfig : ObservableObject
 
     /// <summary>
     /// DPS统计页面 - 是否隐藏顶部统计切换标签
-    /// 默认值：false (显示)
+    /// 默认值：true (不显示)
     /// </summary>
     [ObservableProperty]
-    private bool _hideStatisticTabs = false;
+    private bool _hideStatisticTabs = true;
 
     /// <summary>
     /// 鼠标穿透开关 (WPF)
