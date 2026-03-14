@@ -129,8 +129,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             // # 抓包事件：回调于数据包到达时（SharpPcap线程）
             try
             {
-                var dev = (ICaptureDevice)sender;
-                PacketAnalyzer.StartNewAnalyzer(dev, e.GetPacket());
+                PacketAnalyzer.EnlistDataAsync(e.GetPacket());
             }
             catch (Exception ex)
             {

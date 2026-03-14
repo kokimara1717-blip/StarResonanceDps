@@ -1,15 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Drawing.Imaging;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using AntdUI;
 using SharpPcap;
 using StarResonanceDpsAnalysis.Assets;
-using StarResonanceDpsAnalysis.Core.Analyze;
 using StarResonanceDpsAnalysis.Core.Analyze.Exceptions;
 using StarResonanceDpsAnalysis.Core.Analyze.V1;
 using StarResonanceDpsAnalysis.Core.Data;
@@ -48,7 +39,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// <summary>
         /// 分析器
         /// </summary>
-        private PacketAnalyzer PacketAnalyzer { get; } = new(new MessageAnalyzer(DataStorage.Instance)); // # 抓包/分析器：每个到达的数据包交由该分析器处理
+        private PacketAnalyzer PacketAnalyzer { get; } = new(new MessageAnalyzer(DataStorage.Instance), DataStorage.Instance); // # 抓包/分析器：每个到达的数据包交由该分析器处理
         #endregion
 
         private void LoadAppConfig()

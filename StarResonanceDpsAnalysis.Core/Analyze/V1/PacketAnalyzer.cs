@@ -11,7 +11,10 @@ using ZstdNet;
 
 namespace StarResonanceDpsAnalysis.Core.Analyze.V1;
 
-public class PacketAnalyzer(IMessageAnalyzer messageProcessor,ILogger<PacketAnalyzer>? logger = null) : IPacketAnalyzer
+public class PacketAnalyzer(
+    IMessageAnalyzer messageProcessor,
+    IDataStorage dataStorage,
+    ILogger<PacketAnalyzer>? logger = null) : IPacketAnalyzer
 {
     public void Start()
     {
@@ -67,7 +70,7 @@ public class PacketAnalyzer(IMessageAnalyzer messageProcessor,ILogger<PacketAnal
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ForceReconnect(string reason)
     {
-        DataStorage.Instance.IsServerConnected = false;
+        dataStorage.IsServerConnected = false;
 
         logger?.LogWarning(CoreLogEvents.Reconnect,
             "Reconnect due to {Reason} at {Time}", reason, DateTime.Now.ToString("HH:mm:ss"));
@@ -182,7 +185,7 @@ public class PacketAnalyzer(IMessageAnalyzer messageProcessor,ILogger<PacketAnal
         try
         {
             // 标记已开始监听服务器
-            DataStorage.Instance.IsServerConnected = true;
+            dataStorage.IsServerConnected = true;
 
             // 使用 PacketDotNet 解析为通用数据包对象（包含以太网/IP/TCP 等）
             var packet = Packet.ParsePacket(raw.LinkLayerType, raw.Data);
@@ -269,7 +272,7 @@ public class PacketAnalyzer(IMessageAnalyzer messageProcessor,ILogger<PacketAnal
                                             logger?.LogInformation(CoreLogEvents.ServerDetected,
                                                 "Detected scene server {Server}", srcServer);
 
-                                            DataStorage.Instance.ServerChange(CurrentServer, prevServer);
+                                            dataStorage.ServerChange(CurrentServer, prevServer);
                                         }
                                     }
                                     catch (Exception ex)
@@ -299,7 +302,7 @@ public class PacketAnalyzer(IMessageAnalyzer messageProcessor,ILogger<PacketAnal
                                     logger?.LogInformation(CoreLogEvents.ServerDetected,
                                         "Detected scene server (login) {Server}", srcServer);
 
-                                    DataStorage.Instance.ServerChange(CurrentServer, prevServer);
+                                    dataStorage.ServerChange(CurrentServer, prevServer);
                                 }
                             }
                         }

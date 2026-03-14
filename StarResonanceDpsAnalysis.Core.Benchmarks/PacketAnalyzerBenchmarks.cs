@@ -35,8 +35,8 @@ public class PacketAnalyzerBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _v1 = new PacketAnalyzer(new MessageAnalyzer(_storage));
         _storage = new DataStorageV2(NullLogger<DataStorageV2>.Instance);
+        _v1 = new PacketAnalyzer(new MessageAnalyzer(_storage), _storage);
         _msgV2 = new MessageAnalyzerV2(_storage);
         _v2 = new PacketAnalyzerV2(_storage, _msgV2);
 
