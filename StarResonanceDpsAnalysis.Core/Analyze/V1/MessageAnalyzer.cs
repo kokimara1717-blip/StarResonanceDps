@@ -31,6 +31,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.V1
         /// </summary>
         public MessageAnalyzer(IDataStorage dataStorage, ILogger<MessageAnalyzer>? logger = null)
         {
+            _dataStorage = dataStorage;
             _logger = logger;
             _processMethods = new Dictionary<WorldNtfMessageId, Action<byte[]>>
             {
@@ -427,7 +428,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.V1
                 var damageSource = (int)(d.HasDamageSource ? d.DamageSource : 0);
 
                 var (id, ticks) = IDGenerator.Next();
-                DataStorage.Instance.AddBattleLog(new BattleLog
+                _dataStorage.AddBattleLog(new BattleLog
                 {
                     PacketID = id,
                     TimeTicks = ticks,
