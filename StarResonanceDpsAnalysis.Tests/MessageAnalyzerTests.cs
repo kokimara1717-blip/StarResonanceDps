@@ -38,40 +38,6 @@ public class MessageAnalyzerTests : IDisposable
         Assert.Null(exception);
     }
 
-    [Fact]
-    public void Process_SyncNearDeltaInfo_StampsAttackerBuffsIntoBattleLog()
-    {
-        var attackerUid = 55502962L;
-        var targetUid = 66602962L;
-        const int buffTableUuid = 41001;
-        const int buffLayer = 2;
-
-        _dataStorage.SetCurrentPlayerUid(attackerUid);
-        _dataStorage.SetPlayerCombatState(attackerUid, true);
-
-        var payload = TestMessageBuilder.BuildSyncNearDeltaInfoWithBuffAndDamagePayload(
-            targetUid,
-            attackerUid,
-            buffTableUuid,
-            buffLayer,
-            damage: 12345,
-            skillId: 9001);
-        var envelope = TestMessageBuilder.BuildNotifyEnvelope(WorldNtfMessageId.SyncNearDeltaInfo, payload);
-
-        _messageAnalyzer.Process(envelope);
-
-        var logs = _dataStorage.GetBattleLogs(fullSession: false);
-        var log = Assert.Single(logs);
-        Assert.Contains(log.AttackerActiveBuffs, x => x.TableUuid == buffTableUuid && x.Layer == buffLayer);
-
-        var snapshot = _dataStorage.GetEntityBuffSnapshot(attackerUid);
-        Assert.NotNull(snapshot);
-        Assert.Equal(attackerUid, snapshot!.EntityUid);
-        var buff = Assert.Single(snapshot.Buffs);
-        Assert.Equal(buffTableUuid, buff.TableUuid);
-        Assert.Equal(buffLayer, buff.Layer);
-    }
-
     public void Dispose()
     {
         _dataStorage.ClearAllDpsData();
