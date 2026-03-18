@@ -24,12 +24,36 @@ public class DataStorage : IDataStorage, IAsyncDisposable
     private int _sampleRecordingInterval = 1000;
     private bool _isSampleRecordingStarted;
 
-    public static DataStorage Instance { get; } = new();
+    public DataStorage(ILogger<DataStorage>? logger = null)
+    {
+        if (logger != null)
+        {
+            Logger = logger;
+        }
+    }
+
+    public static DataStorage Instance { get; } = new(); // Backward compatibility singleton instance for legacy code
+
+    public long CurrentPlayerUID { get; set; }
 
     /// <summary>
     /// 当前玩家信息
     /// </summary>
-    public PlayerInfo CurrentPlayerInfo { get; private set; } = new();
+    public PlayerInfo CurrentPlayerInfo
+    {
+        get
+        {
+            var ret = PlayerInfoDatas.GetValueOrDefault(CurrentPlayerUID);
+            if (ret == null)
+            {
+                EnsurePlayer(CurrentPlayerUID);
+                ret = PlayerInfoDatas[CurrentPlayerUID];
+            }
+
+            return ret;
+        }
+    }
+
 
     /// <summary>
     /// 玩家信息字典 (Key: UID)
@@ -182,6 +206,7 @@ public class DataStorage : IDataStorage, IAsyncDisposable
 
     public event SectionEndedEventHandler? SectionEnded;
     public event Action? BeforeSectionCleared;
+    public event BuffEffectReceivedEventHandler? BuffEffectReceived;
 
     /// <summary>
     /// 从文件加载缓存玩家信息
@@ -204,10 +229,12 @@ public class DataStorage : IDataStorage, IAsyncDisposable
         {
             if (!PlayerInfoDatas.TryGetValue(playerInfoCache.UID, out var playerInfo))
             {
-                playerInfo = new PlayerInfo();
+                playerInfo = new PlayerInfo()
+                {
+                    UID = playerInfoCache.UID,
+                };
             }
 
-            playerInfo.UID = playerInfoCache.UID;
             playerInfo.ProfessionID ??= playerInfoCache.ProfessionID;
             playerInfo.CombatPower ??= playerInfoCache.CombatPower;
             playerInfo.Critical ??= playerInfoCache.Critical;
@@ -299,8 +326,8 @@ public class DataStorage : IDataStorage, IAsyncDisposable
     {
         if (uid == 0) return;
 
-        var changed = CurrentPlayerInfo.UID != uid;
-        CurrentPlayerInfo.UID = uid;
+        var changed = CurrentPlayerUID != uid;
+        CurrentPlayerUID = uid;
 
         var existed = EnsurePlayer(uid);
 
@@ -380,10 +407,21 @@ public class DataStorage : IDataStorage, IAsyncDisposable
         // 如果创建新战斗分段
         if (sectionFlag)
         {
+            var shouldKeepCombatState = false;
+            if (CurrentPlayerUID != 0 && PlayerInfoDatas.TryGetValue(CurrentPlayerUID, out var currentPlayerInfo))
+            {
+                shouldKeepCombatState = currentPlayerInfo.CombatState;
+            }
+
             try
             {
                 RaiseBeforeSectionCleared();
                 PrivateClearSectionDpsData();
+                if (shouldKeepCombatState)
+                {
+                    _adapter.SetCombatState(true);
+                }
+
                 RaiseNewSectionCreated();
             }
             catch (Exception ex)
@@ -675,16 +713,6 @@ public class DataStorage : IDataStorage, IAsyncDisposable
     }
 
     /// <summary>
-    /// 清除当前玩家信息
-    /// </summary>
-    public void ClearCurrentPlayerInfo()
-    {
-        CurrentPlayerInfo = new PlayerInfo();
-
-        DataUpdated?.Invoke();
-    }
-
-    /// <summary>
     /// 清除所有玩家信息
     /// </summary>
     public void ClearPlayerInfos()
@@ -707,7 +735,6 @@ public class DataStorage : IDataStorage, IAsyncDisposable
     /// </summary>
     public void ClearAllPlayerInfos()
     {
-        CurrentPlayerInfo = new PlayerInfo();
         PlayerInfoDatas.Clear();
 
         try
@@ -718,6 +745,29 @@ public class DataStorage : IDataStorage, IAsyncDisposable
         {
             Debug.WriteLine(
                 $"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}");
+        }
+    }
+
+    /// <summary>
+    /// Notifies that buff effect data has been received for an entity.
+    /// </summary>
+    /// <param name="entityUid">Entity UID</param>
+    /// <param name="buffResult">Raw buff effect payload</param>
+    public void NotifyBuffEffectReceived(long entityUid, BuffProcessResult buffResult)
+    {
+        RaiseBuffEffectReceived(entityUid, buffResult);
+    }
+
+    private void RaiseBuffEffectReceived(long entityUid, BuffProcessResult payload)
+    {
+        try
+        {
+            BuffEffectReceived?.Invoke(entityUid, payload);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                $"An error occurred during trigger event(BuffEffectReceived) => {ex.Message}\r\n{ex.StackTrace}");
         }
     }
 
@@ -769,7 +819,7 @@ public class DataStorage : IDataStorage, IAsyncDisposable
         if (prev == combatState) return;
         Debug.WriteLine($"PlayerCombatState:[{uid}] {prev} -> {combatState}");
         PlayerInfoDatas[uid].CombatState = combatState;
-        if (CurrentPlayerInfo.UID != 0) _adapter.SetCombatState(combatState);
+        if (CurrentPlayerUID != 0) _adapter.SetCombatState(combatState);
         TriggerPlayerInfoUpdated(uid);
     }
 

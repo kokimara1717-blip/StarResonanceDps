@@ -1,5 +1,6 @@
 using Google.Protobuf;
 using Moq;
+using StarResonanceDpsAnalysis.Core.Analyze;
 using StarResonanceDpsAnalysis.Core.Analyze.Models;
 using StarResonanceDpsAnalysis.Core.Analyze.V2.Processors;
 using StarResonanceDpsAnalysis.Core.Analyze.V2.Processors.WorldNtf;
@@ -16,13 +17,6 @@ public partial class ProcessorTests
     [Fact]
     public void Process_WithValidData_ShouldUpdatePlayerInfo()
     {
-        // Arrange
-        var mockStorage = new Mock<IDataStorage>();
-        var playerInfo = new PlayerInfo();
-        mockStorage.Setup(s => s.CurrentPlayerInfo).Returns(playerInfo);
-
-        var processor = new SyncContainerDataProcessor(mockStorage.Object, null);
-
         const long playerUid = 12345L;
         const int level = 60;
         const int curHp = 10000;
@@ -30,6 +24,28 @@ public partial class ProcessorTests
         const string playerName = "TestPlayer";
         const int fightPoint = 50000;
         const int profId = 101;
+
+        // Arrange
+        var mockStorage = new Mock<IDataStorage>();
+        var playerInfo = new PlayerInfo() { UID = playerUid };
+        mockStorage.Setup(s => s.CurrentPlayerUID).Returns(playerUid);
+        mockStorage.Setup(s => s.CurrentPlayerInfo).Returns(playerInfo);
+        
+        // Setup mock to actually update the PlayerInfo object
+        mockStorage.Setup(s => s.SetPlayerLevel(playerUid, It.IsAny<int>()))
+            .Callback<long, int>((uid, lvl) => playerInfo.Level = lvl);
+        mockStorage.Setup(s => s.SetPlayerHP(playerUid, It.IsAny<long>()))
+            .Callback<long, long>((uid, hp) => playerInfo.HP = hp);
+        mockStorage.Setup(s => s.SetPlayerMaxHP(playerUid, It.IsAny<long>()))
+            .Callback<long, long>((uid, hp) => playerInfo.MaxHP = hp);
+        mockStorage.Setup(s => s.SetPlayerName(playerUid, It.IsAny<string>()))
+            .Callback<long, string>((uid, name) => playerInfo.Name = name);
+        mockStorage.Setup(s => s.SetPlayerCombatPower(playerUid, It.IsAny<int>()))
+            .Callback<long, int>((uid, power) => playerInfo.CombatPower = power);
+        mockStorage.Setup(s => s.SetPlayerProfessionID(playerUid, It.IsAny<int>()))
+            .Callback<long, int>((uid, profId) => playerInfo.ProfessionID = profId);
+
+        var processor = new SyncContainerDataProcessor(mockStorage.Object, null);
 
         var syncContainerData = new Zproto.WorldNtf.Types.SyncContainerData
         {
@@ -84,7 +100,12 @@ public partial class ProcessorTests
         const string playerName = "DirtyPlayer";
 
         var playerInfo = new PlayerInfo() { UID = playerUuid };
+        mockStorage.Setup(s => s.CurrentPlayerUID).Returns(playerUuid);
         mockStorage.Setup(s => s.CurrentPlayerInfo).Returns(playerInfo);
+
+        // Setup mock to actually update the PlayerInfo object
+        mockStorage.Setup(s => s.SetPlayerName(playerUuid, It.IsAny<string>()))
+            .Callback<long, string>((uid, name) => playerInfo.Name = name);
 
         var processor = new SyncContainerDirtyDataProcessor(mockStorage.Object, null);
 
@@ -128,7 +149,12 @@ public partial class ProcessorTests
         // const int maxHp = 8000;
 
         var playerInfo = new PlayerInfo() { UID = playerUuid };
+        mockStorage.Setup(s => s.CurrentPlayerUID).Returns(playerUuid);
         mockStorage.Setup(s => s.CurrentPlayerInfo).Returns(playerInfo);
+
+        // Setup mock to actually update the PlayerInfo object
+        mockStorage.Setup(s => s.SetPlayerHP(playerUuid, It.IsAny<long>()))
+            .Callback<long, long>((uid, hp) => playerInfo.HP = hp);
 
         var processor = new SyncContainerDirtyDataProcessor(mockStorage.Object, null);
 
@@ -297,7 +323,7 @@ public partial class ProcessorTests
     {
         // Arrange
         var mockStorage = new Mock<IDataStorage>();
-        var processor = new SyncNearDeltaInfoProcessor(mockStorage.Object, null);
+        var processor = new SyncNearDeltaInfoProcessor(mockStorage.Object, new EntityBuffMonitors(), null);
 
         const long attacker1 = 333L;
         const long target1 = 444L;

@@ -583,6 +583,8 @@
                                         IsCheckable="False" />
 
                                     <Separator />
+                                    <MenuItem Header="Buff"
+                                              Command="{Binding CallBuffMonitorViewCommand}"/>
 
                                     <MenuItem
                                         Header="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Display_PlayerNameMask}}"

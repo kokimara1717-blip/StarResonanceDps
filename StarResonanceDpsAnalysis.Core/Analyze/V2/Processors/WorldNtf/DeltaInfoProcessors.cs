@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using Google.Protobuf;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using StarResonanceDpsAnalysis.Core.Data;
 using StarResonanceDpsAnalysis.Core.Data.Models;
 using StarResonanceDpsAnalysis.Core.Extends.BlueProto;
@@ -7,18 +9,75 @@ using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.Core.Logging;
 using StarResonanceDpsAnalysis.Core.Tools;
 using Zproto;
+//using AoiSyncDelta = Zproto.WorldNtf.Types.AoiSyncDelta;
 
 namespace StarResonanceDpsAnalysis.Core.Analyze.V2.Processors.WorldNtf;
 
 /// <summary>
 /// Processes delta info messages for damage and healing events.
 /// </summary>
-public abstract class BaseDeltaInfoProcessor(IDataStorage storage, ILogger? logger, WorldNtfMessageId id) : WorldNtfBaseProcessor(id)
+public abstract class BaseDeltaInfoProcessor(IDataStorage storage, EntityBuffMonitors entityBuffMonitors, ILogger? logger, WorldNtfMessageId id) : WorldNtfBaseProcessor(id)
 {
     protected readonly IDataStorage _storage = storage;
+    protected readonly EntityBuffMonitors _entityBuffMonitors = entityBuffMonitors;
     protected readonly ILogger? _logger = logger;
+    private long _serverOffset;
 
-    protected void ProcessAoiSyncDelta(Zproto.WorldNtf.Types.AoiSyncDelta? delta)
+    protected void ProcessBuff(long entityUid, Zproto.WorldNtf.Types.AoiSyncDelta? delta)
+    {
+        if (delta == null || entityUid == 0) return;
+
+        // Get or create buff monitor for this entity
+        if (!_entityBuffMonitors.Monitors.TryGetValue(entityUid, out var buffMonitor))
+        {
+            return; // Only process buffs for entities that have registered monitors
+        }
+
+        // Process buff events (Add/Remove/Change)
+        if (delta.BuffEffect != null)
+        {
+            var message = $"BuffEvent:{JsonConvert.SerializeObject(delta.BuffEffect)}";
+            Debug.WriteLine(message);
+            _logger?.LogDebug(message);
+            var result = buffMonitor.ProcessBuffEffect(delta.BuffEffect, ref _serverOffset, entityUid);
+            //var result = buffMonitor.ProcessBuffInfo(delta.BuffInfos, ref _serverOffset, entityUid);
+            _storage.NotifyBuffEffectReceived(entityUid, result);
+        }
+
+        if (delta.BuffInfos != null)
+        {
+            var message = $"BuffInfos:{JsonConvert.SerializeObject(delta.BuffInfos)}";
+            Debug.WriteLine(message);
+            _logger?.LogDebug(message);
+
+            var result = buffMonitor.ProcessBuffInfo(delta.BuffInfos, ref _serverOffset, entityUid);
+            _storage.NotifyBuffEffectReceived(entityUid, result);
+        }
+
+        //// Process buff info updates
+        //if (delta.BuffInfos != null)
+        //{
+        //    foreach (var info in delta.BuffInfos.BuffInfos)
+        //    {
+        //        Debug.WriteLine($"[DeltaProcessor] BuffInfo for entity {entityUid}: BaseId={info.BaseId}, Layer={info.Layer}, Duration={info.Duration}");
+
+        //        var activeBuff = new StarResonanceDpsAnalysis.Core.Data.Models.ActiveBuff
+        //        {
+        //            BaseId = info.BaseId,
+        //            Layer = info.Layer,
+        //            Duration = info.Duration,
+        //            CreateTime = info.CreateTime
+        //        };
+
+        //        // Update the buff monitor's active buffs
+        //        buffMonitor.ActiveBuffs[info.BaseId] = activeBuff;
+        //    }
+
+        //    // Notify storage that buffs have been updated
+        //}
+    }
+
+    protected void ProcessAoiSyncDelta(Zproto.WorldNtf.Types.AoiSyncDelta delta)
     {
         if (delta == null) return;
 
@@ -27,6 +86,8 @@ public abstract class BaseDeltaInfoProcessor(IDataStorage storage, ILogger? logg
 
         var isTargetPlayer = targetUuidRaw.IsUuidPlayerRaw();
         var targetUuid = targetUuidRaw.ShiftRight16();
+
+        ProcessBuff(targetUuid, delta);
 
         var attrCollection = delta.Attrs;
         if (attrCollection?.Attrs != null && isTargetPlayer)
@@ -66,7 +127,7 @@ public abstract class BaseDeltaInfoProcessor(IDataStorage storage, ILogger? logg
                         _storage.SetPlayerHP(targetUuid, reader.ReadInt32());
                         break;
 
-                    case EAttrType.AttrSeasonStrength: 
+                    case EAttrType.AttrSeasonStrength:
                     case EAttrType.AttrSeasonStrengthTotal:
                     case EAttrType.AttrSeasonStrengthAdd:
                     case EAttrType.AttrSeasonStrengthExAdd:
@@ -1409,18 +1470,19 @@ public abstract class BaseDeltaInfoProcessor(IDataStorage storage, ILogger? logg
     }
 }
 
-public sealed class SyncToMeDeltaInfoProcessor(IDataStorage storage, ILogger? logger)
-    : BaseDeltaInfoProcessor(storage, logger, WorldNtfMessageId.SyncToMeDeltaInfo)
+public sealed class SyncToMeDeltaInfoProcessor(IDataStorage storage, EntityBuffMonitors entityBuffMonitors, ILogger? logger)
+    : BaseDeltaInfoProcessor(storage, entityBuffMonitors, logger, WorldNtfMessageId.SyncToMeDeltaInfo)
 {
     public override void Process(byte[] payload)
     {
         _logger?.LogDebug(CoreLogEvents.SyncToMeDelta, nameof(SyncToMeDeltaInfoProcessor));
+        //var syncToMeDeltaInfo = Zproto.WorldNtf.Types.SyncToMeDeltaInfo.Parser.ParseFrom(payload);
         var syncToMeDeltaInfo = Zproto.WorldNtf.Types.SyncToMeDeltaInfo.Parser.ParseFrom(payload);
         var aoiSyncToMeDelta = syncToMeDeltaInfo.DeltaInfo;
         var uuid = aoiSyncToMeDelta.Uuid.ShiftRight16();
-        if (uuid != 0 && _storage.CurrentPlayerInfo.UID != uuid)
+        if (uuid != 0 && _storage.CurrentPlayerUID != uuid)
         {
-            _storage.CurrentPlayerInfo.UID = uuid;
+            _storage.CurrentPlayerUID = uuid;
         }
 
         var aoiSyncDelta = aoiSyncToMeDelta.BaseDelta;
@@ -1430,12 +1492,13 @@ public sealed class SyncToMeDeltaInfoProcessor(IDataStorage storage, ILogger? lo
     }
 }
 
-public sealed class SyncNearDeltaInfoProcessor(IDataStorage storage, ILogger? logger)
-    : BaseDeltaInfoProcessor(storage, logger, WorldNtfMessageId.SyncNearDeltaInfo)
+public sealed class SyncNearDeltaInfoProcessor(IDataStorage storage, EntityBuffMonitors entityBuffMonitors, ILogger? logger)
+    : BaseDeltaInfoProcessor(storage, entityBuffMonitors, logger, WorldNtfMessageId.SyncNearDeltaInfo)
 {
     public override void Process(byte[] payload)
     {
         _logger?.LogDebug(CoreLogEvents.SyncNearDelta, nameof(SyncNearDeltaInfoProcessor));
+        //var syncNearDeltaInfo = Zproto.WorldNtf.Types.SyncNearDeltaInfo.Parser.ParseFrom(payload);
         var syncNearDeltaInfo = Zproto.WorldNtf.Types.SyncNearDeltaInfo.Parser.ParseFrom(payload);
         if (syncNearDeltaInfo.DeltaInfos == null || syncNearDeltaInfo.DeltaInfos.Count == 0) return;
 

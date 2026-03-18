@@ -166,6 +166,7 @@ public partial class MainViewModel : BaseViewModel
         _windowManagement.DamageReferenceView.Show();
     }
 
+
     [RelayCommand]
     private void Shutdown()
     {

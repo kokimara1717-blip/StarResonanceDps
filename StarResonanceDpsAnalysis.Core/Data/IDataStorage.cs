@@ -20,6 +20,8 @@ public interface IDataStorage : IDisposable
     /// </summary>
     int SampleRecordingInterval { get; set; }
 
+    long CurrentPlayerUID { get; set; }
+
     event ServerConnectionStateChangedEventHandler? ServerConnectionStateChanged;
     event PlayerInfoUpdatedEventHandler? PlayerInfoUpdated;
     event NewSectionCreatedEventHandler? NewSectionCreated;
@@ -28,13 +30,13 @@ public interface IDataStorage : IDisposable
     event DataUpdatedEventHandler? DataUpdated;
     event ServerChangedEventHandler? ServerChanged;
     event SectionEndedEventHandler? SectionEnded;
+    event BuffEffectReceivedEventHandler? BuffEffectReceived;
 
     void LoadPlayerInfoFromFile();
     void SavePlayerInfoToFile();
     Dictionary<long, PlayerInfoFileData> BuildPlayerDicFromBattleLog(List<BattleLog> battleLogs);
     void ClearAllDpsData();
     void ClearDpsData();
-    void ClearCurrentPlayerInfo();
     void ClearPlayerInfos();
     void ClearAllPlayerInfos();
     void ServerChange(string currentServerStr, string prevServer);
@@ -102,6 +104,11 @@ public interface IDataStorage : IDisposable
 
     event Action? BeforeSectionCleared;
     void SetPlayerCombatStateTime(long uid, long time);
+
+    /// <summary>
+    /// Notify buff effect received for an entity
+    /// </summary>
+    void NotifyBuffEffectReceived(long entityUid, BuffProcessResult buffResult);
 }
 
 public delegate void ServerConnectionStateChangedEventHandler(bool serverConnectionState);
@@ -112,6 +119,7 @@ public delegate void BattleLogCreatedEventHandler(BattleLog battleLog);
 public delegate void DpsDataUpdatedEventHandler();
 public delegate void DataUpdatedEventHandler();
 public delegate void ServerChangedEventHandler(string currentServer, string prevServer);
+public delegate void BuffEffectReceivedEventHandler(long entityUid, BuffProcessResult buffs);
 
 public static class DataStorageHelper
 {

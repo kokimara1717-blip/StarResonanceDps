@@ -32,28 +32,25 @@ public sealed class SyncContainerDataProcessor(IDataStorage storage, ILogger? lo
         var prevPower = prev.CombatPower;
         var prevProfId = prev.ProfessionID;
 
-        storage.CurrentPlayerInfo.UID = playerUid;
+        storage.CurrentPlayerUID = playerUid;
         storage.EnsurePlayer(playerUid);
 
         var updates = new List<string>(6);
 
         if (vData.RoleLevel?.Level is { } level && level != 0)
         {
-            storage.CurrentPlayerInfo.Level = level;
             storage.SetPlayerLevel(playerUid, level);
             if (prevLevel != level) updates.Add($"level={level}");
         }
 
         if (vData.Attr?.CurHp is { } curHp && curHp != 0)
         {
-            storage.CurrentPlayerInfo.HP = curHp;
             storage.SetPlayerHP(playerUid, curHp);
             if (prevHp != curHp) updates.Add($"hp={curHp}");
         }
 
         if (vData.Attr?.MaxHp is { } maxHp && maxHp != 0)
         {
-            storage.CurrentPlayerInfo.MaxHP = maxHp;
             storage.SetPlayerMaxHP(playerUid, maxHp);
             if (prevMaxHp != maxHp) updates.Add($"maxHp={maxHp}");
         }
@@ -62,7 +59,6 @@ public sealed class SyncContainerDataProcessor(IDataStorage storage, ILogger? lo
         {
             if (!string.IsNullOrEmpty(vData.CharBase.Name))
             {
-                storage.CurrentPlayerInfo.Name = vData.CharBase.Name;
                 storage.SetPlayerName(playerUid, vData.CharBase.Name);
                 if (!string.Equals(prevName, vData.CharBase.Name, StringComparison.Ordinal))
                     updates.Add($"name='{vData.CharBase.Name}'");
@@ -70,7 +66,6 @@ public sealed class SyncContainerDataProcessor(IDataStorage storage, ILogger? lo
 
             if (vData.CharBase.FightPoint != 0)
             {
-                storage.CurrentPlayerInfo.CombatPower = vData.CharBase.FightPoint;
                 storage.SetPlayerCombatPower(playerUid, vData.CharBase.FightPoint);
                 if (prevPower != vData.CharBase.FightPoint)
                     updates.Add($"power={vData.CharBase.FightPoint}");
@@ -79,7 +74,6 @@ public sealed class SyncContainerDataProcessor(IDataStorage storage, ILogger? lo
 
         if (vData.ProfessionList?.CurProfessionId is { } profId && profId != 0)
         {
-            storage.CurrentPlayerInfo.ProfessionID = profId;
             storage.SetPlayerProfessionID(playerUid, profId);
             if (prevProfId != profId) updates.Add($"professionId={profId}");
         }

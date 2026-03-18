@@ -228,6 +228,9 @@ public partial class App : Application
                 services.AddClassColorService();
                 services.AddSingleton<IAutoUpdateService, AppUpdateService>();
 
+                // Register EntityBuffMonitors for buff tracking
+                services.AddSingleton<Core.Analyze.EntityBuffMonitors>();
+
                 // ? Register new DPS services (SOLID refactoring)
                 services.AddDpsServices();
 
@@ -244,6 +247,7 @@ public partial class App : Application
                 services.AddSingleton<IMousePenetrationService, MousePenetrationService>();
                 services.AddSingleton<ITopmostService, TopmostService>();
                 services.AddSingleton<DataSourceEngine>();
+                services.AddTransient<BuffMonitorViewModel>();
                 RegisterBuiltInPlugins(services);
 
                 services.AddSingleton<IPluginManager, PluginManager>();

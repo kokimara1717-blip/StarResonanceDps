@@ -8,12 +8,11 @@ namespace StarResonanceDpsAnalysis.Tests;
 public class MessageAnalyzerTests : IDisposable
 {
     private static DataStorage _dataStorage = DataStorage.Instance;
-    private readonly MessageAnalyzer _messageAnalyzer = new MessageAnalyzer(_dataStorage);
+    private readonly MessageAnalyzer _messageAnalyzer = new MessageAnalyzer(_dataStorage, new EntityBuffMonitors());
     public MessageAnalyzerTests()
     {
         _dataStorage.ClearAllDpsData();
         _dataStorage.ClearAllPlayerInfos();
-        _dataStorage.ClearCurrentPlayerInfo();
     }
 
     [Fact]
@@ -42,6 +41,5 @@ public class MessageAnalyzerTests : IDisposable
     {
         _dataStorage.ClearAllDpsData();
         _dataStorage.ClearAllPlayerInfos();
-        _dataStorage.ClearCurrentPlayerInfo();
     }
 }

@@ -303,7 +303,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 : DataStorage.Instance.ReadOnlySectionedDpsData;
 
             // 如果找不到当前玩家的数据，就显示占位符
-            if (!dd.TryGetValue(DataStorage.Instance.CurrentPlayerInfo.UID, out DpsData? cpdd))
+            if (!dd.TryGetValue(DataStorage.Instance.CurrentPlayerUID, out DpsData? cpdd))
             {
                 label_CurrentDps.Text = "-- (--)";
                 return;

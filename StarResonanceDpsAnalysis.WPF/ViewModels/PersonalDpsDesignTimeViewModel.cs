@@ -39,6 +39,7 @@ public sealed class PersonalDpsDesignTimeViewModel : PersonalDpsViewModel
         public DamageReferenceView DamageReferenceView => throw new NotSupportedException();
         public ModuleSolveView ModuleSolveView => throw new NotSupportedException();
         public BossTrackerView BossTrackerView => throw new NotSupportedException();
+        public BuffMonitorView BuffMonitorView => throw new NotSupportedException();
         public MainView MainView => throw new NotSupportedException();
         public SkillLogView SkillLogView => throw new NotSupportedException();
     }

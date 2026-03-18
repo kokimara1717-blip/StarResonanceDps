@@ -11,7 +11,7 @@ public class PacketAnalyzerTests
     [Fact]
     public void ResetCaptureState_ClearsCachesAndServer()
     {
-        var analyzer = new PacketAnalyzer(new MessageAnalyzer(DataStorage.Instance), DataStorage.Instance);
+        var analyzer = new PacketAnalyzer(new MessageAnalyzer(DataStorage.Instance, new EntityBuffMonitors()), DataStorage.Instance);
         analyzer.CurrentServer = "1.1.1.1:1000 -> 2.2.2.2:2000";
 
         var tcpCache = GetFieldValue<ConcurrentDictionary<uint, byte[]>>(analyzer, "TcpCache");

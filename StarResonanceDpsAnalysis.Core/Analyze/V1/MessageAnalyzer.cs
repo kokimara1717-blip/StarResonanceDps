@@ -29,7 +29,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.V1
         /// 消息解析器
         /// 负责处理从游戏抓包获得的TCP数据，包括解压缩、Protobuf解析、数据同步、伤害统计等。
         /// </summary>
-        public MessageAnalyzer(IDataStorage dataStorage, ILogger<MessageAnalyzer>? logger = null)
+        public MessageAnalyzer(IDataStorage dataStorage, EntityBuffMonitors entityBuffMonitors, ILogger<MessageAnalyzer>? logger = null)
         {
             _dataStorage = dataStorage;
             _logger = logger;
@@ -51,7 +51,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.V1
                 { MessageType.Notify, ProcessNotifyMsg },
                 { MessageType.FrameDown, ProcessFrameDown }
             };
-            _messageHandlerReg = new WorldNtfMessageHandlerRegistry(dataStorage, logger);
+            _messageHandlerReg = new WorldNtfMessageHandlerRegistry(dataStorage, entityBuffMonitors, logger);
         }
 
         /// <summary>
@@ -176,21 +176,18 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.V1
             var tmpLevel = vData.RoleLevel?.Level ?? 0;
             if (tmpLevel != 0)
             {
-                _dataStorage.CurrentPlayerInfo.Level = tmpLevel;
                 _dataStorage.SetPlayerLevel(playerUid, tmpLevel);
             }
 
             var tmpHP = vData.Attr?.CurHp ?? 0;
             if (tmpHP != 0)
             {
-                _dataStorage.CurrentPlayerInfo.HP = tmpHP;
                 _dataStorage.SetPlayerHP(playerUid, tmpHP);
             }
 
             var tmpMaxHP = vData.Attr?.MaxHp ?? 0;
             if (tmpMaxHP != 0)
             {
-                _dataStorage.CurrentPlayerInfo.MaxHP = tmpMaxHP;
                 _dataStorage.SetPlayerMaxHP(playerUid, tmpMaxHP);
             }
 
@@ -198,13 +195,11 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.V1
             {
                 if (!string.IsNullOrEmpty(vData.CharBase.Name))
                 {
-                    _dataStorage.CurrentPlayerInfo.Name = vData.CharBase.Name;
                     _dataStorage.SetPlayerName(playerUid, vData.CharBase.Name);
                 }
 
                 if (vData.CharBase.FightPoint != 0)
                 {
-                    _dataStorage.CurrentPlayerInfo.CombatPower = vData.CharBase.FightPoint;
                     _dataStorage.SetPlayerCombatPower(playerUid, vData.CharBase.FightPoint);
                 }
             }
@@ -212,7 +207,6 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.V1
             var professionList = vData.ProfessionList;
             if (professionList != null && professionList.CurProfessionId != 0)
             {
-                _dataStorage.CurrentPlayerInfo.ProfessionID = professionList.CurProfessionId;
                 _dataStorage.SetPlayerProfessionID(playerUid, professionList.CurProfessionId);
             }
         }
@@ -224,7 +218,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.V1
         {
             try
             {
-                var playerUid = _dataStorage.CurrentPlayerInfo.UID;
+                var playerUid = _dataStorage.CurrentPlayerUID;
                 if (playerUid == 0) return;
                 _dataStorage.EnsurePlayer(playerUid);
 
@@ -252,7 +246,6 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.V1
                                 var playerName = StreamReadString(br);
                                 if (!string.IsNullOrEmpty(playerName))
                                 {
-                                    _dataStorage.CurrentPlayerInfo.Name = playerName;
                                     _dataStorage.SetPlayerName(playerUid, playerName);
                                 }
                                 break;
@@ -262,7 +255,6 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.V1
                                 _ = br.ReadInt32();
                                 if (fightPoint != 0)
                                 {
-                                    _dataStorage.CurrentPlayerInfo.CombatPower = fightPoint;
                                     _dataStorage.SetPlayerCombatPower(playerUid, fightPoint);
                                 }
                                 break;
@@ -277,13 +269,11 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.V1
                         {
                             case 1:
                                 var curHp = (int)br.ReadUInt32();
-                                _dataStorage.CurrentPlayerInfo.HP = curHp;
                                 _dataStorage.SetPlayerHP(playerUid, curHp);
                                 break;
 
                             case 2:
                                 var maxHp = (int)br.ReadUInt32();
-                                _dataStorage.CurrentPlayerInfo.MaxHP = maxHp;
                                 _dataStorage.SetPlayerMaxHP(playerUid, maxHp);
                                 break;
                         }
@@ -299,7 +289,6 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.V1
                             _ = br.ReadInt32();
                             if (curProfessionId != 0)
                             {
-                                _dataStorage.CurrentPlayerInfo.ProfessionID = curProfessionId;
                                 _dataStorage.SetPlayerProfessionID(playerUid, curProfessionId);
                             }
                         }
@@ -347,7 +336,6 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.V1
             var uuid = aoiSyncToMeDelta.Uuid.ShiftRight16();
             if (uuid != 0)
             {
-                // ✅ 统一通过 setter 设置当前玩家UID，而不是直接赋值
                 _dataStorage.SetCurrentPlayerUid(uuid);
             }
 
@@ -400,6 +388,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.V1
                 }
             }
 
+            //ProcessBuff(delta);
             var skillEffect = delta.SkillEffects;
             if (skillEffect?.Damages == null || skillEffect.Damages.Count == 0) return;
 

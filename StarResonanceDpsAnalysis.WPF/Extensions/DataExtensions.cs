@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using StarResonanceDpsAnalysis.Core.Analyze;
 using StarResonanceDpsAnalysis.Core.Analyze.V1;
 using StarResonanceDpsAnalysis.Core.Data;
@@ -11,7 +12,10 @@ public static class DataExtensions
     {
 #if true
         return services.AddSingleton<IDataStorage, DataStorage>(_ => DataStorage.Instance)
-            .AddSingleton<IMessageAnalyzer, MessageAnalyzer>()
+            .AddSingleton<IMessageAnalyzer>(sp => new MessageAnalyzer(
+                sp.GetRequiredService<IDataStorage>(),
+                sp.GetRequiredService<EntityBuffMonitors>(),
+                sp.GetService<ILogger<MessageAnalyzer>>()))
             .AddSingleton<IPacketAnalyzer, PacketAnalyzer>();
 #else
         return services.AddSingleton<IDataStorage, DataStorage>()

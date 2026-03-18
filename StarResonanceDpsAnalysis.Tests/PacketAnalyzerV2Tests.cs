@@ -15,7 +15,7 @@ public class PacketAnalyzerV2Tests
     public PacketAnalyzerV2Tests()
     {
         _dataStorage = new DataStorageV2(NullLogger<DataStorageV2>.Instance);
-        var messageAnalyzer = new MessageAnalyzerV2(_dataStorage, NullLogger<MessageAnalyzerV2>.Instance);
+        var messageAnalyzer = new MessageAnalyzerV2(_dataStorage, new EntityBuffMonitors(), NullLogger<MessageAnalyzerV2>.Instance);
         _analyzer = new PacketAnalyzerV2(_dataStorage, messageAnalyzer,
             NullLogger<PacketAnalyzerV2>.Instance);
     }

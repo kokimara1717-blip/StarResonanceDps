@@ -12,6 +12,7 @@ public interface IWindowManagementService
     DamageReferenceView DamageReferenceView { get; }
     ModuleSolveView ModuleSolveView { get; }
     BossTrackerView BossTrackerView { get; }
+    BuffMonitorView BuffMonitorView { get; }
     MainView MainView { get; }
     SkillLogView SkillLogView { get; }
 }

@@ -35,7 +35,6 @@ public class DataStorageBenchmarks
     {
         DataStorage.Instance.ClearAllDpsData();
         DataStorage.Instance.ClearAllPlayerInfos();
-        DataStorage.Instance.ClearCurrentPlayerInfo();
 
         _storageV2.ClearAllDpsData();
         _storageV2.ClearAllPlayerInfos();
@@ -108,8 +107,9 @@ public class MessageParsingBenchmarks
     public void Setup()
     {
         _storageV2 = new DataStorageV2(NullLogger<DataStorageV2>.Instance);
-        _analyzerV2 = new MessageAnalyzerV2(_storageV2);
-        _analyzerV1 = new MessageAnalyzer(DataStorage.Instance);
+        var entityBuffMonitors = new EntityBuffMonitors();
+        _analyzerV2 = new MessageAnalyzerV2(_storageV2, entityBuffMonitors);
+        _analyzerV1 = new MessageAnalyzer(DataStorage.Instance, entityBuffMonitors);
         _notifyEnvelope = BuildNotifyEnvelope(0x00000006U, BuildSyncNearEntitiesPayload(_playerUid, "Benchmark Hero", 55));
     }
 
@@ -118,7 +118,6 @@ public class MessageParsingBenchmarks
     {
         DataStorage.Instance.ClearAllDpsData();
         DataStorage.Instance.ClearAllPlayerInfos();
-        DataStorage.Instance.ClearCurrentPlayerInfo();
 
         _storageV2.ClearAllDpsData();
         _storageV2.ClearAllPlayerInfos();

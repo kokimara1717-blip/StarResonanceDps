@@ -146,8 +146,8 @@ public partial class DpsStatisticsViewModel
 
         void Action()
         {
-            var currentPlayerUid = _storage.CurrentPlayerInfo.UID > 0
-                ? _storage.CurrentPlayerInfo.UID
+            var currentPlayerUid = _storage.CurrentPlayerUID > 0
+                ? _storage.CurrentPlayerUID
                 : _configManager.CurrentConfig.Uid;
 
             // 先に一回だけ取得

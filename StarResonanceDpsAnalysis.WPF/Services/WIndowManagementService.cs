@@ -10,6 +10,7 @@ public class WindowManagementService(IServiceProvider provider, ILogger<WindowMa
 {
     private AboutView? _aboutView;
     private BossTrackerView? _bossTrackerView;
+    private BuffMonitorView? _buffMonitorView;
     private DamageReferenceView? _damageReferenceView;
     private DpsStatisticsView? _dpsStatisticsView;
     private ModuleSolveView? _moduleSolveView;
@@ -20,6 +21,7 @@ public class WindowManagementService(IServiceProvider provider, ILogger<WindowMa
 
     public AboutView AboutView => _aboutView ??= CreateAboutView();
     public BossTrackerView BossTrackerView => _bossTrackerView ??= CreateBossTrackerView();
+    public BuffMonitorView BuffMonitorView => _buffMonitorView ??= CreateBuffMonitorView();
     public DamageReferenceView DamageReferenceView => _damageReferenceView ??= CreateDamageReferenceView();
     public DpsStatisticsView DpsStatisticsView => _dpsStatisticsView ??= CreateDpsStatisticsView();
     public MainView MainView => provider.GetRequiredService<MainView>();
@@ -61,6 +63,19 @@ public class WindowManagementService(IServiceProvider provider, ILogger<WindowMa
         {
             if (_bossTrackerView == view) _bossTrackerView = null;
             logger.LogDebug(WpfLogEvents.WindowClosed, "Window closed: {Window}", nameof(BossTrackerView));
+        };
+        return view;
+    }
+
+    private BuffMonitorView CreateBuffMonitorView()
+    {
+        var view = provider.GetRequiredService<BuffMonitorView>();
+        ConfigureOwnedToolWindow(view);
+        logger.LogDebug(WpfLogEvents.WindowCreated, "Window created: {Window}", nameof(BuffMonitorView));
+        view.Closed += (_, _) =>
+        {
+            if (_buffMonitorView == view) _buffMonitorView = null;
+            logger.LogDebug(WpfLogEvents.WindowClosed, "Window closed: {Window}", nameof(BuffMonitorView));
         };
         return view;
     }

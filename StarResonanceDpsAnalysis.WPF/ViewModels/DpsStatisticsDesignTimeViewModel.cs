@@ -177,6 +177,7 @@ public sealed class DpsStatisticsDesignTimeViewModel : DpsStatisticsViewModel
     {
         public AboutView AboutView => throw new NotSupportedException();
         public BossTrackerView BossTrackerView => throw new NotSupportedException();
+        public BuffMonitorView BuffMonitorView => throw new NotSupportedException();
         public DamageReferenceView DamageReferenceView => throw new NotSupportedException();
         public DpsStatisticsView DpsStatisticsView => throw new NotSupportedException();
         public MainView MainView => throw new NotSupportedException();
@@ -198,7 +199,8 @@ public sealed class DpsStatisticsDesignTimeViewModel : DpsStatisticsViewModel
         public IReadOnlyList<DpsData> ReadOnlySectionedDpsDataList { get; } = [];
         public bool IsServerConnected => false;
         public int SampleRecordingInterval { get; set; }
-        public PlayerInfo CurrentPlayerInfo { get; } = new();
+        public long CurrentPlayerUID { get; set; }
+        public PlayerInfo CurrentPlayerInfo { get; } = new() { UID = 0 };
 
         public ReadOnlyDictionary<long, PlayerInfo> ReadOnlyPlayerInfoDatas { get; } =
             new(new Dictionary<long, PlayerInfo>());
@@ -215,6 +217,7 @@ public sealed class DpsStatisticsDesignTimeViewModel : DpsStatisticsViewModel
         public event DataUpdatedEventHandler? DataUpdated;
         public event ServerChangedEventHandler? ServerChanged;
         public event SectionEndedEventHandler? SectionEnded;
+        public event BuffEffectReceivedEventHandler? BuffEffectReceived;
 
         public void LoadPlayerInfoFromFile()
         {
@@ -234,10 +237,6 @@ public sealed class DpsStatisticsDesignTimeViewModel : DpsStatisticsViewModel
         }
 
         public void ClearDpsData()
-        {
-        }
-
-        public void ClearCurrentPlayerInfo()
         {
         }
 
@@ -357,6 +356,10 @@ public sealed class DpsStatisticsDesignTimeViewModel : DpsStatisticsViewModel
         public event Action? BeforeSectionCleared;
 
         public void SetPlayerCombatStateTime(long uid, long time)
+        {
+        }
+
+        public void NotifyBuffEffectReceived(long entityUid, BuffProcessResult buffResult)
         {
         }
 

@@ -59,8 +59,20 @@ public sealed partial class DataStorageV2(ILogger<DataStorageV2> logger) : IData
     /// <summary>
     /// 当前玩家信息
     /// </summary>
-    public PlayerInfo CurrentPlayerInfo { get; private set; } = new();
+    public PlayerInfo CurrentPlayerInfo
+    {
+        get
+        {
+            var ret = PlayerInfoData.GetValueOrDefault(CurrentPlayerUID);
+            if (ret==null)
+            {
+                EnsurePlayer(CurrentPlayerUID);
+                ret = PlayerInfoData[CurrentPlayerUID];
+            }
 
+            return ret;
+        }
+    }
     /// <summary>
     /// 只读玩家信息字典 (Key: UID)
     /// </summary>
@@ -88,6 +100,8 @@ public sealed partial class DataStorageV2(ILogger<DataStorageV2> logger) : IData
             }
         }
     }
+
+    public long CurrentPlayerUID { get; set; }
 
     /// <summary>
     /// 是否正在监听服务器
@@ -126,10 +140,12 @@ public sealed partial class DataStorageV2(ILogger<DataStorageV2> logger) : IData
         {
             if (!PlayerInfoData.TryGetValue(playerInfoCache.UID, out var playerInfo))
             {
-                playerInfo = new PlayerInfo();
+                playerInfo = new PlayerInfo()
+                {
+                    UID = playerInfoCache.UID,
+                };
             }
 
-            playerInfo.UID = playerInfoCache.UID;
             playerInfo.ProfessionID ??= playerInfoCache.ProfessionID;
             playerInfo.CombatPower ??= playerInfoCache.CombatPower;
             playerInfo.Critical ??= playerInfoCache.Critical;
@@ -216,10 +232,10 @@ public sealed partial class DataStorageV2(ILogger<DataStorageV2> logger) : IData
     {
         if (uid == 0) return;
 
-        var changed = CurrentPlayerInfo.UID != uid;
+        var changed = CurrentPlayerUID != uid;
         var existed = EnsurePlayer(uid);
 
-        CurrentPlayerInfo.UID = uid;
+        CurrentPlayerUID = uid;
 
         if (changed && existed && PlayerInfoData.TryGetValue(uid, out var info))
         {
@@ -243,6 +259,14 @@ public sealed partial class DataStorageV2(ILogger<DataStorageV2> logger) : IData
         RaiseBattleLogCreated(log);
         RaiseDpsDataUpdated();
         RaiseDataUpdated();
+    }
+
+    /// <summary>
+    /// Notify buff effect received for an entity
+    /// </summary>
+    public void NotifyBuffEffectReceived(long entityUid, BuffProcessResult buffResult)
+    {
+        RaiseBuffEffectReceived(entityUid, buffResult);
     }
 
     public void Dispose()
@@ -738,12 +762,6 @@ public sealed partial class DataStorageV2(ILogger<DataStorageV2> logger) : IData
         RaiseDataUpdated();
     }
 
-    public void ClearCurrentPlayerInfo()
-    {
-        CurrentPlayerInfo = new PlayerInfo();
-        RaiseDataUpdated();
-    }
-
     public void ClearPlayerInfos()
     {
         PlayerInfoData.Clear();
@@ -752,7 +770,6 @@ public sealed partial class DataStorageV2(ILogger<DataStorageV2> logger) : IData
 
     public void ClearAllPlayerInfos()
     {
-        CurrentPlayerInfo = new PlayerInfo();
         PlayerInfoData.Clear();
         RaiseDataUpdated();
     }
@@ -809,6 +826,7 @@ public partial class DataStorageV2
     public event ServerChangedEventHandler? ServerChanged;
     public event Action? BeforeSectionCleared;
     public event SectionEndedEventHandler? SectionEnded;
+    public event BuffEffectReceivedEventHandler? BuffEffectReceived;
 
     public void ServerChange(string currentServer, string prevServer)
     {
@@ -879,6 +897,21 @@ public partial class DataStorageV2
             logger.LogError(ex, "An error occurred during trigger event(PlayerInfoUpdated)");
             Console.WriteLine(
                 $"An error occurred during trigger event(PlayerInfoUpdated) => {ex.Message}\r\n{ex.StackTrace}");
+            ExceptionHelper.ThrowIfDebug(ex);
+        }
+    }
+
+    private void RaiseBuffEffectReceived(long entityUid, BuffProcessResult buffs)
+    {
+        try
+        {
+            BuffEffectReceived?.Invoke(entityUid, buffs);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred during trigger event(BuffEffectReceived)");
+            Console.WriteLine(
+                $"An error occurred during trigger event(BuffEffectReceived) => {ex.Message}\r\n{ex.StackTrace}");
             ExceptionHelper.ThrowIfDebug(ex);
         }
     }

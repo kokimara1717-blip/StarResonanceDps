@@ -13,7 +13,7 @@ internal sealed class WorldNtfMessageHandlerRegistry
 {
     private readonly Dictionary<WorldNtfMessageId, WorldNtfBaseProcessor> _processors;
 
-    public WorldNtfMessageHandlerRegistry(IDataStorage storage, ILogger? logger)
+    public WorldNtfMessageHandlerRegistry(IDataStorage storage, EntityBuffMonitors entityBuffMonitors, ILogger? logger)
     {
         var emptyLogger = logger ?? NullLogger.Instance;
         _processors = new Dictionary<WorldNtfMessageId, WorldNtfBaseProcessor>
@@ -67,8 +67,8 @@ internal sealed class WorldNtfMessageHandlerRegistry
             },
             { WorldNtfMessageId.NotifyShowTips, new WorldNtfEmptyProcessor(emptyLogger, WorldNtfMessageId.NotifyShowTips) },
             { WorldNtfMessageId.NotifyNoticeInfo, new WorldNtfEmptyProcessor(emptyLogger, WorldNtfMessageId.NotifyNoticeInfo) },
-            { WorldNtfMessageId.SyncNearDeltaInfo, new SyncNearDeltaInfoProcessor(storage, logger) },
-            { WorldNtfMessageId.SyncToMeDeltaInfo, new SyncToMeDeltaInfoProcessor(storage, logger) },
+            { WorldNtfMessageId.SyncNearDeltaInfo, new SyncNearDeltaInfoProcessor(storage, entityBuffMonitors, logger) },
+            { WorldNtfMessageId.SyncToMeDeltaInfo, new SyncToMeDeltaInfoProcessor(storage, entityBuffMonitors, logger) },
             {
                 WorldNtfMessageId.NotifyClientKickOff,
                 new WorldNtfEmptyProcessor(emptyLogger, WorldNtfMessageId.NotifyClientKickOff)

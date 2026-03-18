@@ -9,14 +9,12 @@ public class DataStorageTests : IDisposable
     {
         DataStorage.Instance.ClearAllDpsData();
         DataStorage.Instance.ClearAllPlayerInfos();
-        DataStorage.Instance.ClearCurrentPlayerInfo();
     }
 
     public void Dispose()
     {
         DataStorage.Instance.ClearAllDpsData();
         DataStorage.Instance.ClearAllPlayerInfos();
-        DataStorage.Instance.ClearCurrentPlayerInfo();
     }
 
     [Fact]

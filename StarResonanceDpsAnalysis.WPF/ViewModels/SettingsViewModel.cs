@@ -553,7 +553,7 @@ public partial class SettingsViewModel : BaseViewModel
 
     private void SyncUidFromDataStorage(bool saveToConfig)
     {
-        var currentUid = _dataStorage.CurrentPlayerInfo.UID;
+        var currentUid = _dataStorage.CurrentPlayerUID;
         if (currentUid == 0) return;
 
         var runtimeConfigChanged = _configManager.CurrentConfig.Uid != currentUid;
@@ -1458,7 +1458,7 @@ internal sealed class DesignAutoUpdateService : IAutoUpdateService
 /// </summary>
 internal sealed class DesignDataStorage : IDataStorage
 {
-    public PlayerInfo CurrentPlayerInfo => new();
+    public PlayerInfo CurrentPlayerInfo => new() { UID = 0 };
     public ReadOnlyDictionary<long, PlayerInfo> ReadOnlyPlayerInfoDatas => new(new Dictionary<long, PlayerInfo>());
     public ReadOnlyDictionary<long, DpsData> ReadOnlyFullDpsDatas => new(new Dictionary<long, DpsData>());
     public IReadOnlyList<DpsData> ReadOnlyFullDpsDataList => Array.Empty<DpsData>();
@@ -1467,6 +1467,7 @@ internal sealed class DesignDataStorage : IDataStorage
     public TimeSpan SectionTimeout { get; set; }
     public bool IsServerConnected { get; set; }
     public int SampleRecordingInterval { get; set; }
+    public long CurrentPlayerUID { get; set; }
 
 #pragma warning disable CS0067
     public event ServerConnectionStateChangedEventHandler? ServerConnectionStateChanged;
@@ -1478,9 +1479,14 @@ internal sealed class DesignDataStorage : IDataStorage
     public event ServerChangedEventHandler? ServerChanged;
     public event Action? BeforeSectionCleared;
     public event SectionEndedEventHandler? SectionEnded;
+    public event BuffEffectReceivedEventHandler? BuffEffectReceived;
 #pragma warning restore
 
     public void SetPlayerCombatStateTime(long uid, long time) { }
+    public void NotifyBuffEffectReceived(long entityUid, BuffProcessResult buffResult)
+    {
+    }
+
     public void SetCurrentPlayerUid(long uid) { }
 
     public void LoadPlayerInfoFromFile() { }
@@ -1488,7 +1494,6 @@ internal sealed class DesignDataStorage : IDataStorage
     public Dictionary<long, PlayerInfoFileData> BuildPlayerDicFromBattleLog(List<BattleLog> battleLogs) => new();
     public void ClearAllDpsData() { }
     public void ClearDpsData() { }
-    public void ClearCurrentPlayerInfo() { }
     public void ClearPlayerInfos() { }
     public void ClearAllPlayerInfos() { }
     public void ServerChange(string currentServerStr, string prevServer) { }

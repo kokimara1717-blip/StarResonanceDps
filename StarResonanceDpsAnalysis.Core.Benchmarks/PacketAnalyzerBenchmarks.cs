@@ -36,8 +36,9 @@ public class PacketAnalyzerBenchmarks
     public void Setup()
     {
         _storage = new DataStorageV2(NullLogger<DataStorageV2>.Instance);
-        _v1 = new PacketAnalyzer(new MessageAnalyzer(_storage), _storage);
-        _msgV2 = new MessageAnalyzerV2(_storage);
+        var entityBuffMonitors = new EntityBuffMonitors();
+        _v1 = new PacketAnalyzer(new MessageAnalyzer(_storage, entityBuffMonitors), _storage);
+        _msgV2 = new MessageAnalyzerV2(_storage, entityBuffMonitors);
         _v2 = new PacketAnalyzerV2(_storage, _msgV2);
 
         // Build synthetic TCP stream: one handshake packet to trigger server detection, then N data packets
@@ -67,7 +68,6 @@ public class PacketAnalyzerBenchmarks
         // reset state between iterations
         DataStorage.Instance.ClearAllDpsData();
         DataStorage.Instance.ClearAllPlayerInfos();
-        DataStorage.Instance.ClearCurrentPlayerInfo();
 
         _storage.ClearAllDpsData();
         _storage.ClearAllPlayerInfos();

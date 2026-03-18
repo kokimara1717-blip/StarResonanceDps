@@ -21,10 +21,10 @@ public sealed class MessageAnalyzerV2 : IMessageAnalyzer
     private readonly WorldNtfMessageHandlerRegistry _registry;
     private readonly WorldMessageHandlerRegistry _worldMessageHandlerRegistry;
 
-    public MessageAnalyzerV2(IDataStorage storage, ILogger<MessageAnalyzerV2>? logger = null)
+    public MessageAnalyzerV2(IDataStorage storage, EntityBuffMonitors entityBuffMonitors, ILogger<MessageAnalyzerV2>? logger = null)
     {
         _logger = logger;
-        _registry = new WorldNtfMessageHandlerRegistry(storage, logger);
+        _registry = new WorldNtfMessageHandlerRegistry(storage, entityBuffMonitors, logger);
         _worldMessageHandlerRegistry = new(logger);
         _messageHandlerMap = new Dictionary<MessageType, Action<ByteReader, bool>>
         {

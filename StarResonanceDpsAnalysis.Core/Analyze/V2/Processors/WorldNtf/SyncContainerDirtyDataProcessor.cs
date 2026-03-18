@@ -15,7 +15,8 @@ internal sealed class SyncContainerDirtyDataProcessor(IDataStorage storage, ILog
         logger?.LogDebug(nameof(SyncContainerDirtyDataProcessor));
         try
         {
-            if (storage.CurrentPlayerInfo.UID == 0) return;
+            var playerUid = storage.CurrentPlayerUID;
+            if (playerUid == 0) return;
             var dirty = Zproto.WorldNtf.Types.SyncContainerDirtyData.Parser.ParseFrom(payload);
             if (dirty?.VData?.Buffer == null || dirty.VData.Buffer.Length == 0) return;
 
@@ -28,7 +29,6 @@ internal sealed class SyncContainerDirtyDataProcessor(IDataStorage storage, ILog
             var fieldIndex = br.ReadUInt32();
             _ = br.ReadInt32();
 
-            var playerUid = storage.CurrentPlayerInfo.UID;
             storage.EnsurePlayer(playerUid);
 
             switch (fieldIndex)
@@ -55,7 +55,6 @@ internal sealed class SyncContainerDirtyDataProcessor(IDataStorage storage, ILog
                 var playerName = StreamReadString(br);
                 if (!string.IsNullOrEmpty(playerName))
                 {
-                    storage.CurrentPlayerInfo.Name = playerName;
                     storage.SetPlayerName(playerUid, playerName);
                 }
                 break;
@@ -64,7 +63,6 @@ internal sealed class SyncContainerDirtyDataProcessor(IDataStorage storage, ILog
                 _ = br.ReadInt32();
                 if (fightPoint != 0)
                 {
-                    storage.CurrentPlayerInfo.CombatPower = fightPoint;
                     storage.SetPlayerCombatPower(playerUid, fightPoint);
                 }
                 break;
@@ -84,13 +82,11 @@ internal sealed class SyncContainerDirtyDataProcessor(IDataStorage storage, ILog
         {
             case 1:
                 var curHp = br.ReadInt32();
-                storage.CurrentPlayerInfo.HP = curHp;
                 storage.SetPlayerHP(playerUid, curHp);
                 break;
             case 2:
                 //var maxHp = (int)br.ReadUInt32();
                 var maxHp = br.ReadInt32();
-                storage.CurrentPlayerInfo.MaxHP = maxHp;
                 storage.SetPlayerMaxHP(playerUid, maxHp);
                 break;
         }
@@ -107,7 +103,6 @@ internal sealed class SyncContainerDirtyDataProcessor(IDataStorage storage, ILog
             _ = br.ReadInt32();
             if (curClassId != 0)
             {
-                storage.CurrentPlayerInfo.ProfessionID = curClassId;
                 storage.SetPlayerProfessionID(playerUid, curClassId);
             }
         }

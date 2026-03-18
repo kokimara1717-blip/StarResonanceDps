@@ -150,7 +150,7 @@ public partial class DpsStatisticsViewModel
     [RelayCommand]
     private void OpenSkillLog()
     {
-        var userUid = _storage.CurrentPlayerInfo.UID > 0 ? _storage.CurrentPlayerInfo.UID : _configManager.CurrentConfig.Uid;
+        var userUid = _storage.CurrentPlayerUID > 0 ? _storage.CurrentPlayerUID : _configManager.CurrentConfig.Uid;
 
         if (userUid <= 0)
         {
@@ -182,7 +182,7 @@ public partial class DpsStatisticsViewModel
     private void OpenPersonalDpsView()
     {
         // Check if user has configured UID
-        var userUid = _storage.CurrentPlayerInfo.UID > 0 ? _storage.CurrentPlayerInfo.UID : _configManager.CurrentConfig.Uid;
+        var userUid = _storage.CurrentPlayerUID > 0 ? _storage.CurrentPlayerUID : _configManager.CurrentConfig.Uid;
 
         if (userUid <= 0)
         {
@@ -284,5 +284,11 @@ public partial class DpsStatisticsViewModel
     private void SetMetricType(StatisticType statisticType)
     {
         StatisticIndex = statisticType;
+    }
+
+    [RelayCommand]
+    private void CallBuffMonitorView()
+    {
+        _windowManagement.BuffMonitorView.Show();
     }
 }
