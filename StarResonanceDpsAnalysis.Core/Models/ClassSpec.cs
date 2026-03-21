@@ -81,6 +81,14 @@ public enum ClassSpec
     /// 灵魂乐手_协奏
     /// </summary>
     SoulMusicianConcerto,
+    /// <summary>
+    /// 赤炎狂战士_无相专精流
+    /// </summary>
+    FlameBerserkerFormless,
+    /// <summary>
+    /// 赤炎狂战士_赤红专精流
+    /// </summary>
+    FlameBerserkerCrimson
 }
 
 public static class ClassSpecHelper

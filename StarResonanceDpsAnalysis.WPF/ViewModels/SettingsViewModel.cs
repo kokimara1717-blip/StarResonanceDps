@@ -437,23 +437,9 @@ public partial class SettingsViewModel : BaseViewModel
     private void InitializeClassColors()
     {
         ClassColorSettings.Clear();
-
-        var classes = new List<Classes>
+        var classes = Enum.GetValues<Classes>();
+        foreach (var cls in classes)
         {
-            Classes.ShieldKnight,
-            Classes.HeavyGuardian,
-            Classes.Stormblade,
-            Classes.WindKnight,
-            Classes.FrostMage,
-            Classes.Marksman,
-            Classes.VerdantOracle,
-            Classes.SoulMusician,
-            Classes.Unknown
-        };
-
-        for (var i = 0; i < classes.Count; i++)
-        {
-            var cls = classes[i];
             var color = _classColorService.GetColor(cls);
             var defaultColor = _classColorService.GetDefaultColor(cls);
             var name = cls.GetLocalizedDescription();
@@ -466,9 +452,12 @@ public partial class SettingsViewModel : BaseViewModel
                 AppConfig,
                 ApplyColorChange);
 
-            vm.IsLast = i == classes.Count - 1;
-
             ClassColorSettings.Add(vm);
+        }
+
+        if (ClassColorSettings.Count > 0)
+        {
+            ClassColorSettings[^1].IsLast = true;
         }
     }
 

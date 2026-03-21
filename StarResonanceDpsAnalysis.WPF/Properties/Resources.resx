@@ -1527,4 +1527,13 @@ Open download page now?</value>
   <data name="Settings_ClassColors_Opacity" xml:space="preserve">
     <value>Class Colors Opacity</value>
   </data>
+  <data name="Classes_FlameBerserker" xml:space="preserve">
+    <value>Flame Berserker</value>
+  </data>
+  <data name="ClassSpec_FlameBerserkerFormless" xml:space="preserve">
+    <value>Formless</value>
+  </data>
+  <data name="ClassSpec_FlameBerserkerCrimson" xml:space="preserve">
+    <value>Crimson</value>
+  </data>
 </root>

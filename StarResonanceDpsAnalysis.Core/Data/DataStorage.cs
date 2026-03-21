@@ -6,6 +6,7 @@ using StarResonanceDpsAnalysis.Core.Analyze;
 using StarResonanceDpsAnalysis.Core.Analyze.Models;
 using StarResonanceDpsAnalysis.Core.Data.Models;
 using StarResonanceDpsAnalysis.Core.Extends.Data;
+using StarResonanceDpsAnalysis.Core.Models;
 using StarResonanceDpsAnalysis.Core.Statistics;
 
 namespace StarResonanceDpsAnalysis.Core.Data;
@@ -572,12 +573,19 @@ public class DataStorage : IDataStorage, IAsyncDisposable
 
         var subProfessionName = skillId.GetSubProfessionBySkillId();
         var spec = skillId.GetClassSpecBySkillId();
-        if (!string.IsNullOrEmpty(subProfessionName))
+        bool changed = false;
+        if (spec != playerInfo.Spec && spec != ClassSpec.Unknown)
         {
-            playerInfo.SubProfessionName = subProfessionName;
+            changed = true;
             playerInfo.Spec = spec;
-            TriggerPlayerInfoUpdated(uid);
         }
+        //if (spec == ClassSpec.Unknown) Debug.WriteLine($"Unknown skill:{skillId}");
+        if (!string.IsNullOrEmpty(subProfessionName) && playerInfo.SubProfessionName != subProfessionName)
+        {
+            changed = true;
+            playerInfo.SubProfessionName = subProfessionName;
+        }
+        if (changed) TriggerPlayerInfoUpdated(uid);
     }
 
     /// <summary>

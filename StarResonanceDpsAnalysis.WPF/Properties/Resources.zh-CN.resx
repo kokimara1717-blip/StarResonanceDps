@@ -1502,4 +1502,13 @@
   <data name="Settings_ClassColors_Opacity" xml:space="preserve">
     <value>职业颜色透明度</value>
   </data>
+  <data name="Classes_FlameBerserker" xml:space="preserve">
+    <value>赤炎狂战士</value>
+  </data>
+  <data name="ClassSpec_FlameBerserkerFormless" xml:space="preserve">
+    <value>无相</value>
+  </data>
+  <data name="ClassSpec_FlameBerserkerCrimson" xml:space="preserve">
+    <value>赤红</value>
+  </data>
 </root>

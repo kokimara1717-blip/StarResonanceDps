@@ -104,6 +104,7 @@
     <Resource Include="Assets\Images\cancel_hover.png" />
     <Resource Include="Assets\Images\cancel_normal.png" />
     <Resource Include="Assets\Images\cb_temp\gold_pig_tmp.png" />
+    <Resource Include="Assets\Images\Classes_FlameBerserker.png" />
     <Resource Include="Assets\Images\Crown.png" />
     <Resource Include="Assets\Images\Classes_FrostMage.png" />
     <Resource Include="Assets\Images\Classes_HeavyGuardian.png" />

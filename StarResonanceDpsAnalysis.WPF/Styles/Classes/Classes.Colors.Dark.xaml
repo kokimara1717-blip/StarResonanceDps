@@ -52,4 +52,8 @@
     <!--  灵魂乐手 (SoulMusician)  -->
     <Color x:Key="ClassesSoulMusicianColor">#AB3838</Color>
     <SolidColorBrush x:Key="ClassesSoulMusicianBrush" Color="{StaticResource ClassesSoulMusicianColor}" />
+
+    <!--  赤炎狂战士 (FlameBerserker)  -->
+    <Color x:Key="ClassesFlameBerserkerColor">#FF7043</Color>
+    <SolidColorBrush x:Key="ClassesFlameBerserkerBrush" Color="{StaticResource ClassesFlameBerserkerColor}" />
 </ResourceDictionary>
