@@ -63,8 +63,8 @@ public static class ProfessionExtends
             2306 => "狂音",
             2307 or 2361 or 55302 => "协奏",
 
-            1605 or 35107 or 35108 or 35109 => "无相",// 无相专精流
-            1606 or 35104 => "赤红", // 赤红专精流
+            1605 => "无相",// 无相专精流
+            1606 => "赤红", // 赤红专精流
 
             _ => string.Empty
         };
@@ -184,8 +184,8 @@ public static class ClassExtensions
             2306 => ClassSpec.SoulMusicianDissonance, // "狂音"
             2307 or 2361 or 55302 => ClassSpec.SoulMusicianConcerto, // "协奏"
 
-            1605 or 35107 or 35108 or 35109 => ClassSpec.FlameBerserkerFormless, // 无相专精流
-            1606 or 35104 => ClassSpec.FlameBerserkerCrimson, // 赤红专精流
+            1605 => ClassSpec.FlameBerserkerFormless, // 无相专精流
+            1606 => ClassSpec.FlameBerserkerCrimson, // 赤红专精流
 
             _ => ClassSpec.Unknown
         };
