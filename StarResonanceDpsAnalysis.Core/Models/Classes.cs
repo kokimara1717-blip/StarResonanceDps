@@ -53,5 +53,5 @@ public enum Classes
     /// <summary>
     /// 赤焰狂战士
     /// </summary>
-    FlameBerserker = 14,
+    FlameBerserker = 3,
 }
