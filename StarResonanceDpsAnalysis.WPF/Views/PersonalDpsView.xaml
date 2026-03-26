@@ -72,9 +72,7 @@
             <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/#IconFont" />
             <Setter Property="FontSize" Value="22" />
             <Setter Property="Foreground" Value="#FF000000" />
-            <Setter Property="Width" Value="36" />
-            <Setter Property="Height" Value="36" />
-            <Setter Property="Margin" Value="2,0" />
+            <Setter Property="Width" Value="28" />
         </Style>
 
         <Style x:Key="PercentProgressBar" TargetType="ctrl:CustomProgressBar" BasedOn="{StaticResource {x:Type ctrl:CustomProgressBar}}">
@@ -149,6 +147,7 @@
                             VerticalAlignment="Center"
                             FontFamily="pack://application:,,,/Assets/Fonts/#IconFont"
                             Text="&#xe83a;"
+                            Width="28"
                             TextAlignment="Center"
                             ToolTip="{lex:Loc Key={x:Static loc:ResourcesKeys.DpsStatistics_Indicator_ClickThrough_Tooltip}}"
                             Visibility="{Binding DataContext.AppConfig.MouseThroughEnabled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVisibilityConverter}}" />

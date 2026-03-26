@@ -155,6 +155,11 @@ public partial class PersonalDpsViewModel : BaseDispatcherSupportViewModel
 
         _configManager.ConfigurationUpdated -= OnConfigurationUpdated;
         _engine.ProcessedDataReady -= EngineOnProcessedDataReady;
+        _engine.Configure(new DataSourceEngineParam()
+        {
+            Mode = AppConfig.DpsUpdateMode.ToDataSourceMode(),
+            ActiveUpdateInterval = AppConfig.DpsUpdateInterval,
+        });
         StopTimer();
     }
 

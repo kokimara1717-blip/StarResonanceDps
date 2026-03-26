@@ -206,7 +206,7 @@ public partial class DpsStatisticsViewModel
         _logger.LogInformation("{Message}, UID={Uid}",
             _localizationManager.GetString(ResourcesKeys.Info_OpeningPersonalDps, defaultValue: "Opening personal training mode"),
             userUid);
-        _windowManagement.PersonalDpsView.Show();
+        _windowManagement.OpenPersonalDpsView();
         _windowManagement.DpsStatisticsView.Hide();
     }
 

@@ -79,7 +79,7 @@ public partial class PersonalDpsViewModel
     private void ShowStatisticsAndHidePersonal()
     {
         _windowManagementService.DpsStatisticsView.Show();
-        _windowManagementService.PersonalDpsView.Hide();
+        _windowManagementService.ClosePersonalDpsView();
     }
 
 

@@ -31,6 +31,16 @@ public sealed class PersonalDpsDesignTimeViewModel : PersonalDpsViewModel
 
     private sealed class DesignWindowManagementService : IWindowManagementService
     {
+        public void OpenPersonalDpsView()
+        {
+            throw new NotSupportedException();
+        }
+
+        public void ClosePersonalDpsView()
+        {
+            throw new NotSupportedException();
+        }
+
         public PersonalDpsView PersonalDpsView => throw new NotSupportedException();
         public DpsStatisticsView DpsStatisticsView => throw new NotSupportedException();
         public SettingsView SettingsView => throw new NotSupportedException();

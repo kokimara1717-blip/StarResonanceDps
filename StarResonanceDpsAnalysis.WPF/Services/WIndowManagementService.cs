@@ -24,6 +24,17 @@ public class WindowManagementService(IServiceProvider provider, ILogger<WindowMa
     public DpsStatisticsView DpsStatisticsView => _dpsStatisticsView ??= CreateDpsStatisticsView();
     public MainView MainView => provider.GetRequiredService<MainView>();
     public ModuleSolveView ModuleSolveView => _moduleSolveView ??= CreateModuleSolveView();
+    public void OpenPersonalDpsView()
+    {
+        _personalDpsView ??= CreatePersonalDpsView();
+        _personalDpsView.Show();
+    }
+
+    public void ClosePersonalDpsView()
+    {
+        _personalDpsView?.Close();
+    }
+
     public PersonalDpsView PersonalDpsView => _personalDpsView ??= CreatePersonalDpsView();
     public SettingsView SettingsView => _settingsView ??= CreateSettingsView();
     public SkillBreakdownView SkillBreakdownView => _skillBreakDownView ??= CreateSkillBreakDownView();

@@ -4,6 +4,8 @@ namespace StarResonanceDpsAnalysis.WPF.Services;
 
 public interface IWindowManagementService
 {
+    void OpenPersonalDpsView();
+    void ClosePersonalDpsView();
     PersonalDpsView PersonalDpsView { get; }
     DpsStatisticsView DpsStatisticsView { get; }
     SettingsView SettingsView { get; }
