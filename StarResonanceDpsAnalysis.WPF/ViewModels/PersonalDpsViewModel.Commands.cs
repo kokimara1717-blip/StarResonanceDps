@@ -81,4 +81,15 @@ public partial class PersonalDpsViewModel
         _windowManagementService.DpsStatisticsView.Show();
         _windowManagementService.PersonalDpsView.Hide();
     }
+
+
+    /// <summary>
+    /// Toggle window topmost state (command).
+    /// Implemented by binding Window.Topmost to AppConfig.TopmostEnabled.
+    /// </summary>
+    [RelayCommand]
+    private void ToggleTopmost()
+    {
+        AppConfig.TopmostEnabled = !AppConfig.TopmostEnabled;
+    }
 }

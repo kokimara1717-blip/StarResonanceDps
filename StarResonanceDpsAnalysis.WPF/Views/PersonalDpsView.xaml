@@ -142,6 +142,16 @@
                         </TextBlock>
                     </StackPanel>
 
+                    <!--  Mouse-through indicator (visible when click-through is enabled)  -->
+                    <TextBlock
+                            FontSize="22"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontFamily="pack://application:,,,/Assets/Fonts/#IconFont"
+                            Text="&#xe83a;"
+                            TextAlignment="Center"
+                            ToolTip="{lex:Loc Key={x:Static loc:ResourcesKeys.DpsStatistics_Indicator_ClickThrough_Tooltip}}"
+                            Visibility="{Binding DataContext.AppConfig.MouseThroughEnabled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVisibilityConverter}}" />
                     <Button
                             Style="{StaticResource IconButton}"
                             Content="&#xec4c;"
@@ -156,7 +166,25 @@
                         Style="{StaticResource IconButton}"
                         Content="&#xeb95;"
                         Command="{Binding OpenSkillBreakdownViewCommand}" />
-
+                    <!--  Topmost toggle button (pin / pin-fill)  -->
+                    <Button
+                            x:Name="TopmostButton"
+                            Command="{Binding ToggleTopmostCommand}"
+                            FontFamily="pack://application:,,,/Assets/Fonts/#iconfont"
+                            ToolTip="{lex:Loc Key={x:Static loc:ResourcesKeys.DpsStatistics_Indicator_WindowTopMost_Tooltip}}">
+                        <Button.Style>
+                            <Style BasedOn="{StaticResource IconButton}" TargetType="Button">
+                                <Setter Property="Content" Value="&#xe864;" />
+                                <Style.Triggers>
+                                    <DataTrigger
+                                            Binding="{Binding Topmost, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            Value="True">
+                                        <Setter Property="Content" Value="&#xe863;" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                     <Button
                         Style="{StaticResource IconButton}"
                         Content="&#xe6ad;">

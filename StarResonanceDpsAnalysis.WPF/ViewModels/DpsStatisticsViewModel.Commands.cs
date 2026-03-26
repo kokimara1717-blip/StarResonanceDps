@@ -215,18 +215,9 @@ public partial class DpsStatisticsViewModel
     /// Implemented by binding Window.Topmost to AppConfig.TopmostEnabled.
     /// </summary>
     [RelayCommand]
-    private async Task ToggleTopmost()
+    private void ToggleTopmost()
     {
         AppConfig.TopmostEnabled = !AppConfig.TopmostEnabled;
-        try
-        {
-            await _configManager.SaveAsync(AppConfig);
-        }
-        catch (InvalidOperationException ex)
-        {
-            // Ignore
-            _logger.LogError(ex, "Failed to save AppConfig");
-        }
     }
 
     [RelayCommand]
