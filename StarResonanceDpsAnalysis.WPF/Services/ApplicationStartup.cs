@@ -144,7 +144,7 @@ public sealed class ApplicationStartup : IApplicationStartup
         }
     }
 
-    public void Shutdown()
+    public async Task ShutdownAsync()
     {
         try
         {
@@ -153,7 +153,7 @@ public sealed class ApplicationStartup : IApplicationStartup
             _packetAnalyzer.Stop();
             _hotkeyService.Stop();
             _dataStorage.SavePlayerInfoToFile();
-            _configManager.SaveAsync();
+            await _configManager.SaveAsync();
         }
         catch (Exception ex)
         {

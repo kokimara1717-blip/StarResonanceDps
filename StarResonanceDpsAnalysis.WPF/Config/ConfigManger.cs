@@ -2,6 +2,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace StarResonanceDpsAnalysis.WPF.Config;
@@ -11,12 +12,14 @@ public class ConfigManger : IConfigManager
     private readonly string _configFilePath;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly IOptionsMonitor<AppConfig> _optionsMonitor;
+    private readonly ILogger<IConfigManager> _logger;
     private readonly SemaphoreSlim _saveLock = new(1, 1);
 
     public ConfigManger(IOptionsMonitor<AppConfig> optionsMonitor,
-        IOptions<JsonSerializerOptions> jsonOptions)
+        IOptions<JsonSerializerOptions> jsonOptions, ILogger<IConfigManager> logger)
     {
         _optionsMonitor = optionsMonitor;
+        _logger = logger;
         _jsonOptions = jsonOptions.Value;
         _configFilePath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
 
@@ -64,6 +67,7 @@ public class ConfigManger : IConfigManager
         }
         catch (Exception ex)
         {
+            _logger.LogWarning("Failed to Update config: {ex}", ex);
             throw new InvalidOperationException($"Failed to update configuration: {ex.Message}", ex);
         }
         finally

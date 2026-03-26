@@ -119,7 +119,7 @@ public partial class App : Application
         // Centralized shutdown
         try
         {
-            appStartup.Shutdown();
+            appStartup.ShutdownAsync().Wait();
         }
         catch
         {
