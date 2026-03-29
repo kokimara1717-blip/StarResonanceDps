@@ -65,7 +65,7 @@ jobs:
         run: dotnet test StarResonanceDpsAnalysis.slnx --configuration ${{ matrix.configuration }} --no-build
 
       - name: Publish project
-        run: dotnet publish StarResonanceDpsAnalysis.WPF/StarResonanceDpsAnalysis.WPF.csproj -c ${{ matrix.configuration }} -o publish -f net8.0-windows --no-build --no-restore
+        run: dotnet publish StarResonanceDpsAnalysis.WPF/StarResonanceDpsAnalysis.WPF.csproj -c ${{ matrix.configuration }} -o publish -f net8.0-windows --no-restore
 
       - name: Verify publish output
         run: dir publish
