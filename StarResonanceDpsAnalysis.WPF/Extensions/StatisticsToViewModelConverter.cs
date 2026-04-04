@@ -54,9 +54,11 @@ public static class StatisticsToViewModelConverter
 
         foreach (var (skillId, skillStats) in skills)
         {
+            var totalCrit = skillStats.CritTimes + skillStats.CritAndLuckyTimes;
+            var critValue = skillStats.CritValue + skillStats.CritAndLuckyValue;
             var totalLucky = skillStats.LuckyTimes + skillStats.CritAndLuckyTimes;
             var luckyValue = skillStats.LuckValue + skillStats.CritAndLuckyValue;
-            var normalValue = skillStats.TotalValue - skillStats.CritValue - luckyValue;
+            var normalValue = skillStats.TotalValue - skillStats.CritValue - skillStats.LuckValue - skillStats.CritAndLuckyValue;
             //SkillName = EmbeddedSkillConfig.GetName((int)skillId),
             var skillVm = new SkillItemViewModel
             {
@@ -64,12 +66,12 @@ public static class StatisticsToViewModelConverter
                 SkillName = localizationManager.GetString($"JsonDictionary:Skills:{skillId}"),
                 TotalValue = skillStats.TotalValue,
                 HitCount = skillStats.UseTimes,
-                CritCount = skillStats.CritTimes,
+                CritCount = totalCrit,
                 LuckyCount = totalLucky,
                 Average = skillStats.UseTimes > 0 ? skillStats.TotalValue / (double)skillStats.UseTimes : 0,
-                CritRate = MathExtension.Rate(skillStats.CritTimes, skillStats.UseTimes),
+                CritRate = MathExtension.Rate(totalCrit, skillStats.UseTimes),
                 LuckyRate = MathExtension.Rate(totalLucky, skillStats.UseTimes),
-                CritValue = skillStats.CritValue,
+                CritValue = critValue,
                 LuckyValue = luckyValue,
                 NormalValue = normalValue,
                 RateToTotal = MathExtension.Rate(skillStats.TotalValue, totalValue)
