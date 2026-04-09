@@ -127,7 +127,7 @@
     <value>총 대미지 표시</value>
   </data>
   <data name="Menu_Personal_Training_Mode" xml:space="preserve">
-    <value>개인/훈련 모드</value>
+    <value>훈련 모드</value>
   </data>
   <data name="Menu_SkillDiary" xml:space="preserve">
     <value>스킬 기록</value>
@@ -187,7 +187,7 @@
     <value>전투 기록 데이터 없음</value>
   </data>
   <data name="DpsStatistics_History_Label" xml:space="preserve">
-    <value>스냅샷</value>
+    <value>기록</value>
   </data>
   <data name="DpsStatistics_Team_Label" xml:space="preserve">
     <value>파티</value>
@@ -942,7 +942,7 @@
     <value>치명타 횟수</value>
   </data>
   <data name="SkillBreakdown_Suffix_Lucky" xml:space="preserve">
-    <value>행운 횟수</value>
+    <value>행운 확률</value>
   </data>
   <data name="SkillBreakdown_Label_Average" xml:space="preserve">
     <value>평균</value>
@@ -1354,7 +1354,7 @@ UID 확인: 게임 내 왼쪽 아래 플레이어 번호가 UID입니다.</value
     <value>치명타 행운 횟수</value>
   </data>
   <data name="SkillBreakdown_Suffix_CritLucky" xml:space="preserve">
-    <value>치명타 행운 횟수</value>
+    <value>치명타 행운 확률</value>
   </data>
   <data name="Dialog_UidRequired_Message2" xml:space="preserve">
     <value>설정에서 캐릭터 UID를 먼저 설정해야 스킬 로그를 사용할 수 있습니다.
@@ -1507,9 +1507,9 @@ UID 확인: 게임 내 왼쪽 아래 플레이어 번호가 UID입니다.</value
     <value>클래스 색상 투명도</value>
   </data>
   <data name="Settings_Shortcut_ToggleMinimize" xml:space="preserve">
-    <value>창 최소화 / 회복</value>
+    <value>창 최소화 / 복원</value>
   </data>
   <data name="Settings_Shortcut_ToggleMinimize_Tooltip" xml:space="preserve">
-    <value>여기에 포커스하고 단축키를 누르세요(예: F10). Delete 키를 누르면 지워집니다.</value>
+    <value>이 칸을 선택한 뒤 단축키를 누르세요 (예: F10). Delete 키로 삭제할 수 있습니다.</value>
   </data>
 </root>
