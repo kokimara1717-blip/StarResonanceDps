@@ -1511,4 +1511,10 @@
   <data name="ClassSpec_FlameBerserkerCrimson" xml:space="preserve">
     <value>赤红</value>
   </data>
+  <data name="Settings_Shortcut_ToggleMinimize" xml:space="preserve">
+    <value>最小化 / 恢复窗口</value>
+  </data>
+  <data name="Settings_Shortcut_ToggleMinimize_Tooltip" xml:space="preserve">
+    <value>在此聚焦并按下快捷键（例如 F10）。按 Delete 清除。</value>
+  </data>
 </root>

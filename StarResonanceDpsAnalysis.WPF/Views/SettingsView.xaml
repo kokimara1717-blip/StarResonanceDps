@@ -812,7 +812,6 @@
                                     </ctrl:SettingsFieldRow>
 
                                     <ctrl:SettingsFieldRow
-                                        IsLast="True"
                                         Label="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Shortcut_TopMost}}">
                                         <ctrl:SettingsFieldRow.FieldContent>
                                             <TextBox
@@ -823,6 +822,23 @@
                                                 <b:Interaction.Behaviors>
                                                     <behaviors:KeyDownCommandBehavior
                                                         Command="{Binding HandleTopMostShortcutCommand}" />
+                                                </b:Interaction.Behaviors>
+                                            </TextBox>
+                                        </ctrl:SettingsFieldRow.FieldContent>
+                                    </ctrl:SettingsFieldRow>
+
+                                    <ctrl:SettingsFieldRow
+                                        IsLast="True"
+                                        Label="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Shortcut_ToggleMinimize}}">
+                                        <ctrl:SettingsFieldRow.FieldContent>
+                                            <TextBox
+                                                IsReadOnly="True"
+                                                Style="{StaticResource AntTextBoxStyle}"
+                                                Text="{Binding AppConfig.MinimizeMaximizeShortcut, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource KeyToStringConverter}}"
+                                                ToolTip="{lex:Loc Key={x:Static loc:ResourcesKeys.Settings_Shortcut_ToggleMinimize_Tooltip}}">
+                                                <b:Interaction.Behaviors>
+                                                    <behaviors:KeyDownCommandBehavior
+                                                        Command="{Binding HandleMinimizeMaximizeShortcutCommand}" />
                                                 </b:Interaction.Behaviors>
                                             </TextBox>
                                         </ctrl:SettingsFieldRow.FieldContent>

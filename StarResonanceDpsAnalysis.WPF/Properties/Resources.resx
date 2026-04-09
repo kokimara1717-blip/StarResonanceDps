@@ -1536,4 +1536,10 @@ Open download page now?</value>
   <data name="ClassSpec_FlameBerserkerCrimson" xml:space="preserve">
     <value>Crimson</value>
   </data>
+  <data name="Settings_Shortcut_ToggleMinimize" xml:space="preserve">
+    <value>Minimize / Restore Window</value>
+  </data>
+  <data name="Settings_Shortcut_ToggleMinimize_Tooltip" xml:space="preserve">
+    <value>Focus here and press a shortcut key (e.g., F10). Press Delete to clear.</value>
+  </data>
 </root>

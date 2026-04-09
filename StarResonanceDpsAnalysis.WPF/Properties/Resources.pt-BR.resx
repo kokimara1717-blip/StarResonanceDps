@@ -1345,4 +1345,10 @@ Como obter o UID: no jogo, o número do jogador no canto inferior esquerdo é o 
   <data name="Classes_Unknown" xml:space="preserve">
     <value>Unknown</value>
   </data>
+  <data name="Settings_Shortcut_ToggleMinimize" xml:space="preserve">
+    <value>Minimizar / Restaurar Janela</value>
+  </data>
+  <data name="Settings_Shortcut_ToggleMinimize_Tooltip" xml:space="preserve">
+    <value>Foque aqui e pressione a tecla de atalho (ex.: F10). Pressione Delete para limpar.</value>
+  </data>
 </root>

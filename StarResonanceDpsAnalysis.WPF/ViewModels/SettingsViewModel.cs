@@ -618,6 +618,15 @@ public partial class SettingsViewModel : BaseViewModel
         }
     }
 
+    [RelayCommand]
+    private void HandleMinimizeMaximizeShortcut(object parameter)
+    {
+        if (parameter is KeyEventArgs e)
+        {
+            HandleShortcutInput(e, ShortcutType.MinimizeMaximize);
+        }
+    }
+
     private void OnAppConfigPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (sender is not AppConfig config)
@@ -984,6 +993,9 @@ public partial class SettingsViewModel : BaseViewModel
             case ShortcutType.TopMost:
                 AppConfig.TopmostShortcut = shortcutData;
                 break;
+            case ShortcutType.MinimizeMaximize:
+                AppConfig.MinimizeMaximizeShortcut = shortcutData;
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(shortcutType), shortcutType, null);
         }
@@ -1005,6 +1017,9 @@ public partial class SettingsViewModel : BaseViewModel
                 break;
             case ShortcutType.TopMost:
                 AppConfig.TopmostShortcut = shortCut;
+                break;
+            case ShortcutType.MinimizeMaximize:
+                AppConfig.MinimizeMaximizeShortcut = shortCut;
                 break;
         }
     }
@@ -1363,7 +1378,8 @@ public enum ShortcutType
 {
     MouseThrough,
     ClearData,
-    TopMost
+    TopMost,
+    MinimizeMaximize
 }
 
 public sealed class SettingsDesignTimeViewModel : SettingsViewModel
