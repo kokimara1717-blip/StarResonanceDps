@@ -94,7 +94,7 @@ jobs:
         with:
           name: ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
-          prerelease: true
+          prerelease: false
           body: |
             ✅ Automated Release from GitHub Actions
             • Build: ${{ github.run_number }}
