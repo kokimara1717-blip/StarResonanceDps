@@ -61,21 +61,21 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             SetStyle(); // 设置/应用本窗体的个性化样式（定义在同类/局部类的其他部分）
 
             // 监听服务器连接状态变更事件
-            DataStorage.Instance.ServerConnectionStateChanged += DataStorage_ServerConnectionStateChanged;
+            DataStorage.ServerConnectionStateChanged += DataStorage_ServerConnectionStateChanged;
 
             // 服务器变更事件
-            DataStorage.Instance.ServerChanged += DataStorage_ServerChanged;
+            DataStorage.ServerChanged += DataStorage_ServerChanged;
 
             // 启动新分段事件
-            DataStorage.Instance.NewSectionCreated += DataStorage_NewSectionCreated;
+            DataStorage.NewSectionCreated += DataStorage_NewSectionCreated;
 
             // 开始监听DPS更新事件
-            DataStorage.Instance.DpsDataUpdated += DataStorage_DpsDataUpdated;
+            DataStorage.DpsDataUpdated += DataStorage_DpsDataUpdated;
 
             Task.Run(async () =>
             {
                 await Task.Delay(10000);
-                if (DataStorage.Instance.IsServerConnected)
+                if (DataStorage.IsServerConnected)
                 {
                     return;
                 }
@@ -90,7 +90,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     this);
 
                 await Task.Delay(10000);
-                if (DataStorage.Instance.IsServerConnected)
+                if (DataStorage.IsServerConnected)
                 {
                     return;
                 }
@@ -129,7 +129,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             // # 抓包事件：回调于数据包到达时（SharpPcap线程）
             try
             {
-                PacketAnalyzer.EnlistDataAsync(e.GetPacket());
+                var dev = (ICaptureDevice)sender;
+                PacketAnalyzer.StartNewAnalyzer(dev, e.GetPacket());
             }
             catch (Exception ex)
             {
@@ -224,8 +225,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         {
             // 根据选择，决定显示全程数据还是分段数据
             var dpsList = _isShowFullData
-                ? DataStorage.Instance.ReadOnlyFullDpsDataList
-                : DataStorage.Instance.ReadOnlySectionedDpsDataList;
+                ? DataStorage.ReadOnlyFullDpsDataList
+                : DataStorage.ReadOnlySectionedDpsDataList;
 
             // 如果没有任何数据，清空界面显示
             if (dpsList.Count == 0)
@@ -252,7 +253,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 .Select(e =>
                 {
                     // 根据 UID 找到玩家的额外信息（职业、名字、战力等）
-                    DataStorage.Instance.ReadOnlyPlayerInfoDatas.TryGetValue(e.UID, out var playerInfo);
+                    DataStorage.ReadOnlyPlayerInfoDatas.TryGetValue(e.UID, out var playerInfo);
                     var professionName = playerInfo?.SubProfessionName
                                          ?? playerInfo?.ProfessionID?.GetProfessionNameById()
                                          ?? string.Empty;
@@ -299,11 +300,11 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             // 当前玩家的 DPS 数据源（全程 or 分段）
             var dd = _isShowFullData
-                ? DataStorage.Instance.ReadOnlyFullDpsData
-                : DataStorage.Instance.ReadOnlySectionedDpsData;
+                ? DataStorage.ReadOnlyFullDpsDatas
+                : DataStorage.ReadOnlySectionedDpsDatas;
 
             // 如果找不到当前玩家的数据，就显示占位符
-            if (!dd.TryGetValue(DataStorage.Instance.CurrentPlayerInfo.UID, out DpsData? cpdd))
+            if (!dd.TryGetValue(DataStorage.CurrentPlayerInfo.UID, out DpsData? cpdd))
             {
                 label_CurrentDps.Text = "-- (--)";
                 return;
@@ -735,8 +736,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         {
             AppConfig.StartUpState = new Rectangle(Left, Top, Width, Height);
 
-            DataStorage.Instance.DpsDataUpdated -= DataStorage_DpsDataUpdated;
-            DataStorage.Instance.SavePlayerInfoToFile();
+            DataStorage.DpsDataUpdated -= DataStorage_DpsDataUpdated;
+            DataStorage.SavePlayerInfoToFile();
 
             try { KbHook?.UnHook(); }
             catch (Exception ex) { Console.WriteLine($"窗体关闭清理时出错: {ex.Message}"); }

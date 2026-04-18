@@ -48,10 +48,5 @@ public enum Classes
     /// <summary>
     /// 灵魂乐手
     /// </summary>
-    SoulMusician = 13,
-
-    /// <summary>
-    /// 赤焰狂战士
-    /// </summary>
-    FlameBerserker = 3,
+    SoulMusician = 13
 }

@@ -1,13 +1,10 @@
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Windows;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
 using StarResonanceDpsAnalysis.WPF.Config;
 using StarResonanceDpsAnalysis.WPF.Helpers;
 using StarResonanceDpsAnalysis.WPF.ViewModels;
-using StarResonanceDpsAnalysis.WPF.Views;
 
 namespace StarResonanceDpsAnalysis.WPF.Services;
 
@@ -132,10 +129,6 @@ public sealed partial class GlobalHotkeyService(
                 {
                     TriggerReset();
                 }
-                else if (IsHotkeyMatch(_config.MinimizeMaximizeShortcut, keyData))
-                {
-                    ToggleNormalAndMinimize();
-                }
             }
             else if (wParam == (IntPtr)0x0101 || wParam == (IntPtr)0x0105) // WM_KEYUP || WM_SYSKEYUP
             {
@@ -212,17 +205,16 @@ public sealed partial class GlobalHotkeyService(
     {
         try
         {
-            var newState = !_config.TopmostEnabled;
-            _config.TopmostEnabled = newState;
+            var dpsWindow = windowManager.DpsStatisticsView;
+            var personalWindow = windowManager.PersonalDpsView;
 
-            topmostService.SetTopmost(windowManager.DpsStatisticsView, newState);
-            topmostService.SetTopmost(windowManager.PersonalDpsView, newState);
+            topmostService.ToggleTopmost(dpsWindow);
+            topmostService.ToggleTopmost(personalWindow);
 
+            _config.TopmostEnabled = dpsWindow.Topmost;
             _ = configManager.SaveAsync(_config);
 
-            logger.LogInformation(
-                "TopMostService: Top most state changed to {State}",
-                newState ? "Enabled" : "Disabled");
+            logger.LogInformation("TopMostService: Top most state changed to {State}", _config.TopmostEnabled ? "Enabled" : "Disabled");
         }
         catch (Exception ex)
         {
@@ -241,40 +233,6 @@ public sealed partial class GlobalHotkeyService(
         {
             logger.LogWarning(ex, "TriggerReset failed");
         }
-    }
-
-    private void ToggleNormalAndMinimize()
-    {
-        try
-        {
-            if (Application.Current == null)
-            {
-                return;
-            }
-
-            Application.Current.Dispatcher.BeginInvoke(() =>
-            {
-                ToggleWindowState<DpsStatisticsView>();
-                ToggleWindowState<PersonalDpsView>();
-            });
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "ToggleMinimizeMaximize failed");
-        }
-    }
-
-    private static void ToggleWindowState<TWindow>() where TWindow : Window
-    {
-        var window = Application.Current?.Windows.OfType<TWindow>().FirstOrDefault();
-        if (window == null || !window.IsVisible)
-        {
-            return;
-        }
-
-        window.WindowState = window.WindowState == WindowState.Minimized
-            ? WindowState.Normal
-            : WindowState.Minimized;
     }
 
     [LibraryImport("user32.dll", EntryPoint = "SetWindowsHookExW", SetLastError = true)]

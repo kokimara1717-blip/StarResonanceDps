@@ -367,7 +367,8 @@
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <!-- Refresh/Clear Button -->
                         <Button Command="{Binding ClearCommand}" Margin="0,0,15,0" 
-                                Width="36" Height="36" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                Width="36" Height="36" Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                ToolTip="{lex:Loc SkillLog_Button_Clear}">
                             <Grid>
                                 <Ellipse Fill="#2196F3" Width="36" Height="36">
                                     <Ellipse.Effect>
@@ -397,7 +398,8 @@
                         
                         <!-- Close Button -->
                         <Button Command="{Binding CloseCommand}"
-                                Width="36" Height="36" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                Width="36" Height="36" Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                ToolTip="{lex:Loc SkillLog_Button_Close}">
                             <Grid>
                                 <Ellipse Fill="#F44336" Width="36" Height="36">
                                     <Ellipse.Effect>

@@ -4,14 +4,14 @@ namespace StarResonanceDpsAnalysis.Core.Statistics.Calculators;
 
 public sealed class TrainingDamageCalculator : IStatisticsCalculator
 {
-    public HashSet<long> TargetDummyUids { get; set; } = [];
+    public long TargetDummyUid { get; set; }
 
     public void Calculate(BattleLog log, StatisticsContext context)
     {
         if (!log.IsAttackerPlayer || log.IsTargetPlayer || log.IsHeal)
             return;
 
-        if (TargetDummyUids.Count > 0 && !TargetDummyUids.Contains(log.TargetUuid))
+        if (TargetDummyUid > 0 && log.TargetUuid != TargetDummyUid)
             return;
 
         context.CombatStarted = true;

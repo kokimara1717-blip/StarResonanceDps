@@ -121,7 +121,7 @@
     <value>设置</value>
   </data>
   <data name="Menu_StatisticBoss" xml:space="preserve">
-    <value>记录友方NPC</value>
+    <value>统计NPC</value>
   </data>
   <data name="Menu_ShowTotal" xml:space="preserve">
     <value>显示总伤</value>
@@ -262,7 +262,7 @@
     <value>清空数据</value>
   </data>
   <data name="Settings_Shortcut_MouseThrough_Tooltip" xml:space="preserve">
-    <value>在此聚焦并按下快捷键（例如 F6）。按 Delete 清除。</value>
+    <value>在此聚焦并按下组合键（例如 Ctrl+F6）。按 Delete 清除。</value>
   </data>
   <data name="Settings_Shortcut_ClearData_Tooltip" xml:space="preserve">
     <value>在此聚焦并按下快捷键（例如 F9）。按 Delete 清除。</value>
@@ -304,7 +304,7 @@
     <value>窗体透明度</value>
   </data>
   <data name="Settings_Display_PlayerNameMask" xml:space="preserve">
-    <value>玩家信息打码</value>
+    <value>玩家名脱敏</value>
   </data>
   <data name="Settings_Display_MarqueeText" xml:space="preserve">
     <value>长名字滚动显示</value>
@@ -321,26 +321,20 @@
   <data name="Settings_PlayerInfo_Preset_Detailed_Tooltip" xml:space="preserve">
     <value>玩家名 - 冰矛 [S8 Lv50] (25000)</value>
   </data>
-  <data name="Settings_PlayerInfo_Name" xml:space="preserve">
+  <data name="Settings_PlayerInfo_Preset_NameOnly_Tooltip" xml:space="preserve">
     <value>玩家名</value>
-  </data>
-  <data name="Settings_PlayerInfo_Tip" xml:space="preserve">
-    <value>例：</value>
-  </data>
-  <data name="Settings_PlayerInfo_ClassSpec" xml:space="preserve">
-    <value>职业流派</value>
   </data>
   <data name="Settings_PlayerInfo_Separator_Space" xml:space="preserve">
     <value>空格</value>
   </data>
   <data name="Settings_Display_ShowDamage" xml:space="preserve">
-    <value>显示总伤害/总治疗/总承伤</value>
+    <value>显示总伤害</value>
   </data>
   <data name="Settings_Display_ShowDps" xml:space="preserve">
-    <value>显示DPS/HPS/DTPS</value>
+    <value>显示秒伤 (DPS)</value>
   </data>
   <data name="Settings_Display_ShowPercentage" xml:space="preserve">
-    <value>显示伤害/治疗/承伤占比</value>
+    <value>显示伤害占比</value>
   </data>
   <data name="Settings_Display_DpsMode" xml:space="preserve">
     <value>DPS显示模式</value>
@@ -377,6 +371,9 @@
   </data>
   <data name="Settings_PlayerNameMask_Warning_Message" xml:space="preserve">
     <value>禁止将数据结果用于战力歧视等破坏游戏社区环境的行为。</value>
+  </data>
+  <data name="Menu_TemporaryMaskPlayerName" xml:space="preserve">
+    <value>临时脱敏</value>
   </data>
   <data name="Settings_Section_Language_Title" xml:space="preserve">
     <value>显示设置</value>
@@ -700,7 +697,7 @@
     <value>切换置顶</value>
   </data>
   <data name="Settings_Shortcut_TopMost_Tooltip" xml:space="preserve">
-    <value>在此聚焦并按下快捷键（例如 F9）。按 Delete 清除。</value>
+    <value>在此聚焦并按下组合键（例如 Ctrl+F9）。按 Delete 清除。</value>
   </data>
   <data name="Settings_NetworkAdapterAutoSelect_Failed" xml:space="preserve">
     <value>网卡自动选择失败，请检查您的网络连接是否正常</value>
@@ -1422,105 +1419,15 @@
     <value>更新</value>
   </data>
   <data name="Settings_Section_Update_Sub" xml:space="preserve">
-    <value>手动检查是否有新版本</value>
+    <value>手动检查是否有新版本。</value>
   </data>
   <data name="Settings_Update_Check_Button" xml:space="preserve">
     <value>检查更新</value>
   </data>
-  <data name="Settings_Update_Check_Message" xml:space="preserve">
-    <value>检查更新</value>
-  </data>
   <data name="Settings_Update_Check_Tooltip" xml:space="preserve">
-    <value>立即从 GitHub 或自建更新源检查版本</value>
+    <value>立即从 GitHub 或自建更新源检查版本。</value>
   </data>
   <data name="DpsStatistics_NPC_Label" xml:space="preserve">
     <value>所有NPC</value>
-  </data>
-  <data name="Settings_UID_Setting_Title" xml:space="preserve">
-    <value>设置玩家UID</value>
-  </data>
-  <data name="Settings_UID_Setting_Message1" xml:space="preserve">
-    <value>获取当前玩家UID失败，请切换地图再次尝试。</value>
-  </data>
-  <data name="Settings_UID_Setting_Message2" xml:space="preserve">
-    <value>正在为当前玩家设置UID。该信息可能不准确，请自行核对。</value>
-  </data>
-  <data name="Settings_NetworkAdapterAutoSelect_Title" xml:space="preserve">
-    <value>网卡设置</value>
-  </data>
-  <data name="Settings_Theme_BackgroundImage_Filter" xml:space="preserve">
-    <value>PNG图片 (*.png)|*.png</value>
-  </data>
-  <data name="Settings_PlayerInfo_PlayerUID" xml:space="preserve">
-    <value>玩家UID</value>
-  </data>
-  <data name="Settings_PlayerInfo_GuildName" xml:space="preserve">
-    <value>公会名</value>
-  </data>
-  <data name="Settings_PlayerInfo_MyGuild" xml:space="preserve">
-    <value>我的公会</value>
-  </data>
-  <data name="Settings_CustomFormat_Message" xml:space="preserve">
-    <value>自定义格式已被禁用，将使用默认显示设置。</value>
-  </data>
-  <data name="Settings_Theme_BackgroundColor" xml:space="preserve">
-    <value>背景颜色</value>
-  </data>
-  <data name="Settings_Background_Opacity" xml:space="preserve">
-    <value>背景透明度</value>
-  </data>
-  <data name="Settings_BackgroundImage_Opacity" xml:space="preserve">
-    <value>背景图片透明度</value>
-  </data>
-  <data name="Settings_BackgroundImageFitMode_FitWidth" xml:space="preserve">
-    <value>填充窗口</value>
-  </data>
-  <data name="Settings_BackgroundImageFit" xml:space="preserve">
-    <value>背景图片适配方式</value>
-  </data>
-  <data name="Settings_BackgroundImageFitMode_FitToWindow" xml:space="preserve">
-    <value>适应窗口</value>
-  </data>
-  <data name="Classes_Unknown" xml:space="preserve">
-    <value>未知职业</value>
-  </data>
-  <data name="Settings_Theme_Light" xml:space="preserve">
-    <value>浅色</value>
-  </data>
-  <data name="Settings_Theme_Dark" xml:space="preserve">
-    <value>深色</value>
-  </data>
-  <data name="Settings_PlayerInfo_SeasonLevel" xml:space="preserve">
-    <value>赛季等级</value>
-  </data>
-  <data name="Settings_PlayerInfo_SeasonStrength" xml:space="preserve">
-    <value>赛季强度</value>
-  </data>
-  <data name="Settings_HideTab" xml:space="preserve">
-    <value>隐藏标签页</value>
-  </data>
-  <data name="Settings_ClassColors_Opacity" xml:space="preserve">
-    <value>职业颜色透明度</value>
-  </data>
-  <data name="Classes_FlameBerserker" xml:space="preserve">
-    <value>赤炎狂战士</value>
-  </data>
-  <data name="ClassSpec_FlameBerserkerFormless" xml:space="preserve">
-    <value>无相</value>
-  </data>
-  <data name="ClassSpec_FlameBerserkerCrimson" xml:space="preserve">
-    <value>赤红</value>
-  </data>
-  <data name="Settings_Shortcut_ToggleMinimize" xml:space="preserve">
-    <value>最小化 / 恢复窗口</value>
-  </data>
-  <data name="Settings_Shortcut_ToggleMinimize_Tooltip" xml:space="preserve">
-    <value>在此聚焦并按下快捷键（例如 F10）。按 Delete 清除。</value>
-  </data>
-  <data name="Menu_Training_Dummy_Crowd" xml:space="preserve">
-    <value>群桩</value>
-  </data>
-  <data name="Version" xml:space="preserve">
-    <value>版本:{0}</value>
   </data>
 </root>

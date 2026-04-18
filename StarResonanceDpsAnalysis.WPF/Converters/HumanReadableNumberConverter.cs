@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Windows;
 using System.Windows.Data;
 using StarResonanceDpsAnalysis.WPF.Models;
 using StarResonanceDpsAnalysis.WPF.Helpers;
@@ -16,14 +15,11 @@ public class HumanReadableNumberConverter : IValueConverter, IMultiValueConverte
     {
         if (values.Length == 0)
         {
-            return "0";
+            return string.Empty;
         }
 
         var mode = NumberDisplayMode.KMB;
-        if (values.Length > 1 &&
-            values[1] != null &&
-            values[1] != DependencyProperty.UnsetValue &&
-            values[1] != Binding.DoNothing)
+        if (values.Length > 1 && values[1] != null)
         {
             mode = NumberFormatHelper.ParseDisplayMode(values[1], mode);
         }
@@ -32,18 +28,9 @@ public class HumanReadableNumberConverter : IValueConverter, IMultiValueConverte
             mode = NumberFormatHelper.ParseDisplayMode(parameter, mode);
         }
 
-        var rawValue = values[0];
-
-        if (rawValue == null ||
-            rawValue == DependencyProperty.UnsetValue ||
-            rawValue == Binding.DoNothing)
+        if (!NumberFormatHelper.TryToDouble(values[0], out var number))
         {
-            return NumberFormatHelper.FormatHumanReadable(0, mode, LocalizationManager.Instance.CurrentCulture);
-        }
-
-        if (!NumberFormatHelper.TryToDouble(rawValue, out var number))
-        {
-            return NumberFormatHelper.FormatHumanReadable(0, mode, LocalizationManager.Instance.CurrentCulture);
+            return string.Empty;
         }
 
         return NumberFormatHelper.FormatHumanReadable(number, mode, LocalizationManager.Instance.CurrentCulture);
@@ -57,17 +44,9 @@ public class HumanReadableNumberConverter : IValueConverter, IMultiValueConverte
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         var mode = NumberFormatHelper.ParseDisplayMode(parameter);
-
-        if (value == null ||
-            value == DependencyProperty.UnsetValue ||
-            value == Binding.DoNothing)
-        {
-            return NumberFormatHelper.FormatHumanReadable(0, mode, LocalizationManager.Instance.CurrentCulture);
-        }
-
         if (!NumberFormatHelper.TryToDouble(value, out var number))
         {
-            return NumberFormatHelper.FormatHumanReadable(0, mode, LocalizationManager.Instance.CurrentCulture);
+            return string.Empty;
         }
 
         return NumberFormatHelper.FormatHumanReadable(number, mode, LocalizationManager.Instance.CurrentCulture);

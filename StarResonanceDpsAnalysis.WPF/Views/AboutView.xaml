@@ -179,8 +179,6 @@
                     <Run Text="Shir0ha" />
                     <Run Text=", "/>
                     <Run Text="Madbol20" />
-                    <Run Text=", "/>
-                    <Run Text="Kuchibiki" />
                 </TextBlock>
 
                 <TextBlock Style="{StaticResource AppOpenSourceText}">

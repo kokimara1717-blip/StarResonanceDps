@@ -181,16 +181,6 @@ public sealed class DpsStatisticsDesignTimeViewModel : DpsStatisticsViewModel
         public DpsStatisticsView DpsStatisticsView => throw new NotSupportedException();
         public MainView MainView => throw new NotSupportedException();
         public ModuleSolveView ModuleSolveView => throw new NotSupportedException();
-        public void OpenPersonalDpsView()
-        {
-            throw new NotSupportedException();
-        }
-
-        public void ClosePersonalDpsView()
-        {
-            throw new NotSupportedException();
-        }
-
         public PersonalDpsView PersonalDpsView => throw new NotSupportedException();
         public SettingsView SettingsView => throw new NotSupportedException();
         public SkillBreakdownView SkillBreakdownView => throw new NotSupportedException();
@@ -293,14 +283,6 @@ public sealed class DpsStatisticsDesignTimeViewModel : DpsStatisticsViewModel
         }
 
         public void SetPlayerProfessionID(long playerUid, int professionId)
-        {
-        }
-
-        public void SetPlayerGuild(long playerUid, string guild)
-        {
-        }
-
-        public void SetCurrentPlayerUid(long playerUid)
         {
         }
 

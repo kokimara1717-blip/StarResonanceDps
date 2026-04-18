@@ -1,9 +1,6 @@
-using System.Linq;
-using System.Windows;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StarResonanceDpsAnalysis.Core.Analyze;
-using StarResonanceDpsAnalysis.Core.Analyze.V1;
 using StarResonanceDpsAnalysis.Core.Data;
 using StarResonanceDpsAnalysis.Core.Statistics;
 using StarResonanceDpsAnalysis.WPF.Config;
@@ -48,6 +45,7 @@ public sealed class ApplicationStartup : IApplicationStartup
         _configManager.ConfigurationUpdated += ConfigManagerOnConfigurationUpdated;
         _appConfig = _configManager.CurrentConfig;
         _appConfig.MouseThroughEnabled = false;
+        MessageAnalyzer.Logger = logger;
         ConfigManagerOnConfigurationUpdated(_configManager, _configManager.CurrentConfig);
     }
 
@@ -80,7 +78,6 @@ public sealed class ApplicationStartup : IApplicationStartup
 
             // Apply localization
             _localization.Initialize(_configManager.CurrentConfig.Language);
-            ApplySavedClassColorTemplate(_configManager.CurrentConfig.ClassColorTemplate);
             _classColorService.Init();
 
             await TryFindBestNetworkAdapter().ConfigureAwait(false);
@@ -144,7 +141,7 @@ public sealed class ApplicationStartup : IApplicationStartup
         }
     }
 
-    public async Task ShutdownAsync()
+    public void Shutdown()
     {
         try
         {
@@ -153,28 +150,11 @@ public sealed class ApplicationStartup : IApplicationStartup
             _packetAnalyzer.Stop();
             _hotkeyService.Stop();
             _dataStorage.SavePlayerInfoToFile();
-            await _configManager.SaveAsync();
+            _configManager.SaveAsync();
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Shutdown encountered an issue");
-        }
-    }
-
-    private static void ApplySavedClassColorTemplate(ClassColorTemplate template)
-    {
-        if (Application.Current == null)
-        {
-            return;
-        }
-
-        var classColorsDictionary = Application.Current.Resources.MergedDictionaries
-            .OfType<StarResonanceDpsAnalysis.WPF.Themes.ClassColorsDictionary>()
-            .FirstOrDefault();
-
-        if (classColorsDictionary != null)
-        {
-            classColorsDictionary.Template = template;
         }
     }
 }

@@ -1,8 +1,6 @@
 using System.Collections.Concurrent;
 using System.Reflection;
 using StarResonanceDpsAnalysis.Core.Analyze;
-using StarResonanceDpsAnalysis.Core.Analyze.V1;
-using StarResonanceDpsAnalysis.Core.Data;
 
 namespace StarResonanceDpsAnalysis.Tests;
 
@@ -11,7 +9,7 @@ public class PacketAnalyzerTests
     [Fact]
     public void ResetCaptureState_ClearsCachesAndServer()
     {
-        var analyzer = new PacketAnalyzer(new MessageAnalyzer(DataStorage.Instance), DataStorage.Instance);
+        var analyzer = new PacketAnalyzer();
         analyzer.CurrentServer = "1.1.1.1:1000 -> 2.2.2.2:2000";
 
         var tcpCache = GetFieldValue<ConcurrentDictionary<uint, byte[]>>(analyzer, "TcpCache");

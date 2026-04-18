@@ -21,7 +21,6 @@ using StarResonanceDpsAnalysis.WPF.Localization;
 using StarResonanceDpsAnalysis.WPF.Models;
 using StarResonanceDpsAnalysis.WPF.Properties;
 using StarResonanceDpsAnalysis.WPF.Services;
-using StarResonanceDpsAnalysis.WPF.Themes;
 using AppConfig = StarResonanceDpsAnalysis.WPF.Config.AppConfig;
 using KeyBinding = StarResonanceDpsAnalysis.WPF.Models.KeyBinding;
 
@@ -54,33 +53,10 @@ public partial class SettingsViewModel : BaseViewModel
         new(NumberDisplayMode.KMB, NumberDisplayMode.KMB.GetLocalizedDescription())
     ];
 
-    [ObservableProperty]
-    private List<FormatFieldOption> _availableFormatFields = new();
-
-    [ObservableProperty]
-    private List<Option<BackgroundImageFitMode>> _availableBackgroundImageFitModes = [];
-
-    [ObservableProperty]
-    private Option<BackgroundImageFitMode>? _selectedBackgroundImageFitMode;
-
-    [ObservableProperty]
-    private List<Option<string>> _availableThemes = [];
-
-    [ObservableProperty]
-    private Option<string>? _selectedTheme;
-
-    [ObservableProperty]
-    private List<Option<ClassColorTemplate>> _availableClassColorTemplates = [];
-
-    [ObservableProperty]
-    private Option<ClassColorTemplate>? _selectedClassColorTemplate;
-
     private bool _cultureHandlerSubscribed;
     private bool _networkHandlerSubscribed;
-    private bool _dataStorageHandlerSubscribed;
     private bool _isLoaded; // becomes true after LoadedAsync completes
     private bool _hasUnsavedChanges; // tracks whether any property changed after load
-    private bool _suppressUnsavedChangeTracking;
 
     // Store original values for cancel/restore
     private AppConfig _originalConfig = null!;
@@ -95,65 +71,6 @@ public partial class SettingsViewModel : BaseViewModel
     private readonly IClassColorService _classColorService;
     private readonly IAutoUpdateService _autoUpdateService;
     private readonly ILogger<SettingsViewModel> _logger;
-
-    private static readonly (string Key,
-        string LabelResourceKey,
-        string Placeholder,
-        string? ExampleValueResourceKey,
-        string? ExampleValueLiteral)[] FormatFieldDefinitions =
-        [
-            (
-                "Name",
-                ResourcesKeys.Settings_PlayerInfo_Name,
-                "{Name}",
-                ResourcesKeys.Settings_PlayerInfo_Name,
-                null
-            ),
-            (
-                "Spec",
-                ResourcesKeys.Settings_PlayerInfo_ClassSpec,
-                "{Spec}",
-                ResourcesKeys.ClassSpec_FrostMageIcicle,
-                null
-            ),
-            (
-                "PowerLevel",
-                ResourcesKeys.SkillBreakdown_Label_Power,
-                "{PowerLevel}",
-                null,
-                "25000"
-            ),
-            (
-                "SeasonStrength",
-                ResourcesKeys.Settings_PlayerInfo_SeasonStrength,
-                "{SeasonStrength}",
-                null,
-                "8"
-            ),
-            (
-                "SeasonLevel",
-                ResourcesKeys.Settings_PlayerInfo_SeasonLevel,
-                "{SeasonLevel}",
-                null,
-                "50"
-            ),
-            /*
-            (
-                "Guild",
-                ResourcesKeys.Settings_PlayerInfo_GuildName,
-                "{Guild}",
-                ResourcesKeys.Settings_PlayerInfo_MyGuild,
-                null
-            ),
-            */
-            (
-                "Uid",
-                ResourcesKeys.Settings_PlayerInfo_PlayerUID,
-                "{Uid}",
-                null,
-                "123456789"
-            ),
-        ];
 
     /// <inheritdoc/>
     public SettingsViewModel(IConfigManager configManager,
@@ -179,6 +96,7 @@ public partial class SettingsViewModel : BaseViewModel
         _logger.LogDebug("SettingsViewModel created");
     }
 
+
     /// <summary>
     /// 格式字符串预览
     /// </summary>
@@ -186,16 +104,17 @@ public partial class SettingsViewModel : BaseViewModel
     {
         get
         {
-            if (!AppConfig.UseCustomFormat) return _localization.GetString(ResourcesKeys.Settings_CustomFormat_Message);
+            if (!AppConfig.UseCustomFormat) return "Custom format is disabled. Using field visibility settings.";
+
             // 创建一个示例 PlayerInfoViewModel 来生成预览
             var previewVm = new PlayerInfoViewModel(_localization)
             {
-                Name = _localization.GetString(ResourcesKeys.Settings_PlayerInfo_Name),
+                Name = "PlayerName",
                 Spec = ClassSpec.FrostMageIcicle,
                 PowerLevel = 25000,
                 SeasonStrength = 8,
                 SeasonLevel = 50,
-                //Guild = "MyGuild",
+                Guild = "MyGuild",
                 Uid = 123456789,
                 Mask = false,
                 UseCustomFormat = true,
@@ -207,70 +126,19 @@ public partial class SettingsViewModel : BaseViewModel
         }
     }
 
-    private string BuildExampleText(string? resourceKey, string? literal)
+    /// <summary>
+    /// 可用的格式化字段列表
+    /// </summary>
+    public List<FormatFieldOption> AvailableFormatFields { get; } = new()
     {
-        var examplePrefix = _localization.GetString(ResourcesKeys.Settings_PlayerInfo_Tip);
-        string? exampleValue;
-        if (!string.IsNullOrWhiteSpace(resourceKey))
-            exampleValue = _localization.GetString(resourceKey);
-        else
-            exampleValue = literal;
-        return $"{examplePrefix}{exampleValue}";
-    }
-
-    private void RebuildAvailableFormatFields()
-    {
-        AvailableFormatFields = FormatFieldDefinitions
-            .Select(x => new FormatFieldOption(
-                x.Key,
-                _localization.GetString(x.LabelResourceKey),
-                x.Placeholder,
-                BuildExampleText(x.ExampleValueResourceKey, x.ExampleValueLiteral)))
-            .ToList();
-    }
-
-    private void RebuildBackgroundImageFitModes()
-    {
-        AvailableBackgroundImageFitModes =
-        [
-            new(
-                BackgroundImageFitMode.FitWidth,
-                _localization.GetString(ResourcesKeys.Settings_BackgroundImageFitMode_FitWidth)
-            ),
-            new(
-                BackgroundImageFitMode.FitToWindow,
-                _localization.GetString(ResourcesKeys.Settings_BackgroundImageFitMode_FitToWindow)
-            )
-        ];
-    }
-
-    private void RebuildAvailableThemes()
-    {
-        AvailableThemes =
-        [
-            new("Light", _localization.GetString(ResourcesKeys.Settings_Theme_Light)),
-            new("Dark", _localization.GetString(ResourcesKeys.Settings_Theme_Dark))
-        ];
-    }
-
-    private void RebuildAvailableClassColorTemplates()
-    {
-        AvailableClassColorTemplates =
-        [
-            new(ClassColorTemplate.Light, _localization.GetString(ResourcesKeys.Settings_Theme_Light)),
-            new(ClassColorTemplate.Dark, _localization.GetString(ResourcesKeys.Settings_Theme_Dark))
-        ];
-    }
-
-    private string GetCurrentAppliedThemeName()
-    {
-        var theme = _configManager.CurrentConfig.Theme;
-
-        if (string.Equals(theme, "Dark", StringComparison.OrdinalIgnoreCase))
-            return "Dark";
-
-        return "Light";
-    }
+        new FormatFieldOption("Name", "Player Name", "{Name}", "e.g., PlayerName"),
+        new FormatFieldOption("Spec", "Class Spec", "{Spec}", "e.g., FrostMage"),
+        new FormatFieldOption("PowerLevel", "Power Level", "{PowerLevel}", "e.g., 25000"),
+        new FormatFieldOption("SeasonStrength", "Season Strength", "{SeasonStrength}", "e.g., 8"),
+        new FormatFieldOption("SeasonLevel", "Season Level", "{SeasonLevel}", "e.g., 50"),
+        new FormatFieldOption("Guild", "Guild Name", "{Guild}", "e.g., MyGuild"),
+        new FormatFieldOption("Uid", "Player UID", "{Uid}", "e.g., 123456789"),
+    };
 
     /// <summary>
     /// 常用分隔符列表
@@ -344,9 +212,6 @@ public partial class SettingsViewModel : BaseViewModel
 
         _localization.ApplyLanguage(newValue.Language);
         UpdateLanguageDependentCollections();
-        RebuildBackgroundImageFitModes();
-        RebuildAvailableThemes();
-        RebuildAvailableClassColorTemplates();
         SyncOptions();
     }
 
@@ -368,24 +233,6 @@ public partial class SettingsViewModel : BaseViewModel
         AppConfig.PreferredNetworkAdapter ??= value.FirstOrDefault();
     }
 
-    partial void OnSelectedBackgroundImageFitModeChanged(Option<BackgroundImageFitMode>? value)
-    {
-        if (value == null) return;
-        AppConfig.BackgroundImageFitMode = value.Value;
-    }
-
-    partial void OnSelectedThemeChanged(Option<string>? value)
-    {
-        if (value == null) return;
-        AppConfig.Theme = value.Value;
-    }
-
-    partial void OnSelectedClassColorTemplateChanged(Option<ClassColorTemplate>? value)
-    {
-        if (value == null) return;
-        AppConfig.ClassColorTemplate = value.Value;
-    }
-
     [RelayCommand(AllowConcurrentExecutions = false)]
     private async Task LoadedAsync()
     {
@@ -395,39 +242,11 @@ public partial class SettingsViewModel : BaseViewModel
         // Store original config for cancel/restore (deep clone)
         _originalConfig = _configManager.CurrentConfig.Clone();
 
-        var appliedTheme = GetCurrentAppliedThemeName();
-        var appliedClassColorTemplate = _configManager.CurrentConfig.ClassColorTemplate;
-
-        _suppressUnsavedChangeTracking = true;
-        try
-        {
-            AppConfig.Theme = appliedTheme;
-            _originalConfig.Theme = appliedTheme;
-            _configManager.CurrentConfig.Theme = appliedTheme;
-
-            AppConfig.ClassColorTemplate = appliedClassColorTemplate;
-            _originalConfig.ClassColorTemplate = appliedClassColorTemplate;
-            _configManager.CurrentConfig.ClassColorTemplate = appliedClassColorTemplate;
-        }
-        finally
-        {
-            _suppressUnsavedChangeTracking = false;
-        }
-
         SubscribeHandlers();
 
         UpdateLanguageDependentCollections();
         _localization.ApplyLanguage(AppConfig.Language);
         await LoadNetworkAdaptersAsync();
-
-        RebuildAvailableFormatFields();
-        RebuildBackgroundImageFitModes();
-        RebuildAvailableThemes();
-        RebuildAvailableClassColorTemplates();
-        SyncOptions();
-
-        // ✅ 初次载入时同步一次当前UID到设置页显示
-        SyncUidFromDataStorage(saveToConfig: false);
 
         _hasUnsavedChanges = false;
         _isLoaded = true;
@@ -437,27 +256,16 @@ public partial class SettingsViewModel : BaseViewModel
     private void InitializeClassColors()
     {
         ClassColorSettings.Clear();
-        var classes = Enum.GetValues<Classes>();
+        var classes = Enum.GetValues<Classes>()
+            .Where(c => c != Classes.Unknown)
+            .ToList();
+
         foreach (var cls in classes)
         {
             var color = _classColorService.GetColor(cls);
             var defaultColor = _classColorService.GetDefaultColor(cls);
             var name = cls.GetLocalizedDescription();
-
-            var vm = new ClassColorSettingViewModel(
-                cls,
-                name,
-                color,
-                defaultColor,
-                AppConfig,
-                ApplyColorChange);
-
-            ClassColorSettings.Add(vm);
-        }
-
-        if (ClassColorSettings.Count > 0)
-        {
-            ClassColorSettings[^1].IsLast = true;
+            ClassColorSettings.Add(new ClassColorSettingViewModel(cls, name, color, defaultColor, AppConfig, ApplyColorChange));
         }
     }
 
@@ -480,11 +288,8 @@ public partial class SettingsViewModel : BaseViewModel
             _deviceManagementService.SetActiveNetworkAdapter(ret);
             return;
         }
-
         _logger.LogWarning("Auto-selection of network adapter failed.");
-        _messageDialogService.Show(
-            _localization.GetString(ResourcesKeys.Settings_NetworkAdapterAutoSelect_Title),
-            _localization.GetString(ResourcesKeys.Settings_NetworkAdapterAutoSelect_Failed)); // Temporary message dialog
+        MessageBox.Show(_localization.GetString(ResourcesKeys.Settings_NetworkAdapterAutoSelect_Failed)); // Temporary message dialog
     }
 
     private async Task LoadNetworkAdaptersAsync()
@@ -509,12 +314,6 @@ public partial class SettingsViewModel : BaseViewModel
             NetworkChange.NetworkAddressChanged += OnSystemNetworkChanged;
             _networkHandlerSubscribed = true;
         }
-
-        if (!_dataStorageHandlerSubscribed)
-        {
-            _dataStorage.DataUpdated += OnDataStorageDataUpdated;
-            _dataStorageHandlerSubscribed = true;
-        }
     }
 
     private async void OnSystemNetworkChanged(object? sender, EventArgs e)
@@ -526,61 +325,6 @@ public partial class SettingsViewModel : BaseViewModel
         catch
         {
             // ignore
-        }
-    }
-
-    private void OnDataStorageDataUpdated()
-    {
-        if (Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
-        {
-            _ = dispatcher.BeginInvoke(new Action(() => SyncUidFromDataStorage(saveToConfig: true)));
-            return;
-        }
-
-        SyncUidFromDataStorage(saveToConfig: true);
-    }
-
-    private void SyncUidFromDataStorage(bool saveToConfig)
-    {
-        var currentUid = _dataStorage.CurrentPlayerInfo.UID;
-        if (currentUid == 0) return;
-
-        var runtimeConfigChanged = _configManager.CurrentConfig.Uid != currentUid;
-        var viewConfigChanged = AppConfig.Uid != currentUid;
-
-        if (viewConfigChanged)
-        {
-            _suppressUnsavedChangeTracking = true;
-            try
-            {
-                AppConfig.Uid = currentUid;
-            }
-            finally
-            {
-                _suppressUnsavedChangeTracking = false;
-            }
-        }
-
-        if (runtimeConfigChanged)
-        {
-            _configManager.CurrentConfig.Uid = currentUid;
-        }
-
-        if (saveToConfig && runtimeConfigChanged)
-        {
-            _ = PersistAutoDetectedUidAsync();
-        }
-    }
-
-    private async Task PersistAutoDetectedUidAsync()
-    {
-        try
-        {
-            await _configManager.SaveAsync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to persist auto-detected UID");
         }
     }
 
@@ -618,15 +362,6 @@ public partial class SettingsViewModel : BaseViewModel
         }
     }
 
-    [RelayCommand]
-    private void HandleMinimizeMaximizeShortcut(object parameter)
-    {
-        if (parameter is KeyEventArgs e)
-        {
-            HandleShortcutInput(e, ShortcutType.MinimizeMaximize);
-        }
-    }
-
     private void OnAppConfigPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (sender is not AppConfig config)
@@ -639,39 +374,14 @@ public partial class SettingsViewModel : BaseViewModel
             _localization.ApplyLanguage(config.Language);
             UpdateLanguageDependentCollections();
         }
-        else if (e.PropertyName == nameof(AppConfig.EnableMarqueeText))
+        else if (e.PropertyName == nameof(AppConfig.MaskPlayerName) && _isLoaded && !config.MaskPlayerName)
         {
-            if (_isLoaded)
+            var title = _localization.GetString(ResourcesKeys.Settings_PlayerNameMask_Warning_Title);
+            var message = _localization.GetString(ResourcesKeys.Settings_PlayerNameMask_Warning_Message);
+            var result = _messageDialogService.Show(title, message);
+            if (result != true)
             {
-                ApplyEnableMarqueeTextImmediately(config.EnableMarqueeText);
-            }
-        }
-        else if (e.PropertyName == nameof(AppConfig.DamageDisplayType))
-        {
-            if (_isLoaded)
-            {
-                ApplyDamageDisplayTypeImmediately(config.DamageDisplayType);
-            }
-        }
-        else if (e.PropertyName == nameof(AppConfig.ShowDamage))
-        {
-            if (_isLoaded)
-            {
-                ApplyShowDamageImmediately(config.ShowDamage);
-            }
-        }
-        else if (e.PropertyName == nameof(AppConfig.ShowDps))
-        {
-            if (_isLoaded)
-            {
-                ApplyShowDpsImmediately(config.ShowDps);
-            }
-        }
-        else if (e.PropertyName == nameof(AppConfig.ShowPercentage))
-        {
-            if (_isLoaded)
-            {
-                ApplyShowPercentageImmediately(config.ShowPercentage);
+                config.MaskPlayerName = true;
             }
         }
         else if (e.PropertyName == nameof(AppConfig.PreferredNetworkAdapter))
@@ -688,74 +398,6 @@ public partial class SettingsViewModel : BaseViewModel
             if (_isLoaded)
             {
                 ApplyOpacityImmediately(config.Opacity);
-            }
-        }
-        else if (e.PropertyName == nameof(AppConfig.ItemOpacity))
-        {
-            if (_isLoaded)
-            {
-                ApplyItemOpacityImmediately(config.ItemOpacity);
-            }
-        }
-        else if (e.PropertyName == nameof(AppConfig.CenterBackgroundOpacity))
-        {
-            if (_isLoaded)
-            {
-                ApplyCenterBackgroundOpacityImmediately(config.CenterBackgroundOpacity);
-            }
-        }
-        else if (e.PropertyName == nameof(AppConfig.BackgroundImageOpacity))
-        {
-            if (_isLoaded)
-            {
-                ApplyBackgroundImageOpacityImmediately(config.BackgroundImageOpacity);
-            }
-        }
-        else if (e.PropertyName == nameof(AppConfig.ThemeColor))
-        {
-            // ✅ Real-time preview for preset theme color buttons as well
-            if (_isLoaded)
-            {
-                ApplyThemeColorImmediately(config.ThemeColor);
-            }
-
-            OnPropertyChanged(nameof(CurrentThemeColor));
-        }
-        else if (e.PropertyName == nameof(AppConfig.CenterBackgroundColor))
-        {
-            if (_isLoaded)
-            {
-                ApplyCenterBackgroundColorImmediately(config.CenterBackgroundColor);
-            }
-
-            OnPropertyChanged(nameof(CurrentBackColor));
-        }
-        else if (e.PropertyName == nameof(AppConfig.BackgroundImagePath))
-        {
-            if (_isLoaded)
-            {
-                ApplyBackgroundImageImmediately(config.BackgroundImagePath);
-            }
-        }
-        else if (e.PropertyName == nameof(AppConfig.BackgroundImageFitMode))
-        {
-            if (_isLoaded)
-            {
-                ApplyBackgroundImageFitModeImmediately(config.BackgroundImageFitMode);
-            }
-        }
-        else if (e.PropertyName == nameof(AppConfig.Theme))
-        {
-            if (_isLoaded)
-            {
-                ApplyThemeImmediately(config.Theme);
-            }
-        }
-        else if (e.PropertyName == nameof(AppConfig.ClassColorTemplate))
-        {
-            if (_isLoaded)
-            {
-                ApplyClassColorTemplateImmediately(config.ClassColorTemplate);
             }
         }
         else if (e.PropertyName is nameof(AppConfig.PlayerInfoFormatString) or nameof(AppConfig.UseCustomFormat))
@@ -780,118 +422,10 @@ public partial class SettingsViewModel : BaseViewModel
             }
         }
 
-        if (_isLoaded && !_suppressUnsavedChangeTracking)
+        if (_isLoaded)
         {
             _hasUnsavedChanges = true;
         }
-    }
-
-    private void ApplyThemeImmediately(string? theme)
-    {
-        if (Application.Current == null)
-            return;
-
-        var themeName = string.IsNullOrWhiteSpace(theme) ? "Light" : theme;
-
-        if (!Enum.TryParse<ApplicationTheme>(themeName, true, out var parsedTheme))
-        {
-            parsedTheme = ApplicationTheme.Light;
-        }
-
-        _configManager.CurrentConfig.Theme = parsedTheme.ToString();
-
-        var mergedDictionaries = Application.Current.Resources.MergedDictionaries;
-
-        for (var i = mergedDictionaries.Count - 1; i >= 0; i--)
-        {
-            if (mergedDictionaries[i] is ThemesDictionary)
-            {
-                mergedDictionaries.RemoveAt(i);
-                break;
-            }
-        }
-
-        mergedDictionaries.Insert(0, new ThemesDictionary
-        {
-            Theme = parsedTheme
-        });
-    }
-
-    private void ApplyClassColorTemplateImmediately(
-        ClassColorTemplate template,
-        bool overwriteManualClassColors = true,
-        IDictionary<Classes, string>? restoreCustomColors = null)
-    {
-        if (Application.Current == null)
-            return;
-
-        _configManager.CurrentConfig.ClassColorTemplate = template;
-
-        var mergedDictionaries = Application.Current.Resources.MergedDictionaries;
-
-        for (var i = mergedDictionaries.Count - 1; i >= 0; i--)
-        {
-            if (mergedDictionaries[i] is ClassColorsDictionary)
-            {
-                mergedDictionaries.RemoveAt(i);
-                break;
-            }
-        }
-
-        var insertIndex = Math.Min(1, mergedDictionaries.Count);
-        mergedDictionaries.Insert(insertIndex, new ClassColorsDictionary
-        {
-            Template = template
-        });
-
-        ClassColorCache.InitDefaultColors();
-        ClassColorCache.ResetAllCache();
-
-        if (overwriteManualClassColors)
-        {
-            AppConfig.CustomClassColors.Clear();
-            _configManager.CurrentConfig.CustomClassColors.Clear();
-        }
-        else if (restoreCustomColors != null)
-        {
-            AppConfig.CustomClassColors.Clear();
-            _configManager.CurrentConfig.CustomClassColors.Clear();
-
-            foreach (var kv in restoreCustomColors)
-            {
-                AppConfig.CustomClassColors[kv.Key] = kv.Value;
-                _configManager.CurrentConfig.CustomClassColors[kv.Key] = kv.Value;
-            }
-
-            ClassColorCache.UpdateColors(restoreCustomColors);
-        }
-
-        InitializeClassColors();
-    }
-
-    private void ApplyEnableMarqueeTextImmediately(bool value)
-    {
-        _configManager.CurrentConfig.EnableMarqueeText = value;
-    }
-
-    private void ApplyDamageDisplayTypeImmediately(NumberDisplayMode value)
-    {
-        _configManager.CurrentConfig.DamageDisplayType = value;
-    }
-
-    private void ApplyShowDamageImmediately(bool value)
-    {
-        _configManager.CurrentConfig.ShowDamage = value;
-    }
-
-    private void ApplyShowDpsImmediately(bool value)
-    {
-        _configManager.CurrentConfig.ShowDps = value;
-    }
-
-    private void ApplyShowPercentageImmediately(bool value)
-    {
-        _configManager.CurrentConfig.ShowPercentage = value;
     }
 
     /// <summary>
@@ -902,51 +436,6 @@ public partial class SettingsViewModel : BaseViewModel
         // Update the actual application config (not just the clone)
         // This allows real-time preview while still supporting cancel
         _configManager.CurrentConfig.Opacity = opacity;
-    }
-
-    private void ApplyItemOpacityImmediately(double opacity)
-    {
-        _configManager.CurrentConfig.ItemOpacity = opacity;
-    }
-
-    private void ApplyCenterBackgroundOpacityImmediately(double opacity)
-    {
-        _configManager.CurrentConfig.CenterBackgroundOpacity = opacity;
-    }
-
-    private void ApplyBackgroundImageOpacityImmediately(double opacity)
-    {
-        _configManager.CurrentConfig.BackgroundImageOpacity = opacity;
-    }
-
-    /// <summary>
-    /// ✅ Immediately apply theme color change to the running application config for real-time preview
-    /// </summary>
-    private void ApplyThemeColorImmediately(string? themeColor)
-    {
-        if (string.IsNullOrWhiteSpace(themeColor))
-            return;
-
-        _configManager.CurrentConfig.ThemeColor = themeColor;
-    }
-
-    private void ApplyCenterBackgroundColorImmediately(string? color)
-    {
-        if (string.IsNullOrWhiteSpace(color))
-            return;
-
-        _configManager.CurrentConfig.CenterBackgroundColor = color;
-    }
-
-    private void ApplyBackgroundImageImmediately(string? backgroundImagePath)
-    {
-        _configManager.CurrentConfig.BackgroundImagePath =
-            string.IsNullOrWhiteSpace(backgroundImagePath) ? null : backgroundImagePath;
-    }
-
-    private void ApplyBackgroundImageFitModeImmediately(BackgroundImageFitMode mode)
-    {
-        _configManager.CurrentConfig.BackgroundImageFitMode = mode;
     }
 
     /// <summary>
@@ -993,9 +482,6 @@ public partial class SettingsViewModel : BaseViewModel
             case ShortcutType.TopMost:
                 AppConfig.TopmostShortcut = shortcutData;
                 break;
-            case ShortcutType.MinimizeMaximize:
-                AppConfig.MinimizeMaximizeShortcut = shortcutData;
-                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(shortcutType), shortcutType, null);
         }
@@ -1017,9 +503,6 @@ public partial class SettingsViewModel : BaseViewModel
                 break;
             case ShortcutType.TopMost:
                 AppConfig.TopmostShortcut = shortCut;
-                break;
-            case ShortcutType.MinimizeMaximize:
-                AppConfig.MinimizeMaximizeShortcut = shortCut;
                 break;
         }
     }
@@ -1073,8 +556,8 @@ public partial class SettingsViewModel : BaseViewModel
     {
         var dialog = new Microsoft.Win32.OpenFileDialog
         {
-            Title = _localization.GetString(ResourcesKeys.Settings_Theme_SelectImage),
-            Filter = _localization.GetString(ResourcesKeys.Settings_Theme_BackgroundImage_Filter),
+            Title = "选择背景图片",
+            Filter = "PNG图片 (*.png)|*.png",
             CheckFileExists = true
         };
 
@@ -1096,44 +579,28 @@ public partial class SettingsViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// ⭐ 设置主题颜色（现在也会实时预览）
+    /// ⭐ 新增: 设置主题颜色（实时预览）
     /// </summary>
     [RelayCommand]
     private void SetThemeColor(string color)
     {
-        if (string.IsNullOrWhiteSpace(color))
-            return;
-
         _logger.LogInformation("Theme color set to: {Color}", color);
         AppConfig.ThemeColor = color;
-        // 即时预览已在 OnAppConfigPropertyChanged(nameof(AppConfig.ThemeColor)) 里统一处理
-    }
-
-    [RelayCommand]
-    private void SetBackColor(string color)
-    {
-        if (string.IsNullOrWhiteSpace(color))
-            return;
-
-        _logger.LogInformation("Center background color set to: {Color}", color);
-        AppConfig.CenterBackgroundColor = color;
+        OnPropertyChanged(nameof(CurrentThemeColor));
     }
 
     /// <summary>
-    /// ⭐ 从颜色选择器更新主题颜色（用于Color对象）
+    /// ⭐ 新增: 从颜色选择器更新主题颜色（用于Color对象）
     /// </summary>
     [RelayCommand]
     private void UpdateThemeColorFromPicker(Color color)
     {
-        _logger.LogDebug("Theme color picked: #{R:X2}{G:X2}{B:X2}", color.R, color.G, color.B);
-        CurrentThemeColor = color;
-    }
+        var hexColor = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+        _logger.LogDebug("Theme color picked: {Color}", hexColor);
+        AppConfig.ThemeColor = hexColor;
 
-    [RelayCommand]
-    private void UpdateBackColorFromPicker(Color color)
-    {
-        _logger.LogDebug("Center background color picked: #{R:X2}{G:X2}{B:X2}", color.R, color.G, color.B);
-        CurrentBackColor = color;
+        // ⭐ 实时应用到当前运行的配置（预览效果）
+        _configManager.CurrentConfig.ThemeColor = hexColor;
     }
 
     [RelayCommand]
@@ -1145,16 +612,17 @@ public partial class SettingsViewModel : BaseViewModel
     [RelayCommand]
     private void TryGetCurrentUid()
     {
-        SyncUidFromDataStorage(saveToConfig: true);
-
-        var title = _localization.GetString(ResourcesKeys.Settings_UID_Setting_Title);
-        var message1 = _localization.GetString(ResourcesKeys.Settings_UID_Setting_Message1);
-        var message2 = _localization.GetString(ResourcesKeys.Settings_UID_Setting_Message2);
-
-        if (AppConfig.Uid == 0)
-            _messageDialogService.Show(title, message1);
+        if (_dataStorage.CurrentPlayerInfo.UID == 0)
+        {
+            _messageDialogService.Show("Set Player UID",
+                "No current player UID captured. Please change map and try again.");
+        }
         else
-            _messageDialogService.Show(title, message2);
+        {
+            _messageDialogService.Show("Set Player UID",
+                "You are trying to set UID for current player. This data may not be accurate, please verify on your own.");
+            AppConfig.Uid = _dataStorage.CurrentPlayerInfo.UID;
+        }
     }
 
     /// <summary>
@@ -1176,34 +644,9 @@ public partial class SettingsViewModel : BaseViewModel
         set
         {
             var hexColor = $"#{value.R:X2}{value.G:X2}{value.B:X2}";
-            if (AppConfig.ThemeColor == hexColor)
-                return;
-
             AppConfig.ThemeColor = hexColor;
-            // 即时预览已在 OnAppConfigPropertyChanged(nameof(AppConfig.ThemeColor)) 里统一处理
-        }
-    }
-
-    public Color CurrentBackColor
-    {
-        get
-        {
-            try
-            {
-                return (Color)ColorConverter.ConvertFromString(AppConfig.CenterBackgroundColor);
-            }
-            catch
-            {
-                return (Color)ColorConverter.ConvertFromString("#191919");
-            }
-        }
-        set
-        {
-            var hexColor = $"#{value.R:X2}{value.G:X2}{value.B:X2}";
-            if (AppConfig.CenterBackgroundColor == hexColor)
-                return;
-
-            AppConfig.CenterBackgroundColor = hexColor;
+            _configManager.CurrentConfig.ThemeColor = hexColor;
+            OnPropertyChanged();
         }
     }
 
@@ -1214,25 +657,8 @@ public partial class SettingsViewModel : BaseViewModel
     {
         if (_originalConfig == null) return;
 
-        // Restore real-time preview values
-        _configManager.CurrentConfig.EnableMarqueeText = _originalConfig.EnableMarqueeText;
-        _configManager.CurrentConfig.DamageDisplayType = _originalConfig.DamageDisplayType;
-        _configManager.CurrentConfig.ShowDamage = _originalConfig.ShowDamage;
-        _configManager.CurrentConfig.ShowDps = _originalConfig.ShowDps;
-        _configManager.CurrentConfig.ShowPercentage = _originalConfig.ShowPercentage;
+        // Restore opacity to original value
         _configManager.CurrentConfig.Opacity = _originalConfig.Opacity;
-        _configManager.CurrentConfig.ItemOpacity = _originalConfig.ItemOpacity;
-        _configManager.CurrentConfig.CenterBackgroundOpacity = _originalConfig.CenterBackgroundOpacity;
-        _configManager.CurrentConfig.BackgroundImageOpacity = _originalConfig.BackgroundImageOpacity;
-        _configManager.CurrentConfig.ThemeColor = _originalConfig.ThemeColor;
-        _configManager.CurrentConfig.CenterBackgroundColor = _originalConfig.CenterBackgroundColor;
-        _configManager.CurrentConfig.BackgroundImagePath = _originalConfig.BackgroundImagePath;
-        _configManager.CurrentConfig.BackgroundImageFitMode = _originalConfig.BackgroundImageFitMode;
-        _configManager.CurrentConfig.Theme = _originalConfig.Theme;
-        _configManager.CurrentConfig.ClassColorTemplate = _originalConfig.ClassColorTemplate;
-
-        ApplyThemeImmediately(_originalConfig.Theme);
-        ApplyClassColorTemplateImmediately(_originalConfig.ClassColorTemplate, false, _originalConfig.CustomClassColors);
 
         // Restore player info format settings
         _configManager.CurrentConfig.UseCustomFormat = _originalConfig.UseCustomFormat;
@@ -1242,12 +668,6 @@ public partial class SettingsViewModel : BaseViewModel
     private void OnCultureChanged(object? sender, CultureInfo culture)
     {
         UpdateLanguageDependentCollections();
-        RebuildAvailableFormatFields();
-        RebuildBackgroundImageFitModes();
-        RebuildAvailableThemes();
-        RebuildAvailableClassColorTemplates();
-        SyncOptions();
-        OnPropertyChanged(nameof(FormatPreview));
     }
 
     private void UnsubscribeHandlers()
@@ -1263,12 +683,6 @@ public partial class SettingsViewModel : BaseViewModel
             NetworkChange.NetworkAvailabilityChanged -= OnSystemNetworkChanged;
             NetworkChange.NetworkAddressChanged -= OnSystemNetworkChanged;
             _networkHandlerSubscribed = false;
-        }
-
-        if (_dataStorageHandlerSubscribed)
-        {
-            _dataStorage.DataUpdated -= OnDataStorageDataUpdated;
-            _dataStorageHandlerSubscribed = false;
         }
     }
 }
@@ -1297,54 +711,19 @@ public partial class SettingsViewModel
 
     private void SyncNumberDisplayModeOption()
     {
-        var (ret, opt) = SyncOption(
-            SelectedNumberDisplayMode,
-            AvailableNumberDisplayModes,
+        var (ret, opt) = SyncOption(SelectedNumberDisplayMode, AvailableNumberDisplayModes,
             AppConfig.DamageDisplayType);
-
         if (ret) SelectedNumberDisplayMode = opt!;
-    }
-
-    private void SyncBackgroundImageFitModeOption()
-    {
-        var (ret, opt) = SyncOption(
-            SelectedBackgroundImageFitMode,
-            AvailableBackgroundImageFitModes,
-            AppConfig.BackgroundImageFitMode);
-
-        if (ret) SelectedBackgroundImageFitMode = opt!;
-    }
-
-    private void SyncThemeOption()
-    {
-        var (ret, opt) = SyncOption(
-            SelectedTheme,
-            AvailableThemes,
-            AppConfig.Theme);
-
-        if (ret) SelectedTheme = opt!;
-    }
-
-    private void SyncClassColorTemplateOption()
-    {
-        var (ret, opt) = SyncOption(
-            SelectedClassColorTemplate,
-            AvailableClassColorTemplates,
-            AppConfig.ClassColorTemplate);
-
-        if (ret) SelectedClassColorTemplate = opt!;
     }
 
     private void SyncOptions()
     {
         SyncLanguageOption();
         SyncNumberDisplayModeOption();
-        SyncBackgroundImageFitModeOption();
-        SyncThemeOption();
-        SyncClassColorTemplateOption();
     }
 
-    private static (bool result, Option<T>? opt) SyncOption<T>(Option<T>? option, List<Option<T>> availableList, T origin)
+    private static (bool result, Option<T>? opt) SyncOption<T>(Option<T>? option, List<Option<T>> availableList,
+        T origin)
     {
         if (Equal(option, origin)) return (false, null);
 
@@ -1352,7 +731,7 @@ public partial class SettingsViewModel
         Debug.Assert(match != null);
         return (true, match);
 
-        static bool Equal(Option<T>? o1, T o2)
+        bool Equal(Option<T>? o1, T o2)
         {
             return o1?.Value?.Equals(o2) ?? false;
         }
@@ -1378,8 +757,7 @@ public enum ShortcutType
 {
     MouseThrough,
     ClearData,
-    TopMost,
-    MinimizeMaximize
+    TopMost
 }
 
 public sealed class SettingsDesignTimeViewModel : SettingsViewModel
@@ -1397,10 +775,7 @@ public sealed class SettingsDesignTimeViewModel : SettingsViewModel
         AppConfig = new AppConfig
         {
             // set friendly defaults shown in designer
-            Opacity = 100,
-            CenterBackgroundOpacity = 30,
-            BackgroundImageOpacity = 50,
-            BackgroundImageFitMode = BackgroundImageFitMode.FitToWindow,
+            Opacity = 85,
             CombatTimeClearDelay = 5,
             ClearLogAfterTeleport = false,
             Language = Language.Auto
@@ -1428,22 +803,8 @@ public sealed class SettingsDesignTimeViewModel : SettingsViewModel
             new Option<NumberDisplayMode>(NumberDisplayMode.KMB, "三位计数法 (KMB)")
         };
 
-        AvailableThemes = new List<Option<string>>
-        {
-            new Option<string>("Light", "Light"),
-            new Option<string>("Dark", "Dark")
-        };
-
-        AvailableClassColorTemplates = new List<Option<ClassColorTemplate>>
-        {
-            new Option<ClassColorTemplate>(ClassColorTemplate.Light, "Light"),
-            new Option<ClassColorTemplate>(ClassColorTemplate.Dark, "Dark")
-        };
-
         SelectedLanguage = AvailableLanguages[0];
         SelectedNumberDisplayMode = AvailableNumberDisplayModes[0];
-        SelectedTheme = AvailableThemes[0];
-        SelectedClassColorTemplate = AvailableClassColorTemplates[0];
     }
 }
 
@@ -1482,11 +843,10 @@ internal sealed class DesignDataStorage : IDataStorage
     public event DataUpdatedEventHandler? DataUpdated;
     public event ServerChangedEventHandler? ServerChanged;
     public event Action? BeforeSectionCleared;
+
     public event SectionEndedEventHandler? SectionEnded;
 #pragma warning restore
-
     public void SetPlayerCombatStateTime(long uid, long time) { }
-    public void SetCurrentPlayerUid(long uid) { }
 
     public void LoadPlayerInfoFromFile() { }
     public void SavePlayerInfoToFile() { }
@@ -1502,10 +862,10 @@ internal sealed class DesignDataStorage : IDataStorage
     public void SetPlayerHP(long playerUid, long hp) { }
     public void SetPlayerMaxHP(long playerUid, long maxHp) { }
     public void SetPlayerCombatState(long uid, bool combatState) { }
+
     public void SetPlayerName(long playerUid, string playerName) { }
     public void SetPlayerCombatPower(long playerUid, int combatPower) { }
     public void SetPlayerProfessionID(long playerUid, int professionId) { }
-    public void SetPlayerGuild(long playerUid, string guild) { }
     public void AddBattleLog(BattleLog log) { }
     public void SetPlayerRankLevel(long playerUid, int readInt32) { }
     public void SetPlayerCritical(long playerUid, int readInt32) { }

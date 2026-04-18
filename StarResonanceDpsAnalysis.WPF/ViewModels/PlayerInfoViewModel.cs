@@ -171,7 +171,7 @@ public partial class PlayerInfoViewModel : BaseViewModel
         result = GetPowerLevelRegex().Replace(result, PowerLevel.ToString());
         result = GetSeasonStrengthRegex().Replace(result, SeasonStrength.ToString());
         result = GetSeasonLevelRegex().Replace(result, SeasonLevel.ToString());
-        //result = GetGuildRegex().Replace(result, Guild);
+        result = GetGuildRegex().Replace(result, Guild);
         result = GetUidRegex().Replace(result, Uid.ToString());
 
         // 清理多余的空格、括号等
@@ -188,19 +188,13 @@ public partial class PlayerInfoViewModel : BaseViewModel
     private string GetName()
     {
         var hasName = !string.IsNullOrWhiteSpace(Name);
-
-        if (hasName)
+        var name = hasName switch
         {
-            // 特殊NPC中国語名はマスク対象外
-            if (IsSpecialNpcChineseName(Name))
-            {
-                return Name!;
-            }
-
-            return Mask ? NameMasker.Mask(Name!) : Name!;
-        }
-
-        return $"UID:{(Mask ? NameMasker.Mask(Uid.ToString()) : Uid.ToString())}";
+            true => Mask ? NameMasker.Mask(Name!) : Name!,
+            false => $"UID:{(Mask ? NameMasker.Mask(Uid.ToString()) : Uid.ToString())}"
+        };
+        Debug.Assert(name != null);
+        return name;
     }
 
     private string GetSpec()

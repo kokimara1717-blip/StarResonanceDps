@@ -32,18 +32,6 @@ public enum UpdateSourceType
     SelfHosted = 1,
 }
 
-public enum BackgroundImageFitMode
-{
-    FitWidth = 0,     // 幅に合わせる
-    FitToWindow = 1 // 画面のサイズに合わせる
-}
-
-public enum ClassColorTemplate
-{
-    Light = 0,
-    Dark = 1
-}
-
 /// <summary>
 /// 应用配置类
 /// 集成了配置管理器功能，支持INI文件持久化和属性变更通知
@@ -93,47 +81,19 @@ public partial class AppConfig : ObservableObject
     /// 是否过图清空全程记录
     /// </summary>
     [ObservableProperty]
-    private bool _clearLogAfterTeleport = true;
+    private bool _clearLogAfterTeleport;
 
     /// <summary>
-    /// 窗口不透明度 (0-100) 
+    /// 不透明度 (0-100) (有效范围: 5-95), 默认95, 0为全透明(会影响鼠标交互)
     /// </summary>
     [ObservableProperty]
     private double _opacity = 100;
 
     /// <summary>
-    /// items不透明度 (0-100) 
-    /// </summary>
-    [ObservableProperty]
-    private double _itemOpacity = 100;
-
-    /// <summary>
-    /// 中央背景颜色透明度 (0-100)
-    /// 默认值：30
-    /// </summary>
-    [ObservableProperty]
-    private double _centerBackgroundOpacity = 65;
-
-    /// <summary>
-    /// 背景图片透明度 (0-100)
-    /// 默认值：50
-    /// </summary>
-    [ObservableProperty]
-    private double _backgroundImageOpacity = 50;
-
-    /// <summary>
-    /// 玩家信息打码<br/>
-    /// Mask player info
+    /// 玩家名脱敏
     /// </summary>
     [ObservableProperty]
     private bool _maskPlayerName = true;
-
-    /// <summary>
-    /// DPS统计页面 - 是否隐藏顶部统计切换标签
-    /// 默认值：true (不显示)
-    /// </summary>
-    [ObservableProperty]
-    private bool _hideStatisticTabs = true;
 
     /// <summary>
     /// 鼠标穿透开关 (WPF)
@@ -147,9 +107,6 @@ public partial class AppConfig : ObservableObject
     /// </summary>
     [ObservableProperty]
     private string _theme = "Light";
-
-    [ObservableProperty]
-    private ClassColorTemplate _classColorTemplate = ClassColorTemplate.Light;
 
     /// <summary>
     /// 自定义职业颜色
@@ -192,12 +149,6 @@ public partial class AppConfig : ObservableObject
     /// </summary>
     [ObservableProperty]
     private KeyBinding _clearDataShortcut = new(Key.F9, ModifierKeys.None);
-
-    /// <summary>
-    /// 窗口最小化/最大化切换快捷键
-    /// </summary>
-    [ObservableProperty]
-    private KeyBinding _minimizeMaximizeShortcut = new(Key.F10, ModifierKeys.None);
 
     /// <summary>
     /// 当前窗口是否置顶
@@ -330,28 +281,19 @@ public partial class AppConfig : ObservableObject
     private int _timeSeriesSampleCapacity = 300;
 
     /// <summary>
-    /// 顶部栏和底部栏主题颜色
-    /// 默认值：#1690F8
+    /// ⭐ 新增: 窗口主题颜色（顶部栏和底部栏）
+    /// 默认值：#1690F8 (蓝色)
     /// </summary>
     [ObservableProperty]
     private string _themeColor = "#1690F8";
 
     /// <summary>
-    /// 中央背景颜色
-    /// 默认值：#2F2F2F
-    /// </summary>
-    [ObservableProperty]
-    private string _centerBackgroundColor = "#2F2F2F";
-
-    /// <summary>
-    /// 背景图片路径
+    /// ⭐ 新增: 背景图片路径
+    /// 只支持PNG格式
     /// </summary>
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonConverter(typeof(Converters.JsonEmptyStringToNullConverter))]
     private string? _backgroundImagePath;
-
-    [ObservableProperty]
-    private BackgroundImageFitMode _backgroundImageFitMode = BackgroundImageFitMode.FitWidth;
 
     /// <summary>
     /// DPS显示计算模式
@@ -391,8 +333,13 @@ public partial class AppConfig : ObservableObject
 
     public bool UseProcessPortsFilter { get; set; }
 
+    /// <summary>
+    /// Partial method called after BackgroundImagePath has changed.
+    /// Ensures empty strings are converted to null.
+    /// </summary>
     partial void OnBackgroundImagePathChanged(string? value)
     {
+        // If somehow an empty string got through, convert it to null
         if (string.IsNullOrWhiteSpace(value))
         {
             _backgroundImagePath = null;
@@ -406,6 +353,7 @@ public partial class AppConfig : ObservableObject
 
     public AppConfig Clone()
     {
+        // TODO: Add unittest
         var json = JsonConvert.SerializeObject(this);
         return JsonConvert.DeserializeObject<AppConfig>(json)!;
     }

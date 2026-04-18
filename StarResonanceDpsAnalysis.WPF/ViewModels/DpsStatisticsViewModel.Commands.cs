@@ -32,7 +32,6 @@ public partial class DpsStatisticsViewModel
     private void OpenSettings()
     {
         _windowManagement.SettingsView.Show();
-        _windowManagement.SettingsView.Activate();
     }
 
     [RelayCommand]
@@ -89,7 +88,7 @@ public partial class DpsStatisticsViewModel
     private void SetSkillDisplayLimit(int limit)
     {
         var clampedLimit = Math.Max(0, limit);
-        _logger.LogDebug("SetSkillDisplayLimit: {Message} {Limit}",
+        _logger.LogDebug("SetSkillDisplayLimit: {Message} {Limit}", 
             _localizationManager.GetString(ResourcesKeys.Common_SkillDisplayLimitChanged, defaultValue: "Skill display limit set to"),
             clampedLimit);
 
@@ -101,14 +100,14 @@ public partial class DpsStatisticsViewModel
 
         _configManager.CurrentConfig.SkillDisplayLimit = clampedLimit;
         _ = _configManager.SaveAsync();
-        _logger.LogDebug("{Message} {Limit}",
+        _logger.LogDebug("{Message} {Limit}", 
             _localizationManager.GetString(ResourcesKeys.Common_SkillDisplayLimitSaved, defaultValue: "Skill display limit saved to config:"),
             clampedLimit);
 
         // Notify that current data's SkillDisplayLimit changed
         OnPropertyChanged(nameof(CurrentStatisticData));
 
-        _logger.LogDebug("SetSkillDisplayLimit: {Message}",
+        _logger.LogDebug("SetSkillDisplayLimit: {Message}", 
             _localizationManager.GetString(ResourcesKeys.Common_SkillListRefreshed, defaultValue: "Skill list refreshed for all slots"));
     }
 
@@ -203,10 +202,10 @@ public partial class DpsStatisticsViewModel
         }
 
         // UID is configured, open personal DPS window normally
-        _logger.LogInformation("{Message}, UID={Uid}",
+        _logger.LogInformation("{Message}, UID={Uid}", 
             _localizationManager.GetString(ResourcesKeys.Info_OpeningPersonalDps, defaultValue: "Opening personal training mode"),
             userUid);
-        _windowManagement.OpenPersonalDpsView();
+        _windowManagement.PersonalDpsView.Show();
         _windowManagement.DpsStatisticsView.Hide();
     }
 
@@ -215,9 +214,18 @@ public partial class DpsStatisticsViewModel
     /// Implemented by binding Window.Topmost to AppConfig.TopmostEnabled.
     /// </summary>
     [RelayCommand]
-    private void ToggleTopmost()
+    private async Task ToggleTopmost()
     {
         AppConfig.TopmostEnabled = !AppConfig.TopmostEnabled;
+        try
+        {
+            await _configManager.SaveAsync(AppConfig);
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Ignore
+            _logger.LogError(ex, "Failed to save AppConfig");
+        }
     }
 
     [RelayCommand]
@@ -228,9 +236,6 @@ public partial class DpsStatisticsViewModel
 
         var vm = _windowManagement.SkillBreakdownView.DataContext as SkillBreakdownViewModel;
         Debug.Assert(vm != null, "vm!=null");
-
-        var allowAutoResumeToLive = !IsViewingHistory;
-        Action returnToLiveContext = ResetAll;
 
         var uid = target.Player.Uid;
         var scope = _dataSourceEngine.CurrentSource.Scope;
@@ -266,14 +271,8 @@ public partial class DpsStatisticsViewModel
             ? info
             : null;
 
-        vm.InitializeFrom(stats, playerInfo, StatisticIndex, logs, scope, allowAutoResumeToLive, returnToLiveContext);
+        vm.InitializeFrom(stats, playerInfo, StatisticIndex, logs, scope);
         _windowManagement.SkillBreakdownView.Show();
         _windowManagement.SkillBreakdownView.Activate();
-    }
-
-    [RelayCommand]
-    private void SetMetricType(StatisticType statisticType)
-    {
-        StatisticIndex = statisticType;
     }
 }

@@ -27,12 +27,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-          cache: true
-          cache-dependency-path: |
-            **/*.csproj
-            **/*.props
-            **/*.targets
-            **/packages.lock.json
 
       - name: Generate changelog since last tag
         id: changelog
@@ -65,7 +59,7 @@ jobs:
         run: dotnet test StarResonanceDpsAnalysis.slnx --configuration ${{ matrix.configuration }} --no-build
 
       - name: Publish project
-        run: dotnet publish StarResonanceDpsAnalysis.WPF/StarResonanceDpsAnalysis.WPF.csproj -c ${{ matrix.configuration }} -o publish -f net8.0-windows --no-restore
+        run: dotnet publish StarResonanceDpsAnalysis.WPF/StarResonanceDpsAnalysis.WPF.csproj -c ${{ matrix.configuration }} -o publish -f net8.0-windows
 
       - name: Verify publish output
         run: dir publish
@@ -94,7 +88,7 @@ jobs:
         with:
           name: ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
-          prerelease: false
+          prerelease: true
           body: |
             ✅ Automated Release from GitHub Actions
             • Build: ${{ github.run_number }}

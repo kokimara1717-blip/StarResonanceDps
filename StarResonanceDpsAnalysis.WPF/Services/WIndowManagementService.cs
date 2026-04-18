@@ -1,55 +1,33 @@
-using System.Diagnostics;
-using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using StarResonanceDpsAnalysis.WPF.Views;
+using System.Windows;
 using Microsoft.Extensions.Logging;
 using StarResonanceDpsAnalysis.WPF.Logging;
-using StarResonanceDpsAnalysis.WPF.Views;
 
 namespace StarResonanceDpsAnalysis.WPF.Services;
 
-public class WindowManagementService(IServiceProvider provider, ILogger<WindowManagementService> logger)
-    : IWindowManagementService
+public class WindowManagementService(IServiceProvider provider, ILogger<WindowManagementService> logger) : IWindowManagementService
 {
-    private readonly ILogger<WindowManagementService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly IServiceProvider _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+    private AboutView? _aboutView;
+    private BossTrackerView? _bossTrackerView;
+    private DamageReferenceView? _damageReferenceView;
+    private DpsStatisticsView? _dpsStatisticsView;
+    private ModuleSolveView? _moduleSolveView;
+    private PersonalDpsView? _personalDpsView;
+    private SettingsView? _settingsView;
+    private SkillBreakdownView? _skillBreakDownView;
+    private SkillLogView? _skillLogView;
 
-    private readonly Dictionary<Type, Window> _toolWindows = new();
-
-    public AboutView AboutView => GetOrCreateToolWindow<AboutView>();
-
-    public BossTrackerView BossTrackerView => GetOrCreateToolWindow<BossTrackerView>();
-
-    public DamageReferenceView DamageReferenceView => GetOrCreateToolWindow<DamageReferenceView>();
-
-    public DpsStatisticsView DpsStatisticsView => GetOrCreateToolWindow<DpsStatisticsView>();
-
-    public MainView MainView
-        => InvokeOnUiThread(() => field ??= _provider.GetRequiredService<MainView>());
-
-    public ModuleSolveView ModuleSolveView => GetOrCreateToolWindow<ModuleSolveView>();
-
-    public PersonalDpsView PersonalDpsView => GetOrCreateToolWindow<PersonalDpsView>();
-
-    public SettingsView SettingsView => GetOrCreateToolWindow<SettingsView>();
-
-    public SkillBreakdownView SkillBreakdownView => GetOrCreateToolWindow<SkillBreakdownView>();
-
-    public SkillLogView SkillLogView => GetOrCreateToolWindow<SkillLogView>();
-
-    public void OpenPersonalDpsView()
-    {
-        RunOnUiThread(() => PersonalDpsView.Show());
-    }
-
-    public void ClosePersonalDpsView()
-    {
-        RunOnUiThread(() =>
-        {
-            if (!_toolWindows.Remove(typeof(PersonalDpsView), out var window)) return;
-            Debug.Assert(window is PersonalDpsView);
-            window.Close();
-        });
-    }
+    public AboutView AboutView => _aboutView ??= CreateAboutView();
+    public BossTrackerView BossTrackerView => _bossTrackerView ??= CreateBossTrackerView();
+    public DamageReferenceView DamageReferenceView => _damageReferenceView ??= CreateDamageReferenceView();
+    public DpsStatisticsView DpsStatisticsView => _dpsStatisticsView ??= CreateDpsStatisticsView();
+    public MainView MainView => provider.GetRequiredService<MainView>();
+    public ModuleSolveView ModuleSolveView => _moduleSolveView ??= CreateModuleSolveView();
+    public PersonalDpsView PersonalDpsView => _personalDpsView ??= CreatePersonalDpsView();
+    public SettingsView SettingsView => _settingsView ??= CreateSettingsView();
+    public SkillBreakdownView SkillBreakdownView => _skillBreakDownView ??= CreateSkillBreakDownView();
+    public SkillLogView SkillLogView => _skillLogView ??= CreateSkillLogView();
 
     private static void ConfigureOwnedToolWindow(Window view)
     {
@@ -61,51 +39,122 @@ public class WindowManagementService(IServiceProvider provider, ILogger<WindowMa
         // view.ShowInTaskbar = false; // only one taskbar icon (main)
     }
 
-    private void RunOnUiThread(Action action)
-        => InvokeOnUiThread(() =>
-        {
-            action();
-            return true;
-        });
-
-    private T InvokeOnUiThread<T>(Func<T> factory)
+    private AboutView CreateAboutView()
     {
-        var app = Application.Current;
-        if (app?.Dispatcher == null || app.Dispatcher.CheckAccess())
-            return factory();
-        return app.Dispatcher.Invoke(factory);
-    }
-
-    private T GetOrCreateToolWindow<T>() where T : Window
-    {
-        return InvokeOnUiThread(() =>
-        {
-            if (_toolWindows.TryGetValue(typeof(T), out var existing) && existing is T typed)
-            {
-                return typed;
-            }
-
-            var view = CreateWindowCore<T>();
-            _toolWindows[typeof(T)] = view;
-            return view;
-        });
-    }
-
-    private T CreateWindowCore<T>() where T : Window
-    {
-        var view = _provider.GetRequiredService<T>();
+        var view = provider.GetRequiredService<AboutView>();
         ConfigureOwnedToolWindow(view);
-        var windowName = typeof(T).Name;
-        _logger.LogDebug(WpfLogEvents.WindowCreated, "Window created: {Window}", windowName);
+        logger.LogDebug(WpfLogEvents.WindowCreated, "Window created: {Window}", nameof(AboutView));
         view.Closed += (_, _) =>
         {
-            _ = _toolWindows.Remove(typeof(T));
-            _logger.LogDebug(WpfLogEvents.WindowClosed, "Window closed: {Window}", windowName);
+            if (_aboutView == view) _aboutView = null;
+            logger.LogDebug(WpfLogEvents.WindowClosed, "Window closed: {Window}", nameof(AboutView));
         };
-
         return view;
     }
 
+    private BossTrackerView CreateBossTrackerView()
+    {
+        var view = provider.GetRequiredService<BossTrackerView>();
+        ConfigureOwnedToolWindow(view);
+        logger.LogDebug(WpfLogEvents.WindowCreated, "Window created: {Window}", nameof(BossTrackerView));
+        view.Closed += (_, _) =>
+        {
+            if (_bossTrackerView == view) _bossTrackerView = null;
+            logger.LogDebug(WpfLogEvents.WindowClosed, "Window closed: {Window}", nameof(BossTrackerView));
+        };
+        return view;
+    }
+
+    private DamageReferenceView CreateDamageReferenceView()
+    {
+        var view = provider.GetRequiredService<DamageReferenceView>();
+        ConfigureOwnedToolWindow(view);
+        logger.LogDebug(WpfLogEvents.WindowCreated, "Window created: {Window}", nameof(DamageReferenceView));
+        view.Closed += (_, _) =>
+        {
+            if (_damageReferenceView == view) _damageReferenceView = null;
+            logger.LogDebug(WpfLogEvents.WindowClosed, "Window closed: {Window}", nameof(DamageReferenceView));
+        };
+        return view;
+    }
+
+    private DpsStatisticsView CreateDpsStatisticsView()
+    {
+        var view = provider.GetRequiredService<DpsStatisticsView>();
+        ConfigureOwnedToolWindow(view);
+        logger.LogDebug(WpfLogEvents.WindowCreated, "Window created: {Window}", nameof(DpsStatisticsView));
+        view.Closed += (_, _) =>
+        {
+            if (_dpsStatisticsView == view) _dpsStatisticsView = null;
+            logger.LogDebug(WpfLogEvents.WindowClosed, "Window closed: {Window}", nameof(DpsStatisticsView));
+        };
+        return view;
+    }
+
+    private ModuleSolveView CreateModuleSolveView()
+    {
+        var view = provider.GetRequiredService<ModuleSolveView>();
+        ConfigureOwnedToolWindow(view);
+        logger.LogDebug(WpfLogEvents.WindowCreated, "Window created: {Window}", nameof(ModuleSolveView));
+        view.Closed += (_, _) =>
+        {
+            if (_moduleSolveView == view) _moduleSolveView = null;
+            logger.LogDebug(WpfLogEvents.WindowClosed, "Window closed: {Window}", nameof(ModuleSolveView));
+        };
+        return view;
+    }
+
+    private PersonalDpsView CreatePersonalDpsView()
+    {
+        var view = provider.GetRequiredService<PersonalDpsView>();
+        ConfigureOwnedToolWindow(view);
+        logger.LogDebug(WpfLogEvents.WindowCreated, "Window created: {Window}", nameof(PersonalDpsView));
+        view.Closed += (_, _) =>
+        {
+            if (_personalDpsView == view) _personalDpsView = null;
+            logger.LogDebug(WpfLogEvents.WindowClosed, "Window closed: {Window}", nameof(PersonalDpsView));
+        };
+        return view;
+    }
+
+    private SettingsView CreateSettingsView()
+    {
+        var view = provider.GetRequiredService<SettingsView>();
+        ConfigureOwnedToolWindow(view);
+        logger.LogDebug(WpfLogEvents.WindowCreated, "Window created: {Window}", nameof(SettingsView));
+        view.Closed += (_, _) =>
+        {
+            if (_settingsView == view) _settingsView = null;
+            logger.LogDebug(WpfLogEvents.WindowClosed, "Window closed: {Window}", nameof(SettingsView));
+        };
+        return view;
+    }
+
+    private SkillBreakdownView CreateSkillBreakDownView()
+    {
+        var view = provider.GetRequiredService<SkillBreakdownView>();
+        ConfigureOwnedToolWindow(view);
+        logger.LogDebug(WpfLogEvents.WindowCreated, "Window created: {Window}", nameof(SkillBreakdownView));
+        view.Closed += (_, _) =>
+        {
+            if (_skillBreakDownView == view) _skillBreakDownView = null;
+            logger.LogDebug(WpfLogEvents.WindowClosed, "Window closed: {Window}", nameof(SkillBreakdownView));
+        };
+        return view;
+    }
+
+    private SkillLogView CreateSkillLogView()
+    {
+        var view = provider.GetRequiredService<SkillLogView>();
+        ConfigureOwnedToolWindow(view);
+        logger.LogDebug(WpfLogEvents.WindowCreated, "Window created: {Window}", nameof(SkillLogView));
+        view.Closed += (_, _) =>
+        {
+            if (_skillLogView == view) _skillLogView = null;
+            logger.LogDebug(WpfLogEvents.WindowClosed, "Window closed: {Window}", nameof(SkillLogView));
+        };
+        return view;
+    }
 }
 
 public static class WindowManagementServiceExtensions

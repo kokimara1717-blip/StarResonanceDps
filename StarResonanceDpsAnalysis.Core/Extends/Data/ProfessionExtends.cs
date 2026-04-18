@@ -13,7 +13,7 @@ public static class ProfessionExtends
         {
             1 => "雷影剑士",
             2 => "冰魔导师",
-            3 => "赤炎狂战士",
+            3 => "涤罪恶火_战斧",
             4 => "青岚骑士",
             5 => "森语者",
             8 => "雷霆一闪_手炮",
@@ -63,9 +63,6 @@ public static class ProfessionExtends
             2306 => "狂音",
             2307 or 2361 or 55302 => "协奏",
 
-            1605 => "无相",// 无相专精流
-            1606 => "赤红", // 赤红专精流
-
             _ => string.Empty
         };
     }
@@ -80,7 +77,7 @@ public static class ClassExtensions
     {
         // 1 => "雷影剑士",
         // 2 => "冰魔导师",
-        // 3 => "赤炎狂战士",
+        // 3 => "涤罪恶火_战斧",
         // 4 => "青岚骑士",
         // 5 => "森语者",
         // 8 => "雷霆一闪_手炮",
@@ -93,7 +90,6 @@ public static class ClassExtensions
         {
             1 => Classes.Stormblade,
             2 => Classes.FrostMage,
-            3 => Classes.FlameBerserker,
             4 => Classes.WindKnight,
             5 => Classes.VerdantOracle,
             9 => Classes.HeavyGuardian,
@@ -128,8 +124,6 @@ public static class ClassExtensions
             ClassSpec.VerdantOracleLifeBind => Classes.VerdantOracle,
             ClassSpec.SoulMusicianDissonance => Classes.SoulMusician,
             ClassSpec.SoulMusicianConcerto => Classes.SoulMusician,
-            ClassSpec.FlameBerserkerFormless => Classes.FlameBerserker,
-            ClassSpec.FlameBerserkerCrimson => Classes.FlameBerserker,
             _ => throw new ArgumentOutOfRangeException(nameof(spec), spec, null)
         };
     }
@@ -183,9 +177,6 @@ public static class ClassExtensions
             // 灵魂乐手
             2306 => ClassSpec.SoulMusicianDissonance, // "狂音"
             2307 or 2361 or 55302 => ClassSpec.SoulMusicianConcerto, // "协奏"
-
-            1605 => ClassSpec.FlameBerserkerFormless, // 无相专精流
-            1606 => ClassSpec.FlameBerserkerCrimson, // 赤红专精流
 
             _ => ClassSpec.Unknown
         };

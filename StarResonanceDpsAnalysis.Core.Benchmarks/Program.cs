@@ -10,7 +10,6 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.Logging.Abstractions;
-using StarResonanceDpsAnalysis.Core.Analyze.V1;
 using Zproto;
 
 BenchmarkSwitcher.FromAssembly(typeof(BenchmarkMarker).Assembly).Run(args);
@@ -33,9 +32,9 @@ public class DataStorageBenchmarks
     [IterationSetup]
     public void IterationSetup()
     {
-        DataStorage.Instance.ClearAllDpsData();
-        DataStorage.Instance.ClearAllPlayerInfos();
-        DataStorage.Instance.ClearCurrentPlayerInfo();
+        DataStorage.ClearAllDpsData();
+        DataStorage.ClearAllPlayerInfos();
+        DataStorage.ClearCurrentPlayerInfo();
 
         _storageV2.ClearAllDpsData();
         _storageV2.ClearAllPlayerInfos();
@@ -46,7 +45,7 @@ public class DataStorageBenchmarks
     {
         foreach (var log in _logs)
         {
-            DataStorage.Instance.AddBattleLog(log);
+            DataStorage.AddBattleLog(log);
         }
     }
 
@@ -63,8 +62,8 @@ public class DataStorageBenchmarks
     {
         const long attackerUid = 123L;
         const long targetUid = 456L;
-        DataStorage.Instance.EnsurePlayer(attackerUid);
-        DataStorage.Instance.EnsurePlayer(targetUid);
+        DataStorage.TestCreatePlayerInfoByUID(attackerUid);
+        DataStorage.TestCreatePlayerInfoByUID(targetUid);
         _storageV2.EnsurePlayer(attackerUid);
         _storageV2.EnsurePlayer(targetUid);
 
@@ -100,7 +99,6 @@ public class MessageParsingBenchmarks
 {
     private DataStorageV2 _storageV2 = null!;
     private MessageAnalyzerV2 _analyzerV2 = null!;
-    private MessageAnalyzer _analyzerV1 = null!;
     private byte[] _notifyEnvelope = Array.Empty<byte>();
     private readonly long _playerUid = 778899L;
 
@@ -109,25 +107,24 @@ public class MessageParsingBenchmarks
     {
         _storageV2 = new DataStorageV2(NullLogger<DataStorageV2>.Instance);
         _analyzerV2 = new MessageAnalyzerV2(_storageV2);
-        _analyzerV1 = new MessageAnalyzer(DataStorage.Instance);
         _notifyEnvelope = BuildNotifyEnvelope(0x00000006U, BuildSyncNearEntitiesPayload(_playerUid, "Benchmark Hero", 55));
     }
 
     [IterationSetup]
     public void IterationSetup()
     {
-        DataStorage.Instance.ClearAllDpsData();
-        DataStorage.Instance.ClearAllPlayerInfos();
-        DataStorage.Instance.ClearCurrentPlayerInfo();
+        DataStorage.ClearAllDpsData();
+        DataStorage.ClearAllPlayerInfos();
+        DataStorage.ClearCurrentPlayerInfo();
 
         _storageV2.ClearAllDpsData();
         _storageV2.ClearAllPlayerInfos();
     }
 
     [Benchmark]
-    public void MessageAnalyzerV1_Process()
+    public void StaticMessageAnalyzer_Process()
     {
-        _analyzerV1.Process(_notifyEnvelope);
+        MessageAnalyzer.Process(_notifyEnvelope);
     }
 
     [Benchmark]

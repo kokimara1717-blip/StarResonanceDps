@@ -1,5 +1,4 @@
 using System.IO;
-using System.Text.Json;
 using System.Windows;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,54 +23,6 @@ namespace StarResonanceDpsAnalysis.WPF;
 
 public partial class App : Application
 {
-    private const string DefaultAppSettingsJson = """
-{
-  "Config": {
-    "DpsUpdateMode": "Active",
-    "DpsUpdateInterval": 100,
-    "UseProcessPortsFilter": false,
-    "EnableAutoUpdate": true,
-    "AutoUpdateCheckOnStartup": true,
-    "UpdateSource": "GitHub",
-    "GithubRepository": "anying1073/StarResonanceDps",
-    "GithubIncludePrerelease": false,
-    "GithubAssetNameContains": "WPF",
-    "SelfHostedManifestUrl": "",
-    "UpdateRequestTimeoutSeconds": 50
-  },
-  "Logging": {
-    "LogLevel": {
-      "Default": "Warning",
-      "Microsoft": "Warning",
-      "Microsoft.Hosting.Lifetime": "Information",
-      "System": "Warning"
-    }
-  },
-  "Serilog": {
-    "Using": [
-      "Serilog.Sinks.File"
-    ],
-    "MinimumLevel": {
-      "Default": "Warning",
-      "Override": {
-        "Microsoft": "Warning",
-        "System": "Warning"
-      }
-    },
-    "WriteTo": [
-      {
-        "Name": "File",
-        "Args": {
-          "path": "logs/logs-.log",
-          "rollingInterval": "Day",
-          "retainedFileCountLimit": 3
-        }
-      }
-    ]
-  }
-}
-""";
-
     private static ILogger<App>? _logger;
 
     private static readonly Dictionary<Type, ServiceLifetime> LifeTimeOverrides = new()
@@ -119,7 +70,7 @@ public partial class App : Application
         // Centralized shutdown
         try
         {
-            appStartup.ShutdownAsync().Wait();
+            appStartup.Shutdown();
         }
         catch
         {
@@ -132,57 +83,11 @@ public partial class App : Application
 
     private static IConfiguration BuildConfiguration()
     {
-        EnsureValidAppSettings();
-
         return new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", false, true)
             .AddJsonFile("appsettings.Development.json", true, true)
             .Build();
-    }
-
-    private static void EnsureValidAppSettings()
-    {
-        var appSettingsPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
-
-        if (IsValidJsonFile(appSettingsPath))
-        {
-            return;
-        }
-
-        File.WriteAllText(appSettingsPath, DefaultAppSettingsJson);
-    }
-
-    private static bool IsValidJsonFile(string filePath)
-    {
-        if (!File.Exists(filePath))
-        {
-            return false;
-        }
-
-        try
-        {
-            var content = File.ReadAllText(filePath);
-            if (string.IsNullOrWhiteSpace(content))
-            {
-                return false;
-            }
-
-            using var _ = JsonDocument.Parse(content);
-            return true;
-        }
-        catch (JsonException)
-        {
-            return false;
-        }
-        catch (IOException)
-        {
-            return false;
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return false;
-        }
     }
 
     private static void ConfigureLogging(IConfiguration configRoot)

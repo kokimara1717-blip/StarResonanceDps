@@ -7,29 +7,29 @@ public class DataStorageTests : IDisposable
 {
     public DataStorageTests()
     {
-        DataStorage.Instance.ClearAllDpsData();
-        DataStorage.Instance.ClearAllPlayerInfos();
-        DataStorage.Instance.ClearCurrentPlayerInfo();
+        DataStorage.ClearAllDpsData();
+        DataStorage.ClearAllPlayerInfos();
+        DataStorage.ClearCurrentPlayerInfo();
     }
 
     public void Dispose()
     {
-        DataStorage.Instance.ClearAllDpsData();
-        DataStorage.Instance.ClearAllPlayerInfos();
-        DataStorage.Instance.ClearCurrentPlayerInfo();
+        DataStorage.ClearAllDpsData();
+        DataStorage.ClearAllPlayerInfos();
+        DataStorage.ClearCurrentPlayerInfo();
     }
 
     [Fact]
-    public void EnsurePlayer_AddsNewPlayer()
+    public void TestCreatePlayerInfoByUID_AddsNewPlayer()
     {
         var uid = 987654321L;
 
-        var existedBefore = DataStorage.Instance.EnsurePlayer(uid);
-        var existedAfter = DataStorage.Instance.EnsurePlayer(uid);
+        var existedBefore = DataStorage.TestCreatePlayerInfoByUID(uid);
+        var existedAfter = DataStorage.TestCreatePlayerInfoByUID(uid);
 
         Assert.False(existedBefore);
         Assert.True(existedAfter);
-        Assert.True(DataStorage.Instance.ReadOnlyPlayerInfoDatas.ContainsKey(uid));
+        Assert.True(DataStorage.ReadOnlyPlayerInfoDatas.ContainsKey(uid));
     }
 
     [Fact]
@@ -37,8 +37,8 @@ public class DataStorageTests : IDisposable
     {
         var attackerUid = 6001L;
         var targetUid = 7002L;
-        DataStorage.Instance.EnsurePlayer(attackerUid);
-        DataStorage.Instance.EnsurePlayer(targetUid);
+        DataStorage.TestCreatePlayerInfoByUID(attackerUid);
+        DataStorage.TestCreatePlayerInfoByUID(targetUid);
 
         var log = new BattleLog
         {
@@ -59,11 +59,11 @@ public class DataStorageTests : IDisposable
             IsDead = false
         };
 
-        DataStorage.Instance.AddBattleLog(log);
+        DataStorage.AddBattleLog(log);
 
-        var attackerData = DataStorage.Instance.ReadOnlyFullDpsData[attackerUid];
+        var attackerData = DataStorage.ReadOnlyFullDpsDatas[attackerUid];
         Assert.Equal(777, attackerData.TotalAttackDamage);
-        var npcData = DataStorage.Instance.ReadOnlyFullDpsData[targetUid];
+        var npcData = DataStorage.ReadOnlyFullDpsDatas[targetUid];
         Assert.True(npcData.IsNpcData);
         Assert.Equal(777, npcData.TotalTakenDamage);
     }
@@ -75,21 +75,21 @@ public class DataStorageTests : IDisposable
         var dpsDataUpdated = false;
         var dataUpdated = false;
 
-        DataStorage.Instance.BattleLogCreated += OnDataStorageOnBattleLogCreated;
-        DataStorage.Instance.DpsDataUpdated += DataStorageOnDpsDataUpdated;
-        DataStorage.Instance.DataUpdated += OnDataUpdated;
+        DataStorage.BattleLogCreated += OnDataStorageOnBattleLogCreated;
+        DataStorage.DpsDataUpdated += DataStorageOnDpsDataUpdated;
+        DataStorage.DataUpdated += OnDataUpdated;
 
         var log = new BattleLog { TimeTicks = 1, AttackerUuid = 1, Value = 10 };
-        DataStorage.Instance.AddBattleLog(log);
+        DataStorage.AddBattleLog(log);
 
         Assert.True(battleLogCreated);
         Assert.True(dpsDataUpdated);
         Assert.True(dataUpdated);
 
         // Cleanup static event handlers
-        DataStorage.Instance.BattleLogCreated -= OnDataStorageOnBattleLogCreated;
-        DataStorage.Instance.DpsDataUpdated -= DataStorageOnDpsDataUpdated;
-        DataStorage.Instance.DataUpdated -= OnDataUpdated;
+        DataStorage.BattleLogCreated -= OnDataStorageOnBattleLogCreated;
+        DataStorage.DpsDataUpdated -= DataStorageOnDpsDataUpdated;
+        DataStorage.DataUpdated -= OnDataUpdated;
 
 
         return;
@@ -116,19 +116,19 @@ public class DataStorageTests : IDisposable
     {
         // 本测试需要单独运行，不能和其他测试并行
         var newSectionCreated = false;
-        DataStorage.Instance.NewSectionCreated += OnDataStorageOnNewSectionCreated;
+        DataStorage.NewSectionCreated += OnDataStorageOnNewSectionCreated;
 
         var log1 = new BattleLog { TimeTicks = TimeSpan.FromSeconds(1).Ticks, AttackerUuid = 1, Value = 10 };
-        DataStorage.Instance.AddBattleLog(log1);
+        DataStorage.AddBattleLog(log1);
 
         Assert.False(newSectionCreated);
 
         var log2 = new BattleLog { TimeTicks = TimeSpan.FromSeconds(10).Ticks, AttackerUuid = 1, Value = 10 };
-        DataStorage.Instance.AddBattleLog(log2);
+        DataStorage.AddBattleLog(log2);
 
         Assert.True(newSectionCreated);
 
-        DataStorage.Instance.NewSectionCreated -= OnDataStorageOnNewSectionCreated;
+        DataStorage.NewSectionCreated -= OnDataStorageOnNewSectionCreated;
         return;
 
         void OnDataStorageOnNewSectionCreated()
@@ -141,33 +141,33 @@ public class DataStorageTests : IDisposable
     [Fact]
     public void ClearDpsData_ClearsSectionedData()
     {
-        DataStorage.Instance.AddBattleLog(new BattleLog { AttackerUuid = 1, Value = 100 });
-        Assert.NotEmpty(DataStorage.Instance.ReadOnlySectionedDpsData);
+        DataStorage.AddBattleLog(new BattleLog { AttackerUuid = 1, Value = 100 });
+        Assert.NotEmpty(DataStorage.ReadOnlySectionedDpsDatas);
 
-        DataStorage.Instance.ClearSectionDpsData();
+        DataStorage.ClearSectionDpsData();
 
-        Assert.Empty(DataStorage.Instance.ReadOnlySectionedDpsData);
-        Assert.NotEmpty(DataStorage.Instance.ReadOnlyFullDpsData);
+        Assert.Empty(DataStorage.ReadOnlySectionedDpsDatas);
+        Assert.NotEmpty(DataStorage.ReadOnlyFullDpsDatas);
     }
 
     [Fact]
     public void ClearAllDpsData_ClearsAllDps()
     {
-        DataStorage.Instance.AddBattleLog(new BattleLog { AttackerUuid = 1, Value = 100, IsAttackerPlayer = true });
-        Assert.NotEmpty(DataStorage.Instance.ReadOnlyFullDpsData);
-        Assert.NotEmpty(DataStorage.Instance.ReadOnlySectionedDpsData);
+        DataStorage.AddBattleLog(new BattleLog { AttackerUuid = 1, Value = 100, IsAttackerPlayer = true });
+        Assert.NotEmpty(DataStorage.ReadOnlyFullDpsDatas);
+        Assert.NotEmpty(DataStorage.ReadOnlySectionedDpsDatas);
 
-        DataStorage.Instance.ClearAllDpsData();
+        DataStorage.ClearAllDpsData();
 
-        Assert.Empty(DataStorage.Instance.ReadOnlyFullDpsData);
-        Assert.Empty(DataStorage.Instance.ReadOnlySectionedDpsData);
+        Assert.Empty(DataStorage.ReadOnlyFullDpsDatas);
+        Assert.Empty(DataStorage.ReadOnlySectionedDpsDatas);
     }
 
     [Fact]
     public void SetPlayerName_UpdatesName_And_TriggersEvent()
     {
         var uid = 55502692L;
-        DataStorage.Instance.EnsurePlayer(uid);
+        DataStorage.TestCreatePlayerInfoByUID(uid);
 
         var eventTriggered = false;
         PlayerInfo? updatedInfo = null;
@@ -177,16 +177,16 @@ public class DataStorageTests : IDisposable
             eventTriggered = true;
             updatedInfo = info;
         };
-        DataStorage.Instance.PlayerInfoUpdated += handler;
+        DataStorage.PlayerInfoUpdated += handler;
 
         var newName = "Test Player Static";
-        DataStorage.Instance.SetPlayerName(uid, newName);
+        DataStorage.SetPlayerName(uid, newName);
 
-        Assert.Equal(newName, DataStorage.Instance.ReadOnlyPlayerInfoDatas[uid].Name);
+        Assert.Equal(newName, DataStorage.ReadOnlyPlayerInfoDatas[uid].Name);
         Assert.True(eventTriggered);
         Assert.NotNull(updatedInfo);
         Assert.Equal(newName, updatedInfo.Name);
 
-        DataStorage.Instance.PlayerInfoUpdated -= handler;
+        DataStorage.PlayerInfoUpdated -= handler;
     }
 }
